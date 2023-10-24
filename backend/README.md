@@ -17,10 +17,12 @@
 │   └── db
 ├── core
 │   ├── models
-└── └── services
+├── └── services
+└── pkg
 ```
 
-- `adapter` is the code who adapt the bussiness logic code with external. resource like a HTTP request or database.
-- `core` this is where we put our bussiness logic related code.
+- `adapter` is the code who adapt the business logic code with external. resource like a HTTP request or database.
+- `core` this is where we put our business logic related code.
 - `core/model` this is for the database model.
 - `main.go` this is the main file that run our backend.
+- `pkg` this is where we store all the packages that we use thru out the program
