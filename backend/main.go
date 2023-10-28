@@ -2,15 +2,22 @@ package main
 
 import (
 	"backend/pkg/chi"
-	"fmt"
+	"backend/pkg/logger"
 
 	"github.com/joho/godotenv"
 )
 
 func main() {
-	fmt.Println("Hello World")
+	//loading env file
 	godotenv.Load()
 
+	//Init logger config
+	logger.InitLogger()
+
+	//init database
+	//db.InitDatabase()
+
+	// start the api server
 	chi.StartServerWithGracefulShutdown()
 
 }

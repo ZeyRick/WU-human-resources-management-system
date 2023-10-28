@@ -1,7 +1,8 @@
 package chi
 
 import (
-	"backend/adapters/controller"
+	"backend/adapters/controllers"
+	"backend/pkg/logger"
 	"context"
 	"fmt"
 	"log"
@@ -15,6 +16,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
+// No need to understand this function
 // graceful shutdown mean shutdown smartly (sometime system have work to be done before shutting down)
 func StartServerWithGracefulShutdown() {
 	baseUrl := os.Getenv("BASE_URL")
@@ -52,7 +54,7 @@ func StartServerWithGracefulShutdown() {
 	}()
 
 	// Run the server
-	fmt.Printf("We Have Started The Server On \033[0;34m http://%s \033[0m\n", baseUrl)
+	logger.Success(fmt.Sprintf("We Have Started The Server On \033[0;34m http://%s \033[0m\n", baseUrl))
 	err := server.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
 		log.Fatal(err)
@@ -62,14 +64,14 @@ func StartServerWithGracefulShutdown() {
 	<-serverCtx.Done()
 }
 
-
+// this function is called in the upper function to set up paths and controller for paths
 func service() http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
 
-	r.Get("/", controller.GetHelloWorld)
-
+	helloWorld := controllers.NewHelloWorldController()
+	r.Get("/", helloWorld.GetHelloWorld) // setting the path '/' handler or we can call controller to control the request sent into this path by front end
 	return r
 }

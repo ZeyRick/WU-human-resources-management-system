@@ -26,3 +26,7 @@
 - `core/model` this is for the database model.
 - `main.go` this is the main file that run our backend.
 - `pkg` this is where we store all the packages that we use thru out the program
+
+### Database
+
+- For databsae we are using gorm you can read more about it here: https://gorm.io/docs/index.html
