@@ -33,13 +33,19 @@
 - For databsae orm we are using gorm you can read more about it here:
   - gorm: https://gorm.io/docs/index.html
   - what is orm: https://www.freecodecamp.org/news/what-is-an-orm-the-meaning-of-object-relational-mapping-database-tools/ (Basiclly just a technique to connect object in your code with data in your database)
-- After you successfully run the MySql In Docker you can connect it using any type of MySql Client (Beekeeper ...etc) follow the steps bellow
+
+### Migration
+- After you successfully run the MySql In Docker you can connect to it using any type of MySql Client (Beekeeper ...etc)
+- Follow the steps bellow to migrate all the tables into your database
   1. Create a database name "hr_management"
-  2. Go to backend file directory and set the DATABASE_CONNECTION_STRING in enviroment variable (.env) file.
-  3. Run command "make db-up" this will migrate all the tables into your database
+  2. Install migration tool with command "go install -tags 'mysql' github.com/golang-migrate/migrate/v4/cmd/migrate@latest"
+  3. Go to backend file directory and set the DATABASE_CONNECTION_STRING in enviroment variable (.env) file.
+  4. Run command "make db-up" this will migrate all the tables into your database
   - NOTE: if make up doesn't work try to see if your computer has "make" installed (How to install make: https://stackoverflow.com/questions/32127524/how-to-install-and-use-make-in-windows RECOMMANDED TO USE Chocolatey for windows). If you still can't get make to work you can run the command "migrate -source file:./migrations -database mysql://[your DATABASE_CONNECTION_STRING] up"
 
-### Database how to create new migrate/table
+  You can read more about the migrations tool here: https://github.com/golang-migrate/migrate/tree/master/cmd/migrate
 
-- Run command "make db-craete name=[your migration name]" this will craete 2 sql file in ./migrations where you can write your sql code. after you done you can run "make db-up".
+### How to migrate new table
+
+- Run command "make db-craete name=[your migration name]" this will craete 2 sql file in ./migrations where you can write your sql code. after you done writing sql you can run "make db-up".
 - Please read more about migration at "https://github.com/golang-migrate/migrate/tree/master/cmd/migrate" if you have any trouble
