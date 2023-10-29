@@ -37,4 +37,5 @@ func InitDatabase() {
 		os.Exit(1)
 	}
 	Database = db
+	customLogger.Success("DATABASE INIT SUCCESSFULLY")
 }

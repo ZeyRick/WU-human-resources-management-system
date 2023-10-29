@@ -2,6 +2,7 @@ package main
 
 import (
 	"backend/pkg/chi"
+	"backend/pkg/db"
 	"backend/pkg/logger"
 
 	"github.com/joho/godotenv"
@@ -15,7 +16,7 @@ func main() {
 	logger.InitLogger()
 
 	//init database
-	//db.InitDatabase()
+	db.InitDatabase()
 
 	// start the api server
 	chi.StartServerWithGracefulShutdown()
