@@ -1,55 +1,40 @@
 <template>
   <div class="flex items-center justify-center h-screen">
     <n-space justify="center" align="center" vertical inline>
-     
-
-        <n-input v-model:value="value" type="text" 
+      <n-input
+        v-model:value="value"
+        type="text"
         placeholder="Basic Input"
-        size="large" 
+        size="large"
         round
-        style="width: 250px;"
-        />
-        <br />
-
-        <n-input
-        
+        style="width: 250px"
+      />
+      <br />
+      <n-input
         type="password"
         show-password-on="mousedown"
-        placeholder ="password"
-        size="large" 
+        placeholder="password"
+        size="large"
         round
-        style="width: 250px;"
-        
-        
-        
-
-        />
+        style="width: 250px"
+      />
     </n-space>
-    </div>
-  </template>
-  
-  
-  <script lang="ts">
-  import { defineComponent ,ref} from 'vue'
-  import { GlassesOutline, Glasses } from '@vicons/ionicons5'
-  import { NSpace, NInput, NIcon,darkTheme } from 'naive-ui'
+  </div>
+</template>
 
-  
-  export default defineComponent({
-    setup () {
-      return {
-        GlassesOutline,
-        Glasses,
-        value: ref(null),
-        darkTheme
-      }
-    }
-  })
-  </script>
+<script lang="ts">
+import { defineComponent, ref } from "vue";
+import { GlassesOutline, Glasses } from "@vicons/ionicons5";
+import { NSpace, NInput, NIcon, darkTheme } from "naive-ui";
 
-  <style>
-  html,body, #__nuxt, #__layout{
-    height:100%!important;
-    width: 100%!important;
-  }
-</style>
+export default defineComponent({
+  setup() {
+    return {
+      GlassesOutline,
+      Glasses,
+      value: ref(null),
+      darkTheme,
+    };
+  },
+});
+</script>
