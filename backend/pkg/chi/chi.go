@@ -72,6 +72,8 @@ func service() http.Handler {
 	r.Use(middleware.Logger)
 
 	helloWorld := controllers.NewHelloWorldController()
+	user := controllers.NewUserController()
 	r.Get("/", helloWorld.GetHelloWorld) // setting the path '/' handler or we can call controller to control the request sent into this path by front end
+	r.Post("/register", user.UserRegister)
 	return r
 }

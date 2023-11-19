@@ -47,5 +47,5 @@
 
 ### How to migrate new table
 
-- Run command "make db-craete name=[your migration name]" this will craete 2 sql file in ./migrations where you can write your sql code. after you done writing sql you can run "make db-up".
+- Run command "make db-create name=[your migration name]" this will craete 2 sql file in ./migrations where you can write your sql code. after you done writing sql you can run "make db-up".
 - Please read more about migration at "https://github.com/golang-migrate/migrate/tree/master/cmd/migrate" if you have any trouble
