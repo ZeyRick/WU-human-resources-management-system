@@ -7,25 +7,18 @@ import (
 )
 
 type UserController struct {
-	helloWorldService *services.HelloWorldService
+	userservice *services.UserService
 }
 
-func NewUserController() *HelloWorldController {
-	return &HelloWorldController{
-		helloWorldService: services.NewHelloWorldService(),
+func NewUserController() *UserController {
+	return &UserController{
+		userservice: services.NewUserService(),
 	}
 }
 
-func (ctrl *UserController) GetUserName(w http.ResponseWriter, r *http.Request) {
+func (ctrl *UserController) UserRegister(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Parsing data from front end so we can pass to services to process the busines logic")
 
-	ctrl.helloWorldService.GetUserName(w, r)
-	return
-}
-
-func (ctrl *UserController) GetUserPassword(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Parsing data from front end so we can pass to services to process the busines logic")
-
-	ctrl.helloWorldService.GetUserPassword(w, r)
+	ctrl.userservice.UserRegister(w, r)
 	return
 }

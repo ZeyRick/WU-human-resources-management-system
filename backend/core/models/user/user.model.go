@@ -7,7 +7,7 @@ import (
 
 type User struct {
 	models.BaseModel
-	UserName   string `gorm:"type:string;not null"`
+	Username   string `gorm:"type:string;not null"`
 	Name       string `gorm:"type:string;not null"`
 	Password   string `gorm:"type:string;not null"`
 	ProfilePic string `gorm:"type:string;not null"`
@@ -20,7 +20,7 @@ func NewUserRepo() *UserRepo {
 }
 
 func (repo *UserRepo) Create(newUser *User) error {
-	result := db.Database.Create(*newUser)
+	result := db.Database.Create(newUser)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -50,4 +50,13 @@ func (repo *UserRepo) UpdateById(user *User) (int64, error) {
 		return 0, result.Error
 	}
 	return result.RowsAffected, nil
+}
+
+func (repo *UserRepo) FindByUserName(userName string) (User, error) {
+	user := User{}
+	result := db.Database.Where("username = ?", userName).First(&user)
+	if result.Error != nil {
+		return User{}, result.Error
+	}
+	return user, nil
 }
