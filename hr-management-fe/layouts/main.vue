@@ -1,5 +1,5 @@
 <template>
-  <n-config-provider class="fullScreen" :theme="isDarkTheme ? darkTheme : undefined" :theme-overrides="isDarkTheme ? darkThemeOverrides : undefined">
+  <n-config-provider class="fullScreen" :theme="isDarkTheme ? darkTheme : undefined" :theme-overrides="isDarkTheme ? darkThemeOverrides : lightThemeOverrides">
     <n-layout has-sider style="height: 100%; display: flex">
       <SideBar />
       <div style="flex-grow: 1; display: flex; flex-direction: column;">
@@ -12,15 +12,24 @@
 
 <script setup lang="ts">
 import { darkTheme, type GlobalThemeOverrides } from 'naive-ui';
+import { PRIMARY_COLOR } from '~/constants/theme';
 import { useDarkThemeStore } from '~/store/theme';
 
 const isDarkTheme = computed(() => useDarkThemeStore().isDarkTheme)
 
 const darkThemeOverrides: GlobalThemeOverrides = {
   common: {
-    primaryColor: '#63E2B7',
+    primaryColor: PRIMARY_COLOR,
     bodyColor: '#303030',
-    iconColor: '63E2B7',
+    iconColor: '#2A947D',
+  }
+}
+
+const lightThemeOverrides: GlobalThemeOverrides = {
+  common: {
+    primaryColor: PRIMARY_COLOR,
+    bodyColor: '#F0F2F5',
+    iconColor: '#2A947D',
   }
 }
 </script>
