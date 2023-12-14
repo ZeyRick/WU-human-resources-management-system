@@ -1,0 +1,9 @@
+CREATE TABLE employees (
+    id int NOT NULL AUTO_INCREMENT,
+    name varchar(255) NOT NULL,
+    profile_pic TEXT(255),
+    PRIMARY KEY (id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT NULL
+);

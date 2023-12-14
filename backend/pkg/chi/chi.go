@@ -73,8 +73,10 @@ func service() http.Handler {
 
 	helloWorld := controllers.NewHelloWorldController()
 	user := controllers.NewUserController()
+	clock := controllers.NewClockController()
 	r.Get("/", helloWorld.GetHelloWorld) // setting the path '/' handler or we can call controller to control the request sent into this path by front end
 	r.Post("/register", user.UserRegister)
 	r.Post("/login", user.UserLogin)
+	r.Post("/clock", clock.Clock)
 	return r
 }

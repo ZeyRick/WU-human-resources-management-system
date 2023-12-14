@@ -83,9 +83,9 @@
 <script setup lang="ts">
 import { AddCircleOutline } from "@vicons/ionicons5";
 import { tableColumns } from "./table-columns";
-import { CommonFormRules } from "../../constants/formRules";
+import { CommonFormRules } from "../../../constants/formRules";
 import { type FormInst, type FormValidationError } from "naive-ui";
-import { apiCreateUser } from '../../apis/user'
+import { apiCreateUser } from '../../../apis/user'
 
 const showCreateModal = ref<boolean>(false);
 const createFormRef = ref<FormInst>();

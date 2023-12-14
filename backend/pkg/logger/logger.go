@@ -34,8 +34,8 @@ func InitLogger() {
 }
 
 // Print out in console
-func Console(msg string) {
-	log.Info().Msg(msg)
+func Console(msg any) {
+	log.Info().Msg(fmt.Sprintf("%#v", msg))
 }
 
 // Print out error with tracing (Showing which code casusing the error)
