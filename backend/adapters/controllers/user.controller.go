@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"backend/core/services"
-	"fmt"
 	"net/http"
 )
 
@@ -17,8 +16,11 @@ func NewUserController() *UserController {
 }
 
 func (ctrl *UserController) UserRegister(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Parsing data from front end so we can pass to services to process the busines logic")
-
 	ctrl.userservice.UserRegister(w, r)
+	return
+}
+
+func (ctrl *UserController) UserLogin(w http.ResponseWriter, r *http.Request) {
+	ctrl.userservice.UserLogin(w, r)
 	return
 }

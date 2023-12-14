@@ -54,7 +54,7 @@ func (repo *UserRepo) UpdateById(user *User) (int64, error) {
 
 func (repo *UserRepo) FindByUserName(userName string) (User, error) {
 	user := User{}
-	result := db.Database.Where("username = ?", userName).First(&user)
+	result := db.Database.Where("username = ?", userName).Limit(1).Find(&user)
 	if result.Error != nil {
 		return User{}, result.Error
 	}
