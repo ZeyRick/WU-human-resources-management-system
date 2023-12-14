@@ -3,10 +3,9 @@ package services
 import (
 	"backend/core/models/user"
 	"backend/pkg/hush"
+	"backend/pkg/jwttoken"
 	"backend/pkg/logger"
 	"net/http"
-
-	"gorm.io/gorm"
 )
 
 type UserService struct {
@@ -29,7 +28,7 @@ func (srv *UserService) UserRegister(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 	profilePic := r.FormValue("profilepic")
 	newuser, err := srv.usermodel.FindByUserName(username)
-	if err != gorm.ErrRecordNotFound {
+	if err != nil {
 		logger.Trace(err)
 		w.Write([]byte("Error"))
 		return
@@ -55,19 +54,29 @@ func (srv *UserService) UserRegister(w http.ResponseWriter, r *http.Request) {
 }
 
 func (srv *UserService) UserLogin(w http.ResponseWriter, r *http.Request) {
+	jwttoken.CheckCookie(w, r, "LoginCookie", "Cookie Found", "Cookie Not Found")
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 	newuser, err := srv.usermodel.FindByUserName(username)
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil {
 		logger.Trace(err)
-		w.Write([]byte("Username is incorrect"))
-		return
-	} else if err != nil {
 		w.Write([]byte("Error"))
+		return
+	}
+	if newuser.Username == "" {
+		w.Write([]byte("Username is Incorrect"))
+		return
 	}
 	if hush.ComparePassword(newuser.Password, password) != nil {
 		w.Write([]byte("Password is incorrect"))
 		return
 	}
+	token, err := jwttoken.GenterateToken(newuser)
+	if err != nil {
+		logger.Trace(err)
+		w.Write([]byte("Error"))
+		return
+	}
+	jwttoken.SetCookie(w, token, "LoginCookie")
 	w.Write([]byte("Logged in"))
 }
