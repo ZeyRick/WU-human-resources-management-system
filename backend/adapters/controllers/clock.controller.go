@@ -26,9 +26,9 @@ func (ctr *ClockController)Clock(w http.ResponseWriter, r *http.Request) {
 	}
 	status := ctr.clockService.Clock(clockDto)
 	if ( status == "1") {
-		https.ResponseText(w, r, "Hello World")
+		https.ResponseJSON(w, r, http.StatusOK,"Hello World")
 		return
 	}
-	https.ResponseText(w, r, "No World")
+	https.ResponseText(w, r, http.StatusBadRequest,"No World")
 	return
 }

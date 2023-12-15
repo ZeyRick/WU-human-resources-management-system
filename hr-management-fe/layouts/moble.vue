@@ -1,26 +1,38 @@
 <template>
-  <n-config-provider class="fullScreen">
-    <n-layout has-sider style="height: 100%; display: flex">
-      <SideBar />
-      <div style="flex-grow: 1; display: flex; flex-direction: column;">
-          <slot style="flex-grow: 1;" />
-      </div>
-    </n-layout>
-    </n-config-provider>
+  <div class="outer">
+  <div class="middle">
+    <div class="inner">
+       <slot style="flex-grow: 1;" />
+    </div>
+  </div>
+</div>
+     
+
 </template>
 
 <script setup lang="ts">
 </script>
 
 <style>
-.fullScreen,
-html,
-body,
-#__nuxt,
-#__layout {
-  height: 100% !important;
-  width: 100% !important;
-  max-width:  480px !important;
-  overflow: hidden !important;
+.outer {
+  display: table;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.middle {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.inner {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 480px;
+  height: 100%;
+  display: flex;
 }
 </style>
