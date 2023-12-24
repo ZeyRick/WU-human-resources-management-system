@@ -1,6 +1,7 @@
 package main
 
 import (
+	"backend/adapters/routes"
 	"backend/pkg/chi"
 	"backend/pkg/db"
 	"backend/pkg/logger"
@@ -19,6 +20,6 @@ func main() {
 	db.InitDatabase()
 
 	// start the api server
-	chi.StartServerWithGracefulShutdown()
+	chi.StartServerWithGracefulShutdown(routes.InitRoutes())
 
 }

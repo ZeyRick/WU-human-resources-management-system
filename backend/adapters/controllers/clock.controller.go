@@ -18,17 +18,17 @@ func NewClockController() *ClockController {
 	}
 }
 
-func (ctr *ClockController)Clock(w http.ResponseWriter, r *http.Request) {
-	clockDto, err := https.GetBody[dtos.Clock](r);
+func (ctr *ClockController) Clock(w http.ResponseWriter, r *http.Request) {
+	clockDto, err := https.GetBody[dtos.Clock](r)
 	if err != nil {
 		logger.Trace(err)
 		return
 	}
-	status := ctr.clockService.Clock(clockDto)
-	if ( status == "1") {
-		https.ResponseJSON(w, r, http.StatusOK,"Hello World")
+	err = ctr.clockService.Clock(clockDto)
+	if err != nil {
+		https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
 		return
 	}
-	https.ResponseText(w, r, http.StatusBadRequest,"No World")
+	https.ResponseMsg(w, r, http.StatusCreated, "Clock Created")
 	return
 }
