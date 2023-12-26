@@ -5,6 +5,7 @@ import (
 	"backend/core/services"
 	"backend/pkg/https"
 	"backend/pkg/logger"
+	"backend/pkg/variable"
 	"net/http"
 )
 
@@ -25,13 +26,19 @@ func (ctrl *EmployeeController) List(w http.ResponseWriter, r *http.Request) {
 		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
+	if dto.PageOpt.Page == nil || *dto.PageOpt.Page == 0 {
+		dto.PageOpt.Page = variable.Create[int64](1)
+	}
+	if dto.PageOpt.Size == nil || *dto.PageOpt.Size == 0 {
+		dto.PageOpt.Size = variable.Create[int64](10)
+	}
 	result, err := ctrl.service.List(&dto)
 	if err != nil {
 		logger.Trace(err)
 		https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
 		return
 	}
-	https.ResponseJSON(w, r, http.StatusCreated, result)
+	https.ResponseJSON(w, r, http.StatusOK, *result)
 	return
 }
 

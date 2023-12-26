@@ -16,8 +16,19 @@ type BaseModel struct {
 
 func Paginate(pageOpt *dtos.PageOpt) func(db *gorm.DB) *gorm.DB {
   return func (db *gorm.DB) *gorm.DB {
-	pageSize := *pageOpt.Page
-	offset := (*pageOpt.Page - 1) * pageSize
-    return db.Offset(offset).Limit(pageSize)
+	var pageSize int64
+	var curPage int64
+	if pageOpt.Size == nil {
+		pageSize = 10
+	} else {
+		pageSize = *pageOpt.Size
+	}
+	if pageOpt.Page == nil {
+		curPage = 1
+	} else {
+		curPage = *pageOpt.Page
+	}
+	offset := (curPage - 1) * pageSize
+    return db.Offset(int(offset)).Limit(int(pageSize))
   }
 }

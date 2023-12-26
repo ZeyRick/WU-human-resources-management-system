@@ -13,12 +13,12 @@ type contextKey struct {
 
 type ErrorBody struct {
 	Code    int
-	Message string
+	Msg string
 }
 
 type JsonBody struct {
 	Code int
-	Data interface{}
+	Res interface{}
 }
 
 var StatusCtxKey = &contextKey{"Status"}
@@ -28,7 +28,7 @@ func ResponseError(w http.ResponseWriter, r *http.Request, statusCode int, v str
 	w.WriteHeader(statusCode)
 	byteBody, err := json.Marshal(ErrorBody{
 		Code:    -1,
-		Message: v,
+		Msg: v,
 	})
 	if err != nil {
 		logger.Trace(err)
@@ -43,7 +43,7 @@ func ResponseJSON(w http.ResponseWriter, r *http.Request, statusCode int, v inte
 	w.WriteHeader(statusCode)
 	byteBody, err := json.Marshal(JsonBody{
 		Code: 0,
-		Data: v,
+		Res: v,
 	})
 	if err != nil {
 		logger.Trace(err)
@@ -58,7 +58,7 @@ func ResponseMsg(w http.ResponseWriter, r *http.Request, statusCode int, v strin
 	w.WriteHeader(statusCode)
 	byteBody, err := json.Marshal(ErrorBody{
 		Code:    0,
-		Message: v,
+		Msg: v,
 	})
 	if err != nil {
 		logger.Trace(err)
@@ -84,8 +84,14 @@ func GetBody[T any](r *http.Request) (T, error) {
 func GetQuery[T any](r *http.Request) (T, error) {
 	var data T
 	queryParams := r.URL.Query()
-	
-	err := json.Unmarshal([]byte(queryParams.Encode()), data)
+	if len(queryParams) < 1 {
+		return data, nil
+	}
+	queryJson, err := json.Marshal(queryParams)
+		if err != nil {
+		return data, err
+	}
+	err = json.Unmarshal(queryJson, &data)
 	if err != nil {
 		return data, err
 	}

@@ -3,6 +3,7 @@ package services
 import (
 	"backend/adapters/dtos"
 	"backend/core/models/employee"
+	"backend/core/types"
 )
 
 type EmployeeService struct {
@@ -24,7 +25,7 @@ func (srv *EmployeeService) Add(payload *dtos.AddEmployee) error {
 	return err
 }
 
-func (srv *EmployeeService) List(params *dtos.ListEmployee) (*employee.Employee ,error) {
+func (srv *EmployeeService) List(params *dtos.ListEmployee) ( *types.ListData[employee.Employee] ,error) {
 	result, err := srv.repo.List(params)
-	return &result, err
+	return result, err
 }
