@@ -1,9 +1,7 @@
 <template>
   <div class="flex items-center justify-center h-screen">
     <n-space justify="center" align="center" vertical inline>
-      <n-message-provider>
-        <content />
-      </n-message-provider>
+
       <n-input
         v-model:value="value"
         type="text"
@@ -24,7 +22,6 @@
       <n-button strong secondary round type ="success"  @click="HandleClick" >
         Success
       </n-button>
-      
     </n-space>
   </div>
 </template>
@@ -52,6 +49,7 @@ export default defineComponent({
 });
 const message = useMessage();
             const HandleClick =() => {
+              console.log("dajddaaaaaaaaaaaaaha");
                 message.warning('Login Success');
             };
 
