@@ -60,3 +60,12 @@ func (repo *UserRepo) FindByUserName(userName string) (User, error) {
 	}
 	return user, nil
 }
+
+func (repo *UserRepo) GetUsers(offSet, limit int) ([]User, error) {
+	user := []User{}
+	err := db.Database.Offset(offSet).Limit(limit).Find(user).Error
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}

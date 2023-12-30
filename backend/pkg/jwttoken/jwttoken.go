@@ -2,8 +2,8 @@ package jwttoken
 
 import (
 	"backend/core/models/user"
+	"backend/pkg/https"
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -49,7 +49,7 @@ func SetCookie(w http.ResponseWriter, token string, cookieName string) {
 	http.SetCookie(w, cookie)
 }
 
-func CheckCookie(w http.ResponseWriter, r *http.Request, cookieName string, yourfunctionture string, yourfunctionfalse string) {
+func CheckCookie(w http.ResponseWriter, r *http.Request, cookieName string) bool {
 	var neededCookie *http.Cookie
 	cookies := r.Cookies()
 	for _, cookie := range cookies {
@@ -60,12 +60,15 @@ func CheckCookie(w http.ResponseWriter, r *http.Request, cookieName string, your
 	}
 	if cookies != nil {
 		if ValidateCookie(w, r, neededCookie.Value) == false {
-			fmt.Printf(yourfunctionture)
+			https.ResponseText(w, r, 0, "Cookie Not Found")
+			return false
+		} else {
+			https.ResponseText(w, r, 1, "Cookie Found")
+			return true
 		}
-
-	} else {
-		fmt.Printf(yourfunctionfalse)
 	}
+	https.ResponseText(w, r, 0, "Cookie Not Found")
+	return false
 }
 
 func ValidateCookie(w http.ResponseWriter, r *http.Request, tokenString string) bool {
@@ -76,13 +79,11 @@ func ValidateCookie(w http.ResponseWriter, r *http.Request, tokenString string) 
 		},
 	)
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Printf("Invalid Cookie")
+		https.ResponseText(w, r, 0, "Invalid Cookie")
 		return false
 	}
 	if claims.ExpireAt <= time.Now().Unix() {
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Printf("Cookie Expired")
+		https.ResponseText(w, r, 0, "Cookie Expired")
 		return false
 	}
 	return true

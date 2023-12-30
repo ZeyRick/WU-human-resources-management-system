@@ -78,5 +78,6 @@ func service() http.Handler {
 	r.Post("/register", user.UserRegister)
 	r.Post("/login", user.UserLogin)
 	r.Post("/clock", clock.Clock)
+	r.Post("/getdata", user.GetUserData)
 	return r
 }

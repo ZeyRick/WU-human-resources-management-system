@@ -24,3 +24,8 @@ func (ctrl *UserController) UserLogin(w http.ResponseWriter, r *http.Request) {
 	ctrl.userservice.UserLogin(w, r)
 	return
 }
+
+func (ctrl *UserController) GetUserData(w http.ResponseWriter, r *http.Request) {
+	ctrl.userservice.UserLogin(w, r)
+	return
+}
