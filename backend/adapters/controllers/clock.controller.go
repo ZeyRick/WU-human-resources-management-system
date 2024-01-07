@@ -5,6 +5,7 @@ import (
 	"backend/core/services"
 	"backend/pkg/https"
 	"backend/pkg/logger"
+	"backend/pkg/variable"
 	"net/http"
 )
 
@@ -31,4 +32,34 @@ func (ctr *ClockController) Clock(w http.ResponseWriter, r *http.Request) {
 	}
 	https.ResponseMsg(w, r, http.StatusCreated, "Clock Created")
 	return
+}
+
+
+func (ctrl *ClockController) List(w http.ResponseWriter, r *http.Request) {
+	dto, err := https.GetQuery[dtos.ListClock](r)
+	if err != nil {
+		logger.Trace(err)
+		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+	pageOpt, err := https.GetPagination(r)
+	if err != nil {
+		logger.Trace(err)
+		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+	if pageOpt.Page == nil{
+		dto.PageOpt.Page = variable.Create[int64](1)
+	}
+	if pageOpt.Size == nil{
+		dto.PageOpt.Size = variable.Create[int64](10)
+	}
+	dto.PageOpt = &pageOpt
+	result, err := ctrl.clockService.List(&dto)
+	if err != nil {
+		logger.Trace(err)
+		https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
+		return
+	}
+	https.ResponseJSON(w, r, http.StatusOK, result)
 }

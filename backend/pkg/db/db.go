@@ -36,6 +36,7 @@ func InitDatabase() {
 		customLogger.Trace(err)
 		os.Exit(1)
 	}
+	db.Logger.LogMode(logger.Info)
 	Database = db
 	customLogger.Success("DATABASE INIT SUCCESSFULLY")
 }

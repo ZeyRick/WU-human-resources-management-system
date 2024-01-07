@@ -17,108 +17,151 @@
             "
         >
             <div class="blur" />
-            <n-space
-                item-style="width: 100%;"
-                style="width: 100%; padding: 35px"
-                justify="center"
-                align="center"
-                vertical
-                inline
-            >
-                <n-p align-text style="text-align: center; color: white; font-size: 40px">Login</n-p>
-                <n-input
-                    v-model:value="value"
-                    type="text"
-                    placeholder="Basic Input"
-                    round
-                    style="
-                        border-radius: 40px;
-                        border-width: 2px;
-                        height: 65px;
-                        width: 100%;
-                        background-color: transparent;
-                        margin-bottom: 30px;
-                    "
-                    :input-props="{
-                        style: {
-                            'font-weight': 'bold',
-                            'font-size': '18px',
-                            color: 'white !important',
-                            'background-color': 'transparent !important',
-                        },
-                    }"
-                />
-                <n-input
-                    type="password"
-                    show-password-on="mousedown"
-                    placeholder="password"
-                    size="large"
-                    round
-                    style="
-                        border-radius: 40px;
-                        border-width: 2px;
-                        height: 65px;
-                        width: 100%;
-                        background-color: transparent;
-                        margin-bottom: 0;
-                    "
-                    :input-props="{
-                        style: {
-                            'font-weight': 'bold',
-                            'font-size': '18px',
-                            color: 'white !important',
-                            'background-color': 'transparent !important',
-                        },
-                    }"
-                />
-                <div style="padding-left: 10px">
-                    <n-checkbox style="text-align: start; color: white; font-size: 16px" >
-                        <n-p align-text style="text-align: start; color: white; font-size: 16px"
-                            >Remember Me</n-p
-                        >
-                    </n-checkbox>
-                </div>
-
-                <n-button
-                    style="height: 65px"
-                    class="button"
-                    strong
-                    secondary
-                    round
-                    type="success"
-                    @click="HandleClick"
+            <n-form :disabled="loading" style="width: 100%" ref="loginFormRef" :model="loginData" :rules="rules">
+                <n-space
+                    item-style="width: 100%;"
+                    style="width: 100%; padding: 35px"
+                    justify="center"
+                    align="center"
+                    vertical
+                    inline
                 >
-                    Success
-                </n-button>
-            </n-space>
+                    <n-p align-text style="text-align: center; color: white; font-size: 40px">Login</n-p>
+
+                    <n-form-item style="width: 100%" path="username">
+                        <n-input
+                            v-model:value="loginData.username"
+                            type="text"
+                            placeholder="Basic Input"
+                            round
+                            style="
+                                border-radius: 40px;
+                                border-width: 2px;
+                                height: 65px;
+                                width: 100%;
+                                background-color: transparent;
+                            "
+                            :input-props="{
+                                style: {
+                                    'font-weight': 'bold',
+                                    'font-size': '18px',
+                                    color: 'white !important',
+                                    'background-color': 'transparent !important',
+                                },
+                            }"
+                        />
+                    </n-form-item>
+                    <n-form-item style="width: 100%" path="password">
+                        <n-input
+                            type="password"
+                            show-password-on="mousedown"
+                            placeholder="Password"
+                            size="large"
+                            v-model:value="loginData.password"
+                            round
+                            style="
+                                border-radius: 40px;
+                                border-width: 2px;
+                                height: 65px;
+                                width: 100%;
+                                background-color: transparent;
+                            "
+                            :input-props="{
+                                style: {
+                                    'font-weight': 'bold',
+                                    'font-size': '18px',
+                                    color: 'white !important',
+                                    'background-color': 'transparent !important',
+                                },
+                            }"
+                        />
+                    </n-form-item>
+
+                    <div style="padding-left: 10px">
+                        <n-checkbox style="text-align: start; color: white; font-size: 16px">
+                            <n-p align-text style="text-align: start; color: white; font-size: 16px">Remember Me</n-p>
+                        </n-checkbox>
+                    </div>
+
+                    <n-button
+                        style="height: 65px"
+                        class="button"
+                        strong
+                        secondary
+                        round
+                        type="success"
+                        :loading="loading"
+                        @click="handleClick"
+                    >
+                        Login
+                    </n-button>
+                </n-space>
+            </n-form>
         </div>
     </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from 'vue'
-import { GlassesOutline, Glasses } from '@vicons/ionicons5'
-import { NSpace, NInput, NImage, darkTheme, NP } from 'naive-ui'
+<script setup lang="ts">
+import { ref } from 'vue'
+import { apiLogin } from '~/apis/user'
+import {
+    NSpace,
+    NInput,
+    NImage,
+    darkTheme,
+    NP,
+    NForm,
+    NFormItem,
+    type FormItemRule,
+    type FormRules,
+    type FormInst,
+    type FormValidationError,
+} from 'naive-ui'
 import { useMessage } from 'naive-ui'
-import { LoginFnc } from './method'
 
-export default defineComponent({
-    setup() {
-        return {
-            GlassesOutline,
-            Glasses,
-            value: ref(null),
-            darkTheme,
-            LoginFnc,
-            message,
-            HandleClick,
-        }
-    },
+const loginData = ref<LoginParams>({
+    username: '',
+    password: '',
 })
+const loginFormRef = ref<FormInst | null>(null)
+
+const rules: FormRules = {
+    username: [
+        {
+            required: true,
+            trigger: ['blur'],
+        },
+    ],
+    password: [
+        {
+            required: true,
+            message: 'Password is required',
+            trigger: ['blur'],
+        },
+    ],
+}
 const message = useMessage()
-const HandleClick = () => {
-    console.log('dajddaaaaaaaaaaaaaha')
-    message.warning('Login Success')
+const loading = ref<boolean>(false)
+
+const handleClick = (e: MouseEvent) => {
+    if (loading.value) return
+    e.preventDefault()
+    loginFormRef.value?.validate( async (errors: Array<FormValidationError> | undefined) => {
+        if (!errors) {
+            try {
+                loading.value = true
+                const res = await apiLogin(loginData.value)
+                console.log(res)
+                message.success('Login Success')
+            } catch (error) {
+                message.error('Something went wrong')
+            } finally {
+                loading.value = false
+            }
+        } else {
+            message.error('Please check login data')
+        }
+    })
 }
 </script>
 
@@ -154,7 +197,8 @@ input:-webkit-autofill:active {
     font-size: 18px;
     color: black;
 }
-.button:hover {
+.button:hover,
+.button:focus {
     background-color: rgba(255, 255, 255, 0.2) !important;
     color: white !important;
 }
