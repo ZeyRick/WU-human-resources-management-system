@@ -27,6 +27,7 @@ func (ctr *ClockController) Clock(w http.ResponseWriter, r *http.Request) {
 	}
 	err = ctr.clockService.Clock(clockDto)
 	if err != nil {
+		logger.Trace(err)
 		https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
 		return
 	}
@@ -49,12 +50,12 @@ func (ctrl *ClockController) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if pageOpt.Page == nil{
-		dto.PageOpt.Page = variable.Create[int64](1)
+		pageOpt.Page = variable.Create[int64](1)
 	}
 	if pageOpt.Size == nil{
-		dto.PageOpt.Size = variable.Create[int64](10)
+		pageOpt.Size = variable.Create[int64](10)
 	}
-	dto.PageOpt = &pageOpt
+	dto.PageOpt = pageOpt
 	result, err := ctrl.clockService.List(&dto)
 	if err != nil {
 		logger.Trace(err)
@@ -62,4 +63,5 @@ func (ctrl *ClockController) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	https.ResponseJSON(w, r, http.StatusOK, result)
+	return
 }

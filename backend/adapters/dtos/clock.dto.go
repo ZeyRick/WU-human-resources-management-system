@@ -9,5 +9,5 @@ type Clock struct {
 
 
 type ListClock struct {
-	PageOpt *PageOpt `json:"pageOpt,required"`
+	PageOpt PageOpt `json:"pageOpt,required"`
 }

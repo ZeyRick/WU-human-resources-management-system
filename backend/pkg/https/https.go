@@ -2,11 +2,11 @@ package https
 
 import (
 	"backend/adapters/dtos"
-	"backend/pkg/logger"
 	"encoding/json"
 	"io"
 	"net/http"
 
+	"github.com/go-chi/render"
 	"github.com/gorilla/schema"
 )
 
@@ -15,76 +15,50 @@ type contextKey struct {
 }
 
 type ErrorBody struct {
-	Code int
-	Msg  string
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
 }
 
 type JsonBody struct {
 	Code int
-	Data  interface{}
+	Data interface{}
 }
 
 var StatusCtxKey = &contextKey{"Status"}
 var decoder = schema.NewDecoder()
 
-
 func ResponseError(w http.ResponseWriter, r *http.Request, statusCode int, v string) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
-	byteBody, err := json.Marshal(ErrorBody{
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	byteBody := ErrorBody{
 		Code: -1,
 		Msg:  v,
-	})
-	if err != nil {
-		logger.Trace(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
 	}
-	w.Write([]byte(`"Res":`))	
-	w.Write(byteBody)
+	w.WriteHeader(statusCode)
+	render.JSON(w, r, byteBody)
 }
 
 func ResponseJSON(w http.ResponseWriter, r *http.Request, statusCode int, v interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
-	
-	byteBody, err := json.Marshal(JsonBody{
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	byteBody := JsonBody{
 		Code: 0,
-		Data:  v,
-	})
-	if err != nil {
-		logger.Trace(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		Data: v,
 	}
-	w.Write([]byte(`"Res":`))	
-	_, err = w.Write(byteBody)
-	if err != nil {
-		logger.Trace(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	w.WriteHeader(statusCode)
+	render.JSON(w, r, byteBody)
 }
 
 func ResponseMsg(w http.ResponseWriter, r *http.Request, statusCode int, v string) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
-	byteBody, err := json.Marshal(ErrorBody{
+	// w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	// w.Header().Del("Transfer-Encoding")
+	byteBody := ErrorBody{
 		Code: 0,
 		Msg:  v,
-	})
-	if err != nil {
-		logger.Trace(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
 	}
-	if err != nil {
-		logger.Trace(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	w.Write([]byte(`"Res":`))	
-	w.Write(byteBody)
+
+	w.WriteHeader(statusCode)
+	render.JSON(w, r, byteBody)
+
 }
 
 func GetBody[T any](r *http.Request) (T, error) {

@@ -30,7 +30,7 @@ func (repo *ClockRepo) Create(newClock *Clock) error {
 }
 
 func (repo *ClockRepo) List(dto *dtos.ListClock) (*types.ListData[Clock], error) {
-	return models.List[Clock](dto.PageOpt, db.Database, "clocks")
+	return models.List[Clock](&dto.PageOpt, db.Database, "clocks")
 }
 
 func (repo *ClockRepo) UpdateById(clock *Clock) (int64, error) {

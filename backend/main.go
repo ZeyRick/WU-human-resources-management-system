@@ -19,7 +19,8 @@ func main() {
 	//init database
 	db.InitDatabase()
 
+	r := routes.InitRoutes()
 	// start the api server
-	chi.StartServerWithGracefulShutdown(routes.InitRoutes())
+	chi.StartServerWithGracefulShutdown(r)
 
 }
