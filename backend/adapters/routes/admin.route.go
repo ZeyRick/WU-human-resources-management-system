@@ -41,7 +41,7 @@ func LoginMiddleware(next http.Handler) http.Handler {
 		ok, userId := jwttoken.CheckCookie(w, r, "LoginCookie", 24*30)
 		if ok {
 			next.ServeHTTP(w, r)
-			https.ResponseMsg(w, r, http.StatusOK, fmt.Sprintf("Logged in. User ID = ", userId))
+			https.ResponseMsg(w, r, http.StatusOK, fmt.Sprintf("Logged in. User ID = %d", userId))
 			return
 		}
 		https.ResponseMsg(w, r, http.StatusUnauthorized, "Cookie not found")
