@@ -1,7 +1,6 @@
 package chi
 
 import (
-	"backend/adapters/controllers"
 	"backend/pkg/logger"
 	"context"
 	"fmt"
@@ -11,20 +10,17 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 )
 
 // No need to understand this function
 // graceful shutdown mean shutdown smartly (sometime system have work to be done before shutting down)
-func StartServerWithGracefulShutdown() {
+func StartServerWithGracefulShutdown(handlers http.Handler) {
 	baseUrl := os.Getenv("BASE_URL")
 	if baseUrl == "" {
 		baseUrl = "0.0.0.0:3333"
 	}
 	// The HTTP Server
-	server := &http.Server{Addr: baseUrl, Handler: service()}
+	server := &http.Server{Addr: baseUrl, Handler: handlers}
 
 	// Server run context
 	serverCtx, serverStopCtx := context.WithCancel(context.Background())
@@ -62,22 +58,4 @@ func StartServerWithGracefulShutdown() {
 
 	// Wait for server context to be stopped
 	<-serverCtx.Done()
-}
-
-// this function is called in the upper function to set up paths and controller for paths
-func service() http.Handler {
-	r := chi.NewRouter()
-
-	r.Use(middleware.RequestID)
-	r.Use(middleware.Logger)
-
-	helloWorld := controllers.NewHelloWorldController()
-	user := controllers.NewUserController()
-	clock := controllers.NewClockController()
-	r.Get("/", helloWorld.GetHelloWorld) // setting the path '/' handler or we can call controller to control the request sent into this path by front end
-	r.Post("/register", user.UserRegister)
-	r.Post("/login", user.UserLogin)
-	r.Post("/clock", clock.Clock)
-	r.Post("/getdata", user.GetUserData)
-	return r
 }
