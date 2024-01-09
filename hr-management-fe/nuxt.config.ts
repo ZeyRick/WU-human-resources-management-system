@@ -1,3 +1,7 @@
+import { resolve, dirname } from 'node:path'
+import { fileURLToPath } from 'url'
+import VueI18nVitePlugin from '@intlify/unplugin-vue-i18n/vite'
+
 export default defineNuxtConfig({
     ssr: false,
     devtools: { enabled: true },
@@ -14,12 +18,18 @@ export default defineNuxtConfig({
         },
     },
     build: {
-        transpile:
-            process.env.NODE_ENV === 'production'
+        transpile: [
+            ...(process.env.NODE_ENV === 'production'
                 ? ['naive-ui', 'vueuc', '@css-render/vue3-ssr', '@juggle/resize-observer']
-                : ['@juggle/resize-observer'],
+                : ['@juggle/resize-observer']),
+        ],
     },
     vite: {
+        plugins: [
+            VueI18nVitePlugin({
+                include: [resolve(dirname(fileURLToPath(import.meta.url)), './locales/*.json')],
+            }),
+        ],
         optimizeDeps: {
             include:
                 process.env.NODE_ENV === 'development' ? ['naive-ui', 'vueuc', 'date-fns-tz/formatInTimeZone'] : [],

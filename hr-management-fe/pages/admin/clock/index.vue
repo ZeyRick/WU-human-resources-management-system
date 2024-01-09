@@ -13,7 +13,7 @@
                 <n-text type="primary" style="font-size: 18px">Time Clock</n-text>
             </div></n-card
         >
-        <!-- <n-data-table :loading="loading" :columns="tableColumns" :data="null" /> -->
+        <n-data-table :bordered="false" :loading="loading" :columns="clockColumns" :data="clockDatas"/>
         <n-card
             content-style="padding: 10px;"
             style="display: flex; align-items: center; height: 50px; overflow: hidden"
@@ -31,7 +31,7 @@
 
 <script setup lang="ts">
 import { AddCircleOutline } from '@vicons/ionicons5'
-import { tableColumns } from './table-columns'
+import { clockColumns } from './table-columns'
 import { CommonFormRules } from '../../../constants/formRules'
 import { type FormInst, type FormValidationError } from 'naive-ui'
 import { apiCreateUser } from '../../../apis/user'
@@ -40,15 +40,17 @@ import { apiGetClock } from '~/apis/clock'
 const showCreateModal = ref<boolean>(false)
 const createFormRef = ref<FormInst>()
 const pageOption = ref<Pagination>({ page: 1, size: 10 })
-const loading = ref<boolean>(false)
+const loading = ref<boolean>(true)
+const clockDatas = ref([])
 
-onMounted( async () => {
+onMounted(async () => {
     try {
-        loading.value = true
-        const res = await apiGetClock(pageOption.value)
-        console.log(res)
-    } catch (error) {} finally {
-      loading.value = false
+        const res: any = await apiGetClock(pageOption.value)
+        const jsonRes = JSON.parse(res)
+        clockDatas.value = jsonRes.Data.Data
+    } catch (error) {
+    } finally {
+        loading.value = false
     }
 }),
     definePageMeta({
