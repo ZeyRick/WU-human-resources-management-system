@@ -2,7 +2,6 @@ package jwttoken
 
 import (
 	"backend/core/models/user"
-	"backend/pkg/https"
 	"errors"
 	"net/http"
 	"time"
@@ -14,13 +13,13 @@ import (
 var secretkey = "this_is_the_key_needed_to_store_in_env"
 
 type Claims struct {
-	Username string
+	ID       uint
 	ExpireAt int64
 }
 
 // Valid implements jwt.Claims.
 func (c Claims) Valid() error {
-	if c.Username == "" {
+	if c.ID == 0 {
 		return errors.New("missing username claim")
 	}
 	if c.ExpireAt <= time.Now().Unix() {
@@ -31,17 +30,17 @@ func (c Claims) Valid() error {
 
 func GenterateToken(user user.User) (string, error) {
 	claims := &Claims{
-		Username: user.Username,
-		ExpireAt: time.Now().Add(time.Hour * 1).Unix(),
+		ID: user.ID,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodES256, claims)
 	return token.SignedString([]byte(secretkey))
 }
 
-func SetCookie(w http.ResponseWriter, token string, cookieName string) {
+func SetCookie(w http.ResponseWriter, token string, cookieName string, expiredTime int) {
 	cookie := &http.Cookie{
 		Name:     cookieName,
 		Value:    token,
+		Expires:  time.Now().Add(time.Hour * time.Duration(expiredTime)),
 		Path:     "/",
 		HttpOnly: true,
 		Secure:   true,
@@ -49,7 +48,7 @@ func SetCookie(w http.ResponseWriter, token string, cookieName string) {
 	http.SetCookie(w, cookie)
 }
 
-func CheckCookie(w http.ResponseWriter, r *http.Request, cookieName string) bool {
+func CheckCookie(w http.ResponseWriter, r *http.Request, cookieName string, expiredTime int) (bool, uint) {
 	var neededCookie *http.Cookie
 	cookies := r.Cookies()
 	for _, cookie := range cookies {
@@ -59,19 +58,19 @@ func CheckCookie(w http.ResponseWriter, r *http.Request, cookieName string) bool
 		}
 	}
 	if cookies != nil {
-		if ValidateCookie(w, r, neededCookie.Value) == false {
-			https.ResponseText(w, r, 0, "Cookie Not Found")
-			return false
+		ok, userID := ValidateCookie(w, r, neededCookie.Value, neededCookie)
+		if ok == false {
+			DeleteCookie(w, cookieName)
+			return false, 0
 		} else {
-			https.ResponseText(w, r, 1, "Cookie Found")
-			return true
+			UpdateCookieExpiredTime(w, cookieName, expiredTime)
+			return true, userID
 		}
 	}
-	https.ResponseText(w, r, 0, "Cookie Not Found")
-	return false
+	return false, 0
 }
 
-func ValidateCookie(w http.ResponseWriter, r *http.Request, tokenString string) bool {
+func ValidateCookie(w http.ResponseWriter, r *http.Request, tokenString string, cookie *http.Cookie) (bool, uint) {
 	claims := &Claims{}
 	_, err := jwt.ParseWithClaims(tokenString, claims,
 		func(token *jwt.Token) (interface{}, error) {
@@ -79,12 +78,31 @@ func ValidateCookie(w http.ResponseWriter, r *http.Request, tokenString string) 
 		},
 	)
 	if err != nil {
-		https.ResponseText(w, r, 0, "Invalid Cookie")
-		return false
+		return false, 0
 	}
-	if claims.ExpireAt <= time.Now().Unix() {
-		https.ResponseText(w, r, 0, "Cookie Expired")
-		return false
+	if cookie.Expires.Unix() <= time.Now().Unix() {
+		return false, 0
 	}
-	return true
+	return true, claims.ID
+}
+
+func DeleteCookie(w http.ResponseWriter, cookieName string) {
+	cookie := &http.Cookie{
+		Name:   cookieName,
+		MaxAge: -1,
+		Path:   "/",
+		Secure: true,
+	}
+	http.SetCookie(w, cookie)
+}
+
+func UpdateCookieExpiredTime(w http.ResponseWriter, cookieName string, expiredTime int) {
+	cookie := &http.Cookie{
+		Name:     cookieName,
+		Expires:  time.Now().Add(time.Hour * time.Duration(expiredTime)),
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,
+	}
+	http.SetCookie(w, cookie)
 }
