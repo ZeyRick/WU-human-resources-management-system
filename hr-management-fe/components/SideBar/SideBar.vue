@@ -18,7 +18,7 @@
                 "
             />
         </div>
-        <n-menu :collapsed-width="64" :collapsed-icon-size="22" :options="menuOptions" />
+        <n-menu  icon-size="30" :collapsed-width="64" :collapsed-icon-size="22" :options="menuOptions" />
     </n-layout-sider>
 </template>
 
@@ -26,25 +26,9 @@
 import type { MenuOption, NImage } from 'naive-ui'
 import { h, ref } from 'vue';
 import { RouterLink } from 'vue-router';
+import { menuOptions } from './items';
 
-const menuOptions: MenuOption[] = [
-    {
-        label: () =>
-            h(
-                RouterLink,
-                {
-                    to: '/clock',
-                },
-                { default: () => '123' },
-            ),
-        key: '/clock',
-    },
-    {
-        label: 'Hear the Wind Sing',
-        key: 'hear-the-wind-sing1',
-        href: 'https://en.wikipedia.org/wiki/Hear_the_Wind_Sing',
-    },
-]
+
 const isCollapsed = ref(false)
 
 const collapseUpdated = (collalsed: boolean) => (isCollapsed.value = collalsed)

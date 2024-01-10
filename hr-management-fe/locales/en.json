@@ -1,4 +1,8 @@
 {
     "in": "In",
-    "out": "Out"
+    "out": "Out",
+    "employee_name": "Employee Name",
+    "clock_time": "Time",
+    "clock_type": "Clock",
+    "clock_management": "Clock Management"
 }
