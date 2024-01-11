@@ -4,5 +4,7 @@
     "employee_name": "Employee Name",
     "clock_time": "Time",
     "clock_type": "Clock",
-    "clock_management": "Clock Management"
+    "clock_management": "Clock Management",
+    "employee_list": "Employee List",
+    "employee_report": "Report"
 }
