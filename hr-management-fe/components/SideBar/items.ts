@@ -18,4 +18,9 @@ export const menuOptions: MenuOption[] = [
         key: 'hello',
         href: 'https://en.wikipedia.org/wiki/Hear_the_Wind_Sing',
     },
+    {
+        label: renderRoute('/admin/Employee', i18n.global.t('employee_management')),
+        icon: renderIcon(Timer),
+        key: 'employee',
+    },
 ]

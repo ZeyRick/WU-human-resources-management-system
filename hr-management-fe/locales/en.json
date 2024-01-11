@@ -6,5 +6,7 @@
     "clock_type": "Clock",
     "clock_management": "Clock Management",
     "employee_list": "Employee List",
-    "employee_report": "Report"
+    "employee_report": "Report",
+    "employee_management": "Employee Management"
+
 }

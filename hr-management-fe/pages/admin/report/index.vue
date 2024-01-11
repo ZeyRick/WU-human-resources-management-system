@@ -4,11 +4,11 @@
       <n-date-picker v-model:value="selectedDate" type="date" placeholder="Select a date" />
       <n-select v-model:value="selectedPeriod" :options="periodOptions" placeholder="Select a period" />
     </n-card>
-    <n-data-table :columns="Columns" :data="dataSeed" :bordered="false"/>
-  </n-layout>
+    <n-data-table :columns="Columns" :data="dataSeed" :bordered="false" @dblclick-row="navigateToEmployeeManagement"/>  </n-layout>
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import type { RowData } from 'naive-ui/es/data-table/src/interface'
 import { NLayout, NCard, NText, type DataTableColumns } from 'naive-ui'
 
@@ -90,4 +90,10 @@ const dataSeed = generateDataSeed();
 definePageMeta({
     layout:"main"
 })
+const router = useRouter()
+
+const navigateToEmployeeManagement =  (event: { row: Employee }) => {
+  console.log('Double click on row:', event.row);
+  router.push(`/employee_management/${event.row.id}`);
+};
 </script>
