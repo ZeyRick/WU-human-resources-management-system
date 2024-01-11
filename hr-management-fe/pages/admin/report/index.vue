@@ -1,27 +1,46 @@
-
 <template>
-    <h1>Report</h1>
-  <n-layout style="flex-grow: 1; display: flex; flex-direction: column">
-    <n-card
-      content-style="padding: 10px;"
-      style="height: 50px; overflow: hidden"
-    >
-      <div
-        style="
-          flex-direction: row;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          overflow: hidden;
-        "
-      >
-        <n-text type="primary" style="font-size: 18px">Report</n-text>
-      </div></n-card
-    >
-  </n-layout>
+  <<n-data-table :columns="Columns" :data=""/>
 </template>
 
 <script setup lang="ts">
+import type { RowData } from 'naive-ui/es/data-table/src/interface';
+import {ReportTableColumns} from './report-table'
+import { NLayout, NCard, NText, type DataTableColumns } from 'naive-ui'
+
+const Columns: DataTableColumns<RowData> = [
+  {
+    title: 'Helo', // 
+    key: 'heloData'
+  }, {
+    title: 'GG',
+    key: 'gg'
+  }
+]
+
+type Employee {
+  name: string,
+  age: number,
+  pasw: string
+}
+const Data: Employee[] = [
+  {
+    name: "123",
+    age: 2
+  },
+  {
+    name: "123",
+    age: 2
+  },
+  {
+    name: "123",
+    age: 2
+  },
+  {
+    name: "123",
+    age: 2
+  }
+]
+
 definePageMeta({
     layout:"main"
 })
