@@ -2,6 +2,7 @@ package https
 
 import (
 	"backend/adapters/dtos"
+	"backend/pkg/variable"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -84,12 +85,23 @@ func GetQuery[T any](r *http.Request) (T, error) {
 	return data, nil
 }
 
-func GetPagination(r *http.Request) (dtos.PageOpt, error) {
+func GetPaginationWithType[T any](r *http.Request) (dtos.PageOpt, T, error) {
 	decoder.IgnoreUnknownKeys(true)
-	var data dtos.PageOpt
-	err := decoder.Decode(&data, r.URL.Query())
+	var pageOpt dtos.PageOpt
+	var filter T
+	err := decoder.Decode(&pageOpt, r.URL.Query())
 	if err != nil {
-		return data, err
+		return pageOpt, filter, err
 	}
-	return data, nil
+	err = decoder.Decode(&filter, r.URL.Query())
+	if err != nil {
+		return pageOpt, filter, err
+	}
+	if pageOpt.Page == nil {
+		pageOpt.Page = variable.Create[int64](1)
+	}
+	if pageOpt.Size == nil {
+		pageOpt.Size = variable.Create[int64](10)
+	}
+	return pageOpt, filter, nil
 }

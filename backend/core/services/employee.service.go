@@ -25,7 +25,7 @@ func (srv *EmployeeService) Add(payload *dtos.AddEmployee) error {
 	return err
 }
 
-func (srv *EmployeeService) List(params *dtos.ListEmployee) ( *types.ListData[employee.Employee] ,error) {
-	result, err := srv.repo.List(params)
+func (srv *EmployeeService) List( pageOpt *dtos.PageOpt,dto *dtos.EmployeeFilter) ( *types.ListData[employee.Employee] ,error) {
+	result, err := srv.repo.List(pageOpt, dto)
 	return result, err
 }

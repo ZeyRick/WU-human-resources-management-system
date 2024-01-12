@@ -11,3 +11,7 @@ type Clock struct {
 type ListClock struct {
 	PageOpt PageOpt `json:"pageOpt,required"`
 }
+
+type ClockFilter struct {
+	EmployeeId *int `json:"employeeId,string,omitempty"`
+}

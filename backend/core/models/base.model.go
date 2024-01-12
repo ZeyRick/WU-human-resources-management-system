@@ -37,7 +37,7 @@ func paginate(pageOpt *dtos.PageOpt) func(db *gorm.DB) *gorm.DB {
 
 func List[T any](pageOpt *dtos.PageOpt, db *gorm.DB, tableName string) (*types.ListData[T], error) {
 	var data []T
-	selectResult := db.Scopes(paginate(pageOpt)).Joins("Employee").Find(&data)
+	selectResult := db.Scopes(paginate(pageOpt)).Find(&data)
 	if selectResult.Error != nil {
 		return nil, selectResult.Error
 	}

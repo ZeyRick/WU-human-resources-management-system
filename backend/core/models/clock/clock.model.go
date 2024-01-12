@@ -29,8 +29,9 @@ func (repo *ClockRepo) Create(newClock *Clock) error {
 	return nil
 }
 
-func (repo *ClockRepo) List(dto *dtos.ListClock) (*types.ListData[Clock], error) {
-	return models.List[Clock](&dto.PageOpt, db.Database, "clocks")
+func (repo *ClockRepo) List(pageOpt *dtos.PageOpt, dto *dtos.ClockFilter) (*types.ListData[Clock], error) {
+	query := db.Database.Joins("Employee")
+	return models.List[Clock](pageOpt, query, "clocks")
 }
 
 func (repo *ClockRepo) UpdateById(clock *Clock) (int64, error) {

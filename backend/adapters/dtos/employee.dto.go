@@ -5,7 +5,6 @@ type AddEmployee struct {
 	ProfilePic string `json:"profilePic,string,omitempty"`
 }
 
-type ListEmployee struct {
-	PageOpt PageOpt `json:"pageOpt,required"`
+type EmployeeFilter struct {
 	Name    string  `json:"name,string,omitempty"`
 }

@@ -19,6 +19,15 @@ func NewEmployeeRepo() *EmployeeRepo {
 	return &EmployeeRepo{}
 }
 
+func (repo *EmployeeRepo) FindId(employeeId *int) (Employee, error) {
+	var data Employee
+	result := db.Database.Limit(1).Find(&data, *employeeId)
+	if result.Error != nil {
+		return Employee{}, result.Error
+	}
+	return data, nil
+}
+
 func (repo *EmployeeRepo) Create(newEmployee *Employee) error {
 	result := db.Database.Create(newEmployee)
 	if result.Error != nil {
@@ -27,6 +36,6 @@ func (repo *EmployeeRepo) Create(newEmployee *Employee) error {
 	return nil
 }
 
-func (repo *EmployeeRepo) List(dto *dtos.ListEmployee)(*types.ListData[Employee], error) {
-	return models.List[Employee](&dto.PageOpt, db.Database, "employees")
+func (repo *EmployeeRepo) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter) (*types.ListData[Employee], error) {
+	return models.List[Employee](pageOpt, db.Database, "employees")
 }
