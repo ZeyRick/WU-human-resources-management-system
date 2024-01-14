@@ -29,6 +29,7 @@ func initAdminRoutes(r chi.Router) {
 			// Employe
 			r.Post("/employee", employee.Add)
 			r.Get("/employee", employee.List)
+			r.Get("/employee/all", employee.All)
 
 			// Schedule
 			r.Post("/schedule", schedule.Add)

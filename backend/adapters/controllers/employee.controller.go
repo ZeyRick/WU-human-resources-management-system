@@ -18,6 +18,22 @@ func NewEmployeeController() *EmployeeController {
 	}
 }
 
+func (ctrl *EmployeeController) All(w http.ResponseWriter, r *http.Request) {
+	dto, err := https.GetQuery[dtos.EmployeeFilter](r)
+	if err != nil {
+		logger.Trace(err)
+		https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
+		return
+	}
+	result, err := ctrl.service.All(&dto)
+	if err != nil {
+		logger.Trace(err)
+		https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
+		return
+	}
+	https.ResponseJSON(w, r, http.StatusOK, *result)
+}
+
 func (ctrl *EmployeeController) List(w http.ResponseWriter, r *http.Request) {
 	pageOpt, dto, err := https.GetPaginationWithType[dtos.EmployeeFilter](r)
 	if err != nil {
@@ -25,7 +41,6 @@ func (ctrl *EmployeeController) List(w http.ResponseWriter, r *http.Request) {
 		https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
 		return
 	}
-	logger.Console(dto)
 	result, err := ctrl.service.List(&pageOpt, &dto)
 	if err != nil {
 		logger.Trace(err)

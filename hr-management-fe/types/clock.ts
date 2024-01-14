@@ -4,5 +4,6 @@ type ClockParams = {
 }
 
 type ClockFilter = {
+    employeeId: string | null
     date: string
 }

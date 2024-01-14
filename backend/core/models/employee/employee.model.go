@@ -39,3 +39,13 @@ func (repo *EmployeeRepo) Create(newEmployee *Employee) error {
 func (repo *EmployeeRepo) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter) (*types.ListData[Employee], error) {
 	return models.List[Employee](pageOpt, db.Database, "employees")
 }
+
+func (repo *EmployeeRepo) All(dto *dtos.EmployeeFilter) (*[]Employee, error) {
+	var data []Employee
+	query := db.Database
+	dbRes := query.Find(&data)
+	if dbRes.Error != nil {
+		return nil, dbRes.Error
+	}
+	return &data, nil
+}

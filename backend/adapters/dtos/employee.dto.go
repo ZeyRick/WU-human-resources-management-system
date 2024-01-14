@@ -6,5 +6,6 @@ type AddEmployee struct {
 }
 
 type EmployeeFilter struct {
-	Name    string  `json:"name,string,omitempty"`
+	ID   *int   `json:"id,string,omitempty"`
+	Name string `json:"name,string,omitempty"`
 }
