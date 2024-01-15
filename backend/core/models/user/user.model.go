@@ -1,7 +1,9 @@
 package user
 
 import (
+	"backend/adapters/dtos"
 	"backend/core/models"
+	"backend/core/types"
 	"backend/pkg/db"
 )
 
@@ -68,4 +70,8 @@ func (repo *UserRepo) GetUsers(offSet, limit int) ([]User, error) {
 		return nil, err
 	}
 	return user, nil
+}
+
+func (repo *UserRepo) List(dto *dtos.ListUser) (*types.ListData[User], error) {
+	return models.List[User](&dto.PageOpt, db.Database, "users")
 }

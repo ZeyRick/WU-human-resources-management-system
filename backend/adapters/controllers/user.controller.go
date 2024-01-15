@@ -5,6 +5,7 @@ import (
 	"backend/core/services"
 	"backend/pkg/https"
 	"backend/pkg/logger"
+	"backend/pkg/variable"
 	"net/http"
 )
 
@@ -39,14 +40,13 @@ func (ctrl *UserController) UserRegister(w http.ResponseWriter, r *http.Request)
 }
 
 func (ctrl *UserController) UserLogin(w http.ResponseWriter, r *http.Request) {
-
 	dto, err := https.GetBody[dtos.UserLogin](r)
 	if err != nil {
 		logger.Trace(err)
 		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
-	err = ctrl.userservice.UserLogin(w, &dto)
+	userID, err := ctrl.userservice.UserLogin(w, &dto)
 	if err != nil {
 		logger.Trace(err)
 		if err.Error() == "401" {
@@ -56,25 +56,28 @@ func (ctrl *UserController) UserLogin(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	https.ResponseMsg(w, r, http.StatusOK, "Logged in")
+	https.ResponseJSON(w, r, http.StatusOK, userID)
 	return
 }
 
 func (ctrl *UserController) GetUserData(w http.ResponseWriter, r *http.Request) {
-	dto, err := https.GetBody[dtos.GetUserData](r)
+	dto, err := https.GetQuery[dtos.ListUser](r)
 	if err != nil {
 		logger.Trace(err)
 		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
-	err, users, pageCount := ctrl.userservice.GetUserData(w, r, &dto)
+	if dto.PageOpt.Page == nil || *dto.PageOpt.Page == 0 {
+		dto.PageOpt.Page = variable.Create[int64](1)
+	}
+	if dto.PageOpt.Size == nil || *dto.PageOpt.Size == 0 {
+		dto.PageOpt.Size = variable.Create[int64](10)
+	}
+	result, err := ctrl.userservice.GetUserData(&dto)
 	if err != nil {
 		logger.Trace(err)
 		https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
 	}
-	https.ResponseJSON(w, r, http.StatusOK, pageCount)
-	for _, user := range users {
-		https.ResponseJSON(w, r, http.StatusOK, user)
-	}
+	https.ResponseJSON(w, r, http.StatusOK, *result)
 	return
 }

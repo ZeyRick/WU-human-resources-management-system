@@ -3,7 +3,7 @@ package services
 import (
 	"backend/adapters/dtos"
 	"backend/core/models/user"
-	"backend/pkg/db"
+	"backend/core/types"
 	"backend/pkg/hush"
 	"backend/pkg/jwttoken"
 	"errors"
@@ -42,31 +42,24 @@ func (srv *UserService) UserRegister(w http.ResponseWriter, payload *dtos.UserRe
 	return err
 }
 
-func (srv *UserService) UserLogin(w http.ResponseWriter, payload *dtos.UserLogin) error {
+func (srv *UserService) UserLogin(w http.ResponseWriter, payload *dtos.UserLogin) (uint, error) {
 	newuser, err := srv.usermodel.FindByUserName(payload.Username)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	if newuser.Username == "" || hush.ComparePassword(newuser.Password, payload.Password) != nil {
 		err = errors.New("401")
-		return err
+		return 0, err
 	}
-	token, err := jwttoken.GenterateToken(newuser)
+	token, err := jwttoken.GenterateToken(newuser.ID, 24*30)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	jwttoken.SetCookie(w, token, "LoginCookie", 24*30)
-	return err
+	jwttoken.SetCookie(w, token, "LoginCookie")
+	return newuser.ID, err
 }
 
-func (srv *UserService) GetUserData(w http.ResponseWriter, r *http.Request, payload *dtos.GetUserData) (error, []user.User, int) {
-	var count int64
-	db.Database.Table("hr_management").Count(&count)
-	if err := db.Database.Error; err != nil {
-		return err, nil, 0
-	}
-	pageCount := int(count) / int(*payload.PageNumber)
-	offSet := (*payload.PageNumber - 1) * *payload.DataPerPage
-	users, err := srv.usermodel.GetUsers(int(offSet), int(*payload.DataPerPage))
-	return err, users, pageCount
+func (srv *UserService) GetUserData(params *dtos.ListUser) (*types.ListData[user.User], error) {
+	result, err := srv.usermodel.List(params)
+	return result, err
 }
