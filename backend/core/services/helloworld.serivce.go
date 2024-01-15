@@ -1,8 +1,11 @@
 package services
 
 import (
+	"backend/pkg/https"
 	"fmt"
 	"net/http"
+
+	"github.com/go-chi/render"
 )
 
 type HelloWorldService struct{}
@@ -13,5 +16,9 @@ func NewHelloWorldService() *HelloWorldService {
 
 func (srv *HelloWorldService) GetHelloWorld(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Do some business logic to get the result")
-	w.Write([]byte("Return the result for front end"))
+	 res := https.ErrorBody{
+		Msg: "Hello",
+		Code:  0,
+	}
+	render.JSON(w, r, res)
 }

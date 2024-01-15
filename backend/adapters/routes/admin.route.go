@@ -27,7 +27,6 @@ func initAdminRoutes(r chi.Router) {
 			// User
 			r.Post("/user/register", user.UserRegister)
 			r.Post("/user/login", user.UserLogin)
-			r.Post("/user/getusers", user.GetUserData)
 
 			// Employee
 			r.Post("/employee/add", employee.Add)

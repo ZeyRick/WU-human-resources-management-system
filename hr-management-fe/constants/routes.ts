@@ -1,17 +1,13 @@
 import { PersonOutline } from "@vicons/ionicons5";
 
 export type Route = {
-  label: string;
-  key: string;
-  path: string;
-  icon: Component;
-};
+    label: string
+    key: string
+}
 
 export const UserRoute: Route = {
-  label: "User",
-  key: "user",
-  path: "user",
-  icon: PersonOutline,
-};
+    label: 'clock_management',
+    key: 'admin-clock',
+}
 
 export const Routes: Route[] = [UserRoute];

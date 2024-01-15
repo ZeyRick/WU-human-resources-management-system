@@ -10,23 +10,23 @@
     "
   >
     <n-breadcrumb :clickable="false">
-      <n-breadcrumb-item style="font-size: 20px">
+      <n-breadcrumb-item v-if="routeObject" style="font-size: 20px">
         <div style="display: flex; align-items: center; gap: 4px;">
           /
-          <n-icon :component="routeObject && routeObject.icon" />
-          {{ routeObject && routeObject.label }}
+          <!-- <n-icon :component="routeObject && routeObject.icon" /> -->
+          {{ i18n.global.t(routeObject.label) }}
         </div>
       </n-breadcrumb-item>
     </n-breadcrumb>
     <div style="display: flex; align-items: center; gap: 4px">
-      <n-switch
+      <!-- <n-switch
         @update:value="switchTheme"
         v-model:value="isDark"
         style="margin-right: 8px"
         size="medium"
       >
         <template #icon> 🤔 </template>
-      </n-switch>
+      </n-switch> -->
       <n-avatar
         round
         size="small"
@@ -61,11 +61,12 @@ import { useDarkThemeStore } from "~/store/theme";
 
 const route = useRoute();
 const themeStore = useDarkThemeStore();
-const isDark = computed(() => themeStore.isDarkTheme);
+// const isDark = computed(() => themeStore.isDarkTheme);
 
 const routeObject: Route | undefined = Routes.find(
-  (r) => r.path === route.name
+  (r) => r.key === route.name
 );
+
 const isProfileHover: Ref<boolean> = ref(false);
 
 const options = [
