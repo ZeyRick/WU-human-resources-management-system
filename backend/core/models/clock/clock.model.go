@@ -43,8 +43,8 @@ func (repo *ClockRepo) List(pageOpt *dtos.PageOpt, dto *dtos.ClockFilter) (*type
 		query = query.Where("clocks.created_at BETWEEN ? AND ?", startOfDay, endOfDay)
 	}
 
-	if dto.EmployeeId != nil {
-		query = query.Where("clocks.employee_id = ?", *dto.EmployeeId)	
+	if dto.EmployeeId != 0 {
+		query = query.Where("clocks.employee_id = ?", dto.EmployeeId)	
 	}
 
 	// datetime BETWEEN '2024-01-14 00:00:00' AND '2024-01-14 23:59:59'
