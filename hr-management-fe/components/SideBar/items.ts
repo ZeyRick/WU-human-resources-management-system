@@ -9,8 +9,13 @@ export const menuOptions: MenuOption[] = [
         key: 'clock',
     },
     {
-        label: 'Hear the Wind Sing',
+        label: renderRoute('/admin/user', i18n.global.t('employee_list')),
         key: 'hear-the-wind-sing1',
+        href: 'https://en.wikipedia.org/wiki/Hear_the_Wind_Sing',
+    },
+    {
+        label: renderRoute('/admin/report', i18n.global.t('employee_report')),
+        key: 'hello',
         href: 'https://en.wikipedia.org/wiki/Hear_the_Wind_Sing',
     },
 ]

@@ -3,6 +3,7 @@ import type { RowData } from 'naive-ui/es/data-table/src/interface'
 import { useI18n } from 'vue-i18n'
 import ClockChipVue from '~/components/Clock/ClockChip/ClockChip.vue'
 import i18n from '~/utils/i18n'
+import { aslocalTime } from '~/utils/time'
 
 export const clockColumns: DataTableColumns<RowData> = [
     {
@@ -19,6 +20,9 @@ export const clockColumns: DataTableColumns<RowData> = [
         key: 'CreatedAt',
         titleAlign: 'center',
         align: 'center',
+        render: (data, index) => {
+            return aslocalTime(data.CreatedAt) || '-'
+        },
     },
 
     {

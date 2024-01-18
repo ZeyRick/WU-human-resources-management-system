@@ -22,7 +22,7 @@ const darkThemeOverrides: GlobalThemeOverrides = {
     primaryColor: PRIMARY_COLOR,
     bodyColor: '#303030',
     iconColor: '#2A947D',
-  }
+  },
 }
 
 const lightThemeOverrides: GlobalThemeOverrides = {

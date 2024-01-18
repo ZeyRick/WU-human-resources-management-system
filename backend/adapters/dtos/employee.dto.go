@@ -5,7 +5,7 @@ type AddEmployee struct {
 	ProfilePic string `json:"profilePic,string,omitempty"`
 }
 
-type ListEmployee struct {
-	PageOpt PageOpt `json:"pageOpt,required"`
-	Name    string  `json:"name,string,omitempty"`
+type EmployeeFilter struct {
+	ID   *int   `json:"id,string,omitempty"`
+	Name string `json:"name,string,omitempty"`
 }

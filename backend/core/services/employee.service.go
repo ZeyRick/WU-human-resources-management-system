@@ -18,14 +18,16 @@ func NewEmployeeService() *EmployeeService {
 
 
 func (srv *EmployeeService) Add(payload *dtos.AddEmployee) error {
-	err := srv.repo.Create(&employee.Employee{
+	return srv.repo.Create(&employee.Employee{
 		Name: payload.Name,
 		ProfilePic: payload.ProfilePic,
 	})
-	return err
 }
 
-func (srv *EmployeeService) List(params *dtos.ListEmployee) ( *types.ListData[employee.Employee] ,error) {
-	result, err := srv.repo.List(params)
-	return result, err
+func (srv *EmployeeService) List( pageOpt *dtos.PageOpt,dto *dtos.EmployeeFilter) ( *types.ListData[employee.Employee] ,error) {
+	return srv.repo.List(pageOpt, dto)
+}
+
+func (srv *EmployeeService) All(dto *dtos.EmployeeFilter) (*[]employee.Employee,error) {
+	return  srv.repo.All(dto)
 }

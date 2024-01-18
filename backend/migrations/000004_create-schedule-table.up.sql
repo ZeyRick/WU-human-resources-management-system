@@ -1,6 +1,6 @@
 CREATE TABLE schedules (
     id INT NOT NULL AUTO_INCREMENT,
-    employeeId INT NOT NULL,
+employee_id INT NOT NULL,
     scope VARCHAR(7) NOT NULL,
     dates VARCHAR(80) DEFAULT '[]',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
