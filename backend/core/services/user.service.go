@@ -1,14 +1,13 @@
 package services
 
 import (
+	"backend/adapters/dtos"
 	"backend/core/models/user"
-	"backend/pkg/db"
-	"backend/pkg/https"
+	"backend/core/types"
 	"backend/pkg/hush"
 	"backend/pkg/jwttoken"
-	"backend/pkg/logger"
+	"errors"
 	"net/http"
-	"strconv"
 )
 
 type UserService struct {
@@ -25,86 +24,42 @@ func NewUserService() *UserService {
 	return &UserService{}
 }
 
-func (srv *UserService) UserRegister(w http.ResponseWriter, r *http.Request) {
-	username := r.FormValue("username")
-	name := r.FormValue("name")
-	password := r.FormValue("password")
-	profilePic := r.FormValue("profilepic")
-	newuser, err := srv.usermodel.FindByUserName(username)
+func (srv *UserService) UserRegister(w http.ResponseWriter, payload *dtos.UserRegister) error {
+	newuser, err := srv.usermodel.FindByUserName(payload.Username)
 	if err != nil {
-		logger.Trace(err)
-		https.ResponseText(w, r, 0, "Error")
-		return
+		return err
 	}
 	if newuser.Username != "" {
-		https.ResponseText(w, r, 0, "Username is Already Exist")
-		return
+		err = errors.New("409")
+		return err
 	}
-	password, err = hush.Hush(password)
+	password, err := hush.Hush(payload.Password)
 	if err != nil {
-		logger.Trace(err)
-		https.ResponseText(w, r, 0, "Error")
-		return
+		return err
 	}
-	newuser = user.User{Username: username, Name: name, Password: password, ProfilePic: profilePic}
+	newuser = user.User{Username: payload.Username, Name: payload.Name, Password: password, ProfilePic: payload.ProfilePic}
 	err = srv.usermodel.Create(&newuser)
-	if err != nil {
-		logger.Trace(err)
-		https.ResponseText(w, r, 0, "Error")
-		return
-	}
-	https.ResponseText(w, r, 1, "Register Complete")
+	return err
 }
 
-func (srv *UserService) UserLogin(w http.ResponseWriter, r *http.Request) {
-	//Check if user already has login cookie
-	if jwttoken.CheckCookie(w, r, "LoginCookie") {
-		https.ResponseText(w, r, 1, "Logged In")
-		return
-	}
-	username := r.FormValue("username")
-	password := r.FormValue("password")
-	newuser, err := srv.usermodel.FindByUserName(username)
+func (srv *UserService) UserLogin(w http.ResponseWriter, payload *dtos.UserLogin) (uint, error) {
+	newuser, err := srv.usermodel.FindByUserName(payload.Username)
 	if err != nil {
-		logger.Trace(err)
-		https.ResponseText(w, r, 0, "Error")
-		return
+		return 0, err
 	}
-	if newuser.Username == "" {
-		https.ResponseText(w, r, 0, "Username is Incorrect")
-		return
+	if newuser.Username == "" || hush.ComparePassword(newuser.Password, payload.Password) != nil {
+		err = errors.New("401")
+		return 0, err
 	}
-	if hush.ComparePassword(newuser.Password, password) != nil {
-		https.ResponseText(w, r, 0, "Password is Incorrect")
-		return
-	}
-	token, err := jwttoken.GenterateToken(newuser)
+	token, err := jwttoken.GenterateToken(newuser.ID, 24*30)
 	if err != nil {
-		logger.Trace(err)
-		https.ResponseText(w, r, 0, "Error")
-		return
+		return 0, err
 	}
 	jwttoken.SetCookie(w, token, "LoginCookie")
-	https.ResponseText(w, r, 1, "Logged In")
+	return newuser.ID, err
 }
 
-func (srv *UserService) GetUserData(w http.ResponseWriter, r *http.Request) {
-	dataPerPage, err := strconv.Atoi(r.FormValue("dataPerPage"))
-	if err != nil {
-		https.ResponseText(w, r, 0, "Incorrect Value Format")
-	}
-	pageNumber, err := strconv.Atoi(r.FormValue("pageNumber"))
-	if err != nil {
-		https.ResponseText(w, r, 0, "Incorrect Value Format")
-	}
-	var count int64
-	db.Database.Table("hr_management").Count(&count)
-	if err := db.Database.Error; err != nil {
-		https.ResponseText(w, r, 0, "Error")
-	}
-	var pageCount int = int(count) / pageNumber
-	offSet := (pageNumber - 1) * dataPerPage
-	users, err := srv.usermodel.GetUsers(offSet, dataPerPage)
-	pageCount = pageCount
-	users = users
+func (srv *UserService) GetUserData(params *dtos.ListUser) (*types.ListData[user.User], error) {
+	result, err := srv.usermodel.List(params)
+	return result, err
 }

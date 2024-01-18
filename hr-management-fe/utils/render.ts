@@ -7,16 +7,11 @@ export function renderIcon(icon: Component) {
 
 export function renderRoute(path: string, label: string) {
   return () =>
-    h(
-      RouterLink,
-      {
-        to: {
-          name: path || "home",
-          params: {
-            lang: "en-US",
+      h(
+          RouterLink,
+          {
+              to: path,
           },
-        },
-      },
-      { default: () => label || "opsy... 😛" }
-    );
+          { default: () => label || 'opsy... 😛' },
+      )
 }

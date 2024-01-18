@@ -10,7 +10,7 @@ func initAppRoutes(r chi.Router) {
 
 	clock := controllers.NewClockController()
 
-	r.Route("/app", func(r chi.Router) {
+	r.Route("/mobile", func(r chi.Router) {
 		// private route
 		r.Group(func(r chi.Router) {
 			// clock

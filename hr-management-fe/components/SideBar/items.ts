@@ -1,33 +1,16 @@
-import { type MenuOption } from "naive-ui";
-import {
-  BookOutline as BookIcon,
-  PersonOutline as PersonIcon,
-  WineOutline as WineIcon,
-} from "@vicons/ionicons5";
-import { UserRoute } from "~/constants/routes";
-
-const Devider: MenuOption = {
-  key: "divider-1",
-  type: "divider",
-};
+import type { MenuOption } from 'naive-ui'
+import { RouterLink } from 'vue-router'
+import { Timer } from '@vicons/ionicons5'
 
 export const menuOptions: MenuOption[] = [
-  Devider,
-  {
-    label: "Management",
-    key: "Dance Dance Dance",
-    icon: renderIcon(BookIcon),
-    children: [
-      {
-        label: renderRoute(UserRoute.path, UserRoute.label),
-        key: UserRoute.key,
-        icon: renderIcon(UserRoute.icon),
-      },
-      {
-        label: "Sheep Man",
-        key: "sheep-man",
-        icon: renderIcon(PersonIcon),
-      },
-    ],
-  },
-];
+    {
+        label: renderRoute('/admin/clock', i18n.global.t('clock_management')),
+        icon: renderIcon(Timer),
+        key: 'clock',
+    },
+    {
+        label: 'Hear the Wind Sing',
+        key: 'hear-the-wind-sing1',
+        href: 'https://en.wikipedia.org/wiki/Hear_the_Wind_Sing',
+    },
+]
