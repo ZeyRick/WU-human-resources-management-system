@@ -15,16 +15,17 @@ func initAdminRoutes(r chi.Router) {
 	employee := controllers.NewEmployeeController()
 	r.Route("/admin", func(r chi.Router) {
 		// private route
-		r.Use(LoginMiddleware)
+
+		r.Post("/user/login", user.UserLogin)
 
 		r.Group(func(r chi.Router) {
 
+			r.Use(LoginMiddleware)
 			// for testing
 			r.Get("/hello", helloWorld.GetHelloWorld)
 
 			// User
 			r.Post("/user/register", user.UserRegister)
-			r.Post("/user/login", user.UserLogin)
 			r.Get("/user/userdata", user.GetUserData)
 
 			// Employee
@@ -36,13 +37,8 @@ func initAdminRoutes(r chi.Router) {
 
 func LoginMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ok, userId := jwttoken.CheckCookie(w, r, "LoginCookie", 24*30)
+		ok, _ := jwttoken.CheckCookie(w, r, "LoginCookie", 24*30)
 		if ok {
-			https.ResponseJSON(w, r, http.StatusOK, userId)
-			next.ServeHTTP(w, r)
-			return
-		}
-		if r.URL.Path == "/admin/user/login" || r.URL.Path == "/admin/user/register" || r.URL.Path == "/admin/test" {
 			next.ServeHTTP(w, r)
 			return
 		}

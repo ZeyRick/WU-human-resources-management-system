@@ -1,7 +1,6 @@
 package jwttoken
 
 import (
-	"backend/pkg/logger"
 	"errors"
 	"net/http"
 	"time"
@@ -61,6 +60,9 @@ func CheckCookie(w http.ResponseWriter, r *http.Request, cookieName string, expi
 			break
 		}
 	}
+	if neededCookie == nil {
+		return false, 0
+	}
 	ok, userID := ValidateCookie(w, r, neededCookie.Value, neededCookie)
 	if ok == false {
 		DeleteCookie(w, cookieName)
@@ -82,7 +84,6 @@ func ValidateCookie(w http.ResponseWriter, r *http.Request, tokenString string, 
 		},
 	)
 	if err != nil {
-		logger.Trace(err)
 		return false, 0
 	}
 	if claims.ExpireAt <= time.Now().Unix() {
