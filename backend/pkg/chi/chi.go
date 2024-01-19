@@ -59,4 +59,3 @@ func StartServerWithGracefulShutdown(handlers http.Handler) {
 	// Wait for server context to be stopped
 	<-serverCtx.Done()
 }
-

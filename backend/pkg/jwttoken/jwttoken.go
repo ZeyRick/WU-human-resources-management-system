@@ -1,9 +1,7 @@
 package jwttoken
 
 import (
-	"backend/core/models/user"
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -14,27 +12,28 @@ import (
 var secretkey = "this_is_the_key_needed_to_store_in_env"
 
 type Claims struct {
-	Username string
+	ID       uint
 	ExpireAt int64
 }
 
 // Valid implements jwt.Claims.
 func (c Claims) Valid() error {
-	if c.Username == "" {
-		return errors.New("missing username claim")
+	if c.ID == 0 {
+		return errors.New("Missing ID Claim")
 	}
 	if c.ExpireAt <= time.Now().Unix() {
-		return errors.New("token expired")
+		return errors.New("Missing Expires Claim")
 	}
 	return nil
 }
 
-func GenterateToken(user user.User) (string, error) {
+func GenterateToken(userID uint, expiredTime int) (string, error) {
+	expires := time.Now().UTC().Add(time.Hour * time.Duration(expiredTime))
 	claims := &Claims{
-		Username: user.Username,
-		ExpireAt: time.Now().Add(time.Hour * 1).Unix(),
+		ID:       userID,
+		ExpireAt: expires.Unix(),
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodES256, claims)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(secretkey))
 }
 
@@ -49,26 +48,35 @@ func SetCookie(w http.ResponseWriter, token string, cookieName string) {
 	http.SetCookie(w, cookie)
 }
 
-func CheckCookie(w http.ResponseWriter, r *http.Request, cookieName string, yourfunctionture string, yourfunctionfalse string) {
+func CheckCookie(w http.ResponseWriter, r *http.Request, cookieName string, expiredTime int) (bool, uint) {
 	var neededCookie *http.Cookie
 	cookies := r.Cookies()
+	if len(cookies) == 0 {
+		return false, 0
+	}
 	for _, cookie := range cookies {
 		if cookie.Name == cookieName {
 			neededCookie = cookie
 			break
 		}
 	}
-	if cookies != nil {
-		if ValidateCookie(w, r, neededCookie.Value) == false {
-			fmt.Printf(yourfunctionture)
-		}
-
+	if neededCookie == nil {
+		return false, 0
+	}
+	ok, userID := ValidateCookie(w, r, neededCookie.Value, neededCookie)
+	if ok == false {
+		DeleteCookie(w, cookieName)
+		return false, 0
 	} else {
-		fmt.Printf(yourfunctionfalse)
+		err := UpdateCookieExpiredTime(w, cookieName, expiredTime, userID)
+		if err != nil {
+			return false, 0
+		}
+		return true, userID
 	}
 }
 
-func ValidateCookie(w http.ResponseWriter, r *http.Request, tokenString string) bool {
+func ValidateCookie(w http.ResponseWriter, r *http.Request, tokenString string, cookie *http.Cookie) (bool, uint) {
 	claims := &Claims{}
 	_, err := jwt.ParseWithClaims(tokenString, claims,
 		func(token *jwt.Token) (interface{}, error) {
@@ -76,14 +84,36 @@ func ValidateCookie(w http.ResponseWriter, r *http.Request, tokenString string) 
 		},
 	)
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Printf("Invalid Cookie")
-		return false
+		return false, 0
 	}
 	if claims.ExpireAt <= time.Now().Unix() {
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Printf("Cookie Expired")
-		return false
+		return false, 0
 	}
-	return true
+	return true, claims.ID
+}
+
+func DeleteCookie(w http.ResponseWriter, cookieName string) {
+	cookie := &http.Cookie{
+		Name:   cookieName,
+		MaxAge: -1,
+		Path:   "/",
+		Secure: true,
+	}
+	http.SetCookie(w, cookie)
+}
+
+func UpdateCookieExpiredTime(w http.ResponseWriter, cookieName string, expiredTime int, id uint) error {
+	token, err := GenterateToken(id, expiredTime)
+	if err != nil {
+		return err
+	}
+	cookie := &http.Cookie{
+		Name:     cookieName,
+		Value:    token,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,
+	}
+	http.SetCookie(w, cookie)
+	return nil
 }

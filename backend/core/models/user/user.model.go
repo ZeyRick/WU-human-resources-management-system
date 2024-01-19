@@ -1,7 +1,9 @@
 package user
 
 import (
+	"backend/adapters/dtos"
 	"backend/core/models"
+	"backend/core/types"
 	"backend/pkg/db"
 )
 
@@ -59,4 +61,17 @@ func (repo *UserRepo) FindByUserName(userName string) (User, error) {
 		return User{}, result.Error
 	}
 	return user, nil
+}
+
+func (repo *UserRepo) GetUsers(offSet, limit int) ([]User, error) {
+	user := []User{}
+	err := db.Database.Offset(offSet).Limit(limit).Find(user).Error
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (repo *UserRepo) List(dto *dtos.ListUser) (*types.ListData[User], error) {
+	return models.List[User](&dto.PageOpt, db.Database, "users")
 }
