@@ -46,7 +46,6 @@ func (ctr *ScheduleController) Add(w http.ResponseWriter, r *http.Request) {
 	https.ResponseMsg(w, r, http.StatusCreated, "Schedule created")
 }
 
-
 func (ctrl *ScheduleController) List(w http.ResponseWriter, r *http.Request) {
 	pageOpt, dto, err := https.GetPaginationWithType[dtos.ScheduleFilter](r)
 	if err != nil {
@@ -54,11 +53,25 @@ func (ctrl *ScheduleController) List(w http.ResponseWriter, r *http.Request) {
 		https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
 		return
 	}
-	logger.Console(dto)
 	result, err := ctrl.service.List(&pageOpt, &dto)
 	if err != nil {
 		logger.Trace(err)
 		https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
+		return
+	}
+	https.ResponseJSON(w, r, http.StatusOK, result)
+}
+
+func (ctrl *ScheduleController) GetAll(w http.ResponseWriter, r *http.Request) {
+	dto, err := https.GetQuery[dtos.ScheduleFilter](r)
+	if err != nil {
+		logger.Trace(err)
+		https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
+		return
+	}
+	result, err := ctrl.service.GetAll(w, r, &dto)
+	if err != nil {
+		logger.Trace(err)
 		return
 	}
 	https.ResponseJSON(w, r, http.StatusOK, result)

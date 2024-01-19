@@ -1,10 +1,13 @@
-type EmployeeParams = {
-    id: number
-    employeeName: string
+export type EmployeeParams = {
+    id?: number
+    employeeName?: string
+    departmentId?: string
 }
 
-type Employee = {
-    ID: string
-    Name: string
-    EmployeeName: string
+export type Employee = {
+    id: string
+    name: string
+    employeeName: string
+    clockInTime: string
+    clockOutTime: string
 }

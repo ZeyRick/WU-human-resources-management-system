@@ -5,12 +5,12 @@ import (
 )
 
 type Clock struct {
-	EmployeeId *int            `json:"employeeId,string,required"`
-	ClockType  types.ClockType `json:"clockType,required"`
+	EmployeeId *int            `json:"employeeId,string" validate:"required"`
+	ClockType  types.ClockType `json:"clockType" validate:"required"`
 }
 
 type ListClock struct {
-	PageOpt PageOpt `json:"pageOpt,required"`
+	PageOpt PageOpt `json:"pageOpt" validate:"required"`
 }
 
 type ClockFilter struct {

@@ -11,9 +11,11 @@ import (
 
 type Clock struct {
 	models.BaseModel
-	EmployeeId *int            `gorm:"type:int;not null"`
-	ClockType  types.ClockType `gorm:"type:ENUM;not null"`
-	Employee   employee.Employee
+	EmployeeId   *int              `json:"employeeId" gorm:"type:int;not null"`
+	ClockType    types.ClockType   `json:"clockType" gorm:"type:ENUM;not null"`
+	ClockInId    *int              `json:"clockInId" gorm:"int"`
+	ClockOutHour *int              `json:"clockOutHour" gorm:"int"`
+	Employee     employee.Employee `json:"employee"`
 }
 
 type ClockRepo struct{}
@@ -30,6 +32,15 @@ func (repo *ClockRepo) Create(newClock *Clock) error {
 	return nil
 }
 
+func (repo *ClockRepo) LatestClockIn(employeeId *int) (*Clock, error) {
+	var data Clock
+	result := db.Database.Last(&data, "employee_id = ? AND clock_type = ?", *employeeId, types.ClockIn)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &data, nil
+}
+
 func (repo *ClockRepo) List(pageOpt *dtos.PageOpt, dto *dtos.ClockFilter) (*types.ListData[Clock], error) {
 	query := db.Database.Joins("Employee")
 
@@ -44,7 +55,7 @@ func (repo *ClockRepo) List(pageOpt *dtos.PageOpt, dto *dtos.ClockFilter) (*type
 	}
 
 	if dto.EmployeeId != 0 {
-		query = query.Where("clocks.employee_id = ?", dto.EmployeeId)	
+		query = query.Where("clocks.employee_id = ?", dto.EmployeeId)
 	}
 
 	// datetime BETWEEN '2024-01-14 00:00:00' AND '2024-01-14 23:59:59'

@@ -9,8 +9,9 @@ import (
 
 type Employee struct {
 	models.BaseModel
-	Name       string `gorm:"type:string;not null"`
-	ProfilePic string `gorm:"type:string;not null"`
+	Name         string `json:"name" gorm:"type:string;not null"`
+	DepartmentId *int   `json:"departmentId" gorm:"type:number;not null"`
+	ProfilePic   string `json:"profilePic" gorm:"type:string;not null"`
 }
 
 type EmployeeRepo struct{}

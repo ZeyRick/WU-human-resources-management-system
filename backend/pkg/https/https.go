@@ -21,8 +21,8 @@ type ErrorBody struct {
 }
 
 type JsonBody struct {
-	Code int
-	Data interface{}
+	Code int         `json:"code"`
+	Res  interface{} `json:"res"`
 }
 
 var StatusCtxKey = &contextKey{"Status"}
@@ -42,7 +42,7 @@ func ResponseJSON(w http.ResponseWriter, r *http.Request, statusCode int, v inte
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	byteBody := JsonBody{
 		Code: 0,
-		Data: v,
+		Res: v,
 	}
 	w.WriteHeader(statusCode)
 	render.JSON(w, r, byteBody)

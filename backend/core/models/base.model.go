@@ -10,10 +10,10 @@ import (
 )
 
 type BaseModel struct {
-	ID        uint `gorm:"primaryKey;autoIncrement"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt *time.Time `gorm:"index"`
+	ID        uint       `json:"id" gorm:"primaryKey;autoIncrement"`
+	CreatedAt time.Time  `json:"createdAt"`
+	UpdatedAt time.Time  `json:"updatedAt"`
+	DeletedAt *time.Time `json:"deletedAt" gorm:"index"`
 }
 
 func paginate(pageOpt *dtos.PageOpt) func(db *gorm.DB) *gorm.DB {

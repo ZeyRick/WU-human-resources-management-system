@@ -15,6 +15,7 @@ func initAdminRoutes(r chi.Router) {
 	employee := controllers.NewEmployeeController()
 	clock := controllers.NewClockController()
 	schedule := controllers.NewScheduleController()
+	department := controllers.NewDepartmentController()
 
 	r.Route("/admin", func(r chi.Router) {
 		// private route
@@ -41,7 +42,10 @@ func initAdminRoutes(r chi.Router) {
 
 			// Schedule
 			r.Post("/schedule", schedule.Add)
-			r.Get("/schedule", schedule.List)
+			r.Get("/schedule", schedule.GetAll)
+
+			//department
+			r.Get("/department/all", department.All)
 		})
 	})
 }
