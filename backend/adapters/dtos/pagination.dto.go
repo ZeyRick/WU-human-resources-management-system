@@ -7,6 +7,6 @@ type FilterWithPageOpt[T any] struct {
 }
 
 type PageOpt struct {
-	Size *int64 `json:"size,int,required"`
-	Page *int64 `json:"page,int,required"`
+	Size *int64 `json:"size,int" validate:"required"`
+	Page *int64 `json:"page,int" validate:"required"`
 }

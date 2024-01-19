@@ -10,8 +10,7 @@
 <script setup lang="ts">
 import { CheckmarkCircle, CloseCircle } from '@vicons/ionicons5'
 
-const props = defineProps({
-    text: '',
-})
+const props = defineProps<{
+    text: string
+}>()
 </script>
-

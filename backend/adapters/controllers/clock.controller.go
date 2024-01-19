@@ -25,10 +25,9 @@ func (ctr *ClockController) Clock(w http.ResponseWriter, r *http.Request) {
 		logger.Trace(err)
 		return
 	}
-	err = ctr.clockService.Clock(clockDto)
+	err = ctr.clockService.Clock(w, r, clockDto)
 	if err != nil {
 		logger.Trace(err)
-		https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
 		return
 	}
 	https.ResponseMsg(w, r, http.StatusCreated, "Clock Created")

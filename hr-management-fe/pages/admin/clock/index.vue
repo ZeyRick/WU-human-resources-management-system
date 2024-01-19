@@ -15,7 +15,7 @@
                     :disable="loading"
                     v-model:value="filterForm.employeeId"
                     filterable
-                    placeholder="Please select a song"
+                    :placeholder="i18n.global.t('employee')"
                     :options="employeeOptions"
                 />
             </div>
@@ -34,7 +34,7 @@
                 <n-date-picker
                     size="large"
                     :disabled="loading"
-                    style="width: 120px; margin: 0 10px; border-radius: 900px"
+                    style="width: 130px; margin: 0 10px; border-radius: 900px"
                     :on-update:value="handlerTimeChange"
                     format="yyyy-MM-dd"
                     :v-model:value="filterForm.date"
@@ -85,6 +85,7 @@ import { apiAllEmployee } from '~/apis/employee'
 import { getNowLocal } from '~/utils/time'
 import { DATE_FORMAT } from '~/constants/time'
 import moment from 'moment'
+import type { Employee } from '~/types/employee'
 
 const employeeOptions = ref<{ label: string; value: string }[]>([])
 const pageOption = ref<Pagination>({ page: 1, size: 10 })
@@ -109,11 +110,11 @@ const getEmployee = async () => {
         loadingBar.start()
         loading.value = true
         const res: any = await apiAllEmployee()
-        const employees = JSON.parse(res).Data as Employee[]
+        const employees = JSON.parse(res).res as Employee[]
         employees.map((e) => {
             employeeOptions.value.push({
-                label: `${e.ID}/${e.Name}`,
-                value: e.ID,
+                label: `${e.id} - ${e.name}`,
+                value: e.id,
             })
         })
     } catch (error) {
@@ -128,12 +129,12 @@ const fetchData = async () => {
         loadingBar.start()
         loading.value = true
         const res: any = await apiGetClock(pageOption.value, filterForm)
-        const jsonRes = JSON.parse(res).Data
-        totalPage.value = jsonRes.PageOpt.TotalPage
-        clockDatas.value = jsonRes.Data
+        const jsonRes = JSON.parse(res).res
+        totalPage.value = jsonRes.pageOpt.totalPage
+        clockDatas.value = jsonRes.data
         pageOption.value = {
-            size: jsonRes.PageOpt.PageSize,
-            page: jsonRes.PageOpt.CurPage,
+            size: jsonRes.pageOpt.pageSize,
+            page: jsonRes.pageOpt.curPage,
         }
     } catch (error) {
     } finally {

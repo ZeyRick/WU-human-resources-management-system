@@ -1,8 +1,9 @@
 package dtos
 
 type AddEmployee struct {
-	Name       string `json:"name,string,required"`
-	ProfilePic string `json:"profilePic,string,omitempty"`
+	Name         string `json:"name,string" validate:"required"`
+	ProfilePic   string `json:"profilePic,string,omitempty"`
+	DepartmentId int    `json:"departmentId,number" validate:"required"`
 }
 
 type EmployeeFilter struct {
