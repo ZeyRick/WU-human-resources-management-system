@@ -3,6 +3,7 @@ package controllers
 import (
 	"backend/adapters/dtos"
 	"backend/core/services"
+	"backend/pkg/helper"
 	"backend/pkg/https"
 	"backend/pkg/logger"
 	"backend/pkg/variable"
@@ -45,13 +46,13 @@ func (ctrl *ClockController) List(w http.ResponseWriter, r *http.Request) {
 	}
 	if err != nil {
 		logger.Trace(err)
-		https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
+		helper.UnexpectedError(w, r, http.StatusInternalServerError, err)
 		return
 	}
 	result, err := ctrl.clockService.List(&pageOpt, &dto)
 	if err != nil {
 		logger.Trace(err)
-		https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
+		helper.UnexpectedError(w, r, http.StatusInternalServerError, err)
 		return
 	}
 	https.ResponseJSON(w, r, http.StatusOK, result)

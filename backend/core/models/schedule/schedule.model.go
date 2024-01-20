@@ -27,13 +27,22 @@ func NewScheduleRepo() *ScheduleRepo {
 	return &ScheduleRepo{}
 }
 
-func (repo *ScheduleRepo) Create(newSchedule *Schedule) error {
+func (repo *ScheduleRepo) Create(newSchedules *Schedule) error {
+	result := db.Database.Create(newSchedules)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
+func (repo *ScheduleRepo) BatchCreate(newSchedule *[]Schedule) error {
 	result := db.Database.Create(newSchedule)
 	if result.Error != nil {
 		return result.Error
 	}
 	return nil
 }
+
 
 func (repo *ScheduleRepo) FindExistedScope(employeeId *int, scope string) (Schedule, error) {
 	var data Schedule

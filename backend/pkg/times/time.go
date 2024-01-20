@@ -23,3 +23,12 @@ func DaysInMonth(inputString string) (int, error) {
 
 	return daysInMonth, nil
 }
+
+func ParseTime(dateTimeString string) (*time.Time, error) {
+	// Parse the string into a time.Time value
+	parsedTime, err := time.Parse("2006-01-02 15:04:05", dateTimeString)
+	if err != nil {
+		return nil, err
+	}
+	return &parsedTime, err
+}
