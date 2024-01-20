@@ -44,6 +44,12 @@ func (repo *EmployeeRepo) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter) 
 func (repo *EmployeeRepo) All(dto *dtos.EmployeeFilter) (*[]Employee, error) {
 	var data []Employee
 	query := db.Database
+	if dto.DepartmentId  != nil {
+		query = query.Where("department_id = ?", *dto.DepartmentId)
+	}
+	if dto.EmployeeId  != nil {
+		query = query.Where("id = ?", *dto.EmployeeId)
+	}
 	dbRes := query.Find(&data)
 	if dbRes.Error != nil {
 		return nil, dbRes.Error

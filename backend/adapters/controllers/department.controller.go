@@ -3,6 +3,7 @@ package controllers
 import (
 	"backend/adapters/dtos"
 	"backend/core/services"
+	"backend/pkg/helper"
 	"backend/pkg/https"
 	"backend/pkg/logger"
 	"net/http"
@@ -22,13 +23,13 @@ func (ctrl *DepartmentController) All(w http.ResponseWriter, r *http.Request) {
 	dto, err := https.GetQuery[dtos.DepartmentFilter](r)
 	if err != nil {
 		logger.Trace(err)
-		https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
+		helper.UnexpectedError(w, r, http.StatusInternalServerError, err)
 		return
 	}
 	result, err := ctrl.service.All(&dto)
 	if err != nil {
 		logger.Trace(err)
-		https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
+		helper.UnexpectedError(w, r, http.StatusInternalServerError, err)
 		return
 	}
 	https.ResponseJSON(w, r, http.StatusOK, *result)

@@ -5,33 +5,52 @@
                 flex-direction: row;
                 display: flex;
                 align-items: center;
-                justify-content: start;
+                justify-content: space-between;
                 overflow: hidden;
                 margin-bottom: 20px;
             "
         >
-            <div style="font-size: 16px; display: flex; align-items: center">
-                Department:
-                <n-select
-                    style="margin-left: 10px"
-                    :disable="loading"
-                    v-model:value="filterForm.departmentId"
-                    filterable
-                    :placeholder="i18n.global.t('department')"
-                    :options="departmentOptions"
-                />
+            <div
+                style="
+                    flex-direction: row;
+                    display: flex;
+                    align-items: center;
+                    justify-content: start;
+                    overflow: hidden;
+                "
+            >
+                <div style="font-size: 16px; display: flex; align-items: center">
+                    Department:
+                    <n-select
+                        @update:value="onDepartmentChange"
+                        style="margin-left: 10px"
+                        :disable="loading"
+                        v-model:value="filterForm.departmentId"
+                        filterable
+                        :placeholder="i18n.global.t('department')"
+                        :options="departmentOptions"
+                    />
+                </div>
+                <div style="font-size: 16px; display: flex; align-items: center; margin-left: 10px">
+                    Employee:
+                    <n-select
+                        style="margin-left: 10px"
+                        :disable="loading"
+                        v-model:value="filterForm.employeeId"
+                        filterable
+                        :placeholder="i18n.global.t('employee')"
+                        :options="employeeOptions"
+                    />
+                </div>
             </div>
-            <div style="font-size: 16px; display: flex; align-items: center; margin-left: 10px">
-                Employee:
-                <n-select
-                    style="margin-left: 10px"
-                    :disable="loading"
-                    v-model:value="filterForm.employeeId"
-                    filterable
-                    :placeholder="i18n.global.t('employee')"
-                    :options="employeeOptions"
-                />
-            </div>
+            <ScheduleCreateModal
+                :departmentOptions="departmentOptions"
+                :departmentId="
+                    departmentOptions.find((department) => department?.value === filterForm.departmentId)?.value ||
+                    departmentOptions[0]?.value
+                "
+                :employeeOptions="employeeOptions"
+            />
         </div>
         <Calendar @scopeChange="scopeChange" :schedules="scheduleDatas" />
     </n-layout>
@@ -45,15 +64,17 @@ import { apiAllDepartment } from '~/apis/department'
 import type { Employee } from '~/types/employee'
 import type { Department } from '~/types/department'
 import type { ScheduleFilterParams, ScheduleInfo } from '~/types/schedule'
+import ScheduleCreateModal from '~/components/SchedulePage/ScheduleCreateModal.vue'
+import moment from 'moment'
 
-const employeeOptions = ref<{ label: string; value: string }[]>([{ label: 'All', value: '' }])
+const employeeOptions = ref<{ label: string; value: string }[]>([])
 const departmentOptions = ref<{ label: string; value: string }[]>([])
 const loading = ref<boolean>(true)
 const scheduleDatas = ref<ScheduleInfo[]>([])
 const loadingBar = useLoadingBar()
 const filterForm = reactive<ScheduleFilterParams>({
-    scope: '2024-01',
-    departmentId: '1',
+    scope: moment().format('YYYY-MM'),
+    departmentId: '',
     employeeId: '',
 })
 
@@ -81,8 +102,10 @@ const getEmployee = async () => {
     try {
         loadingBar.start()
         loading.value = true
+        console.log(filterForm.departmentId)
         const res: any = await apiAllEmployee({ departmentId: filterForm.departmentId })
         const employees = JSON.parse(res).res as Employee[]
+        employeeOptions.value = [{ label: 'All', value: '' }]
         employees.map((e) => {
             employeeOptions.value.push({
                 label: `${e.id} - ${e.name}`,
@@ -111,6 +134,11 @@ const fetchData = async () => {
     }
 }
 
+const onDepartmentChange = (value: any) =>  {
+    filterForm.departmentId = value
+    getEmployee() 
+}
+   
 watch(filterForm, fetchData)
 
 onMounted(() => {
