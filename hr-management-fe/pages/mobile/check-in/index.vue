@@ -47,7 +47,6 @@ const handleClock = async () => {
             employeeId: employeeId.value,
             clockType: clockTypeRef.value,
         })
-        console.log(res)
     } catch (error) {
         console.error(error)
     } finally {

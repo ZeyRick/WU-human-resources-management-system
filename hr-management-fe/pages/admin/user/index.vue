@@ -88,7 +88,6 @@ const createFormData = ref<CreateUserType>({
 const onSubmitCreate = () => {
     createFormRef.value?.validate((errors: Array<FormValidationError> | undefined) => {
         if (!errors) {
-            console.log(createFormData.value)
             apiCreateUser()
         } else {
             console.log(errors)

@@ -29,7 +29,6 @@ var StatusCtxKey = &contextKey{"Status"}
 var decoder = schema.NewDecoder()
 
 func ResponseError(w http.ResponseWriter, r *http.Request, statusCode int, v string) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	byteBody := ErrorBody{
 		Code: -1,
 		Msg:  v,
@@ -39,7 +38,6 @@ func ResponseError(w http.ResponseWriter, r *http.Request, statusCode int, v str
 }
 
 func ResponseJSON(w http.ResponseWriter, r *http.Request, statusCode int, v interface{}) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	byteBody := JsonBody{
 		Code: 0,
 		Res: v,
@@ -49,14 +47,10 @@ func ResponseJSON(w http.ResponseWriter, r *http.Request, statusCode int, v inte
 }
 
 func ResponseMsg(w http.ResponseWriter, r *http.Request, statusCode int, v string) {
-	// w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	// w.Header().Del("Transfer-Encoding")
 	byteBody := ErrorBody{
 		Code: 0,
 		Msg:  v,
 	}
-
 	w.WriteHeader(statusCode)
 	render.JSON(w, r, byteBody)
 

@@ -42,21 +42,22 @@ func (srv *UserService) UserRegister(w http.ResponseWriter, payload *dtos.UserRe
 	return err
 }
 
-func (srv *UserService) UserLogin(w http.ResponseWriter, payload *dtos.UserLogin) (uint, error) {
+func (srv *UserService) UserLogin(w http.ResponseWriter, r *http.Request, payload *dtos.UserLogin) ( error) {
 	newuser, err := srv.usermodel.FindByUserName(payload.Username)
 	if err != nil {
-		return 0, err
+		return err
 	}
 	if newuser.Username == "" || hush.ComparePassword(newuser.Password, payload.Password) != nil {
 		err = errors.New("401")
-		return 0, err
+		return err
 	}
 	token, err := jwttoken.GenterateToken(newuser.ID, 24*30)
 	if err != nil {
-		return 0, err
+		return err
 	}
+	
 	jwttoken.SetCookie(w, token, "LoginCookie")
-	return newuser.ID, err
+	return nil
 }
 
 func (srv *UserService) GetUserData(params *dtos.ListUser) (*types.ListData[user.User], error) {

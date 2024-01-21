@@ -6,13 +6,17 @@
         color="#5cb85c"
         text-color="#000000"
         @click="openCreateModal"
+        :disabled="props.isUpdate && !filterForm.employeeId"
     >
         <template #icon>
-            <n-icon color="#000000">
+            <n-icon v-if="props.isUpdate" color="#000000">
+                <ReloadSharp />
+            </n-icon>
+            <n-icon v-else color="#000000">
                 <AddCircleOutline />
             </n-icon>
         </template>
-        Create
+        {{ props.isUpdate ? 'Update' : 'Create' }}
     </n-button>
     <n-modal
         :show="showCreateModal"
@@ -22,41 +26,51 @@
     >
         <n-card
             style="width: 600px"
-            title="Create New User"
+            title="Add New Schedule"
             :bordered="false"
             size="huge"
             role="dialog"
             aria-modal="true"
         >
             <n-form ref="createFormRef" :rules="CommonFormRules" :model="createFormData">
-                <n-form-item path="scope" :label="i18n.global.t('department')">
+                <n-form-item path="departmentId" :label="i18n.global.t('department')">
                     <n-select
-                        :disable="loading"
-                        v-model:value="departmentId"
+                        :disabled="loading || props.isUpdate"
+                        v-model:value="createFormData.departmentId"
                         filterable
                         :placeholder="i18n.global.t('department')"
                         :options="props.departmentOptions"
+                        @update:value="getEmployee"
                     />
                 </n-form-item>
-                <n-form-item path="scope" :label="i18n.global.t('employee')">
+                <n-form-item path="" :label="i18n.global.t('employee')">
                     <n-select
-                        :disable="loading"
+                        :disabled="loading || props.isUpdate"
                         v-model:value="createFormData.employeeId"
                         filterable
                         :placeholder="i18n.global.t('employee')"
                         :options="employeeOptions"
-                        :default-value="'All'"
+                        :default-value="props.isUpdate ? props.filterForm.employeeId : 'All'"
                     />
                 </n-form-item>
                 <n-form-item path="scope" :label="i18n.global.t('year_month')">
-                    <VueDatePicker v-model="scope" month-picker :disabled="loading" required dark>
+                    <VueDatePicker
+                        ref="monthYearPicker"
+                        :clearable="false"
+                        v-model="scope"
+                        month-picker
+                        :disabled="loading || props.isUpdate"
+                        required
+                        dark
+                    >
                         <template #input-icon>
                             <n-icon size="25px"><CalendarOutline /></n-icon>
                         </template>
                     </VueDatePicker>
                 </n-form-item>
-                <n-form-item path="scope" :label="i18n.global.t('days')">
+                <n-form-item path="dates" :label="i18n.global.t('days')">
                     <VueDatePicker
+                        ref="datesPicker"
                         :format="dateFormat"
                         v-model="date"
                         disable-month-year-select
@@ -65,7 +79,13 @@
                         required
                         dark
                         multi-dates
+                        :month-change-on-arrows="false"
+                        :clearable="false"
                         hide-offset-dates
+                        :month-change-on-scroll="false"
+                        focus-start-date
+                        :start-date="datePickerStartDate"
+                        week-start="0"
                     >
                         <template #input-icon>
                             <n-icon size="25px">
@@ -74,26 +94,12 @@
                         </template>
                     </VueDatePicker>
                 </n-form-item>
-                <n-form-item path="scope" :label="i18n.global.t('click_in_out_time')">
-                    <VueDatePicker v-model="time" time-picker dark range>
+                <n-form-item path="clockOutTime" :label="i18n.global.t('click_in_out_time')">
+                    <VueDatePicker ref="timesPicker" :clearable="false" v-model="time" time-picker dark range>
                         <template #input-icon>
                             <n-icon size="25px"> <TimerOutline /></n-icon>
                         </template>
                     </VueDatePicker>
-                </n-form-item>
-                <n-form-item path="scope" :label="i18n.global.t('scope')">
-                    <n-input
-                        :input-props="{ autocomplete: 'off' }"
-                        v-model:value="createFormData.scope"
-                        @keydown.enter.prevent
-                    />
-                </n-form-item>
-                <n-form-item path="date" :label="i18n.global.t('date')">
-                    <n-input
-                        :input-props="{ autocomplete: 'off' }"
-                        v-model:value="createFormData.dates"
-                        @keydown.enter.prevent
-                    />
                 </n-form-item>
             </n-form>
             <div style="display: flex; gap: 10px; justify-content: flex-end">
@@ -105,55 +111,138 @@
 </template>
 
 <script setup lang="ts">
-import { AddCircleOutline, CalendarNumberOutline, CalendarOutline, TimerOutline } from '@vicons/ionicons5'
-import type { FormInst, FormValidationError } from 'naive-ui'
+import { AddCircleOutline, CalendarNumberOutline, CalendarOutline, TimerOutline, ReloadSharp } from '@vicons/ionicons5'
+import { useMessage, type FormInst, type FormValidationError } from 'naive-ui'
 import { apiAllEmployee } from '~/apis/employee'
-import { apiCreateSchedule } from '~/apis/schedule'
+import { apiCreateSchedule, apiGetScheduleByEmployeeId, apiUpdateSchedule } from '~/apis/schedule'
 import { CommonFormRules } from '~/constants/formRules'
 import type { Employee } from '~/types/employee'
-import type { CreateScheduleParams } from '~/types/schedule'
-import VueDatePicker from '@vuepic/vue-datepicker'
+import type { CreateScheduleParams, ScheduleFilterParams, Schedule } from '~/types/schedule'
+import VueDatePicker, { type DatePickerInstance } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
+import { parse } from 'date-fns'
 import moment from 'moment'
 
 const props = defineProps<{
+    isUpdate: boolean
     employeeOptions: { label: string; value: string }[]
     departmentOptions: { label: string; value: string }[]
-    departmentId: string
+    filterForm: ScheduleFilterParams
+}>()
+const getMonthAndYear = (propsScope: string) => {
+    const year: string = propsScope.split('-')[0]
+    const month: string = propsScope.split('-')[1]
+    return { month: Number(month) - 1, year: Number(year) }
+}
+
+const getTimesPickerValue = (dateString: string): { hours: number; minutes: number; seconds: number } => {
+    // Create a moment object from the string
+    const momentObject = moment.utc(dateString).local()
+
+    // Extract hours, minutes, and seconds in local time
+    const hours = momentObject.hours()
+    const minutes = momentObject.minutes()
+    const seconds = momentObject.seconds()
+
+    return {
+        hours,
+        minutes,
+        seconds,
+    }
+}
+
+const emit = defineEmits<{
+    (e: 'currentDateChange', newDate: Date): void
+    (e: 'onDepartmentChange', departmentId: string): void
+    (e: 'refreshData'): void
 }>()
 const createFormRef = ref<FormInst>()
-const employeeOptions = ref<{ label: string; value: string | undefined }[]>(props.employeeOptions)
+const employeeOptions = ref<{ label: string; value: string | undefined }[]>(
+    props.isUpdate ? props.employeeOptions.slice(1) : props.employeeOptions,
+)
 const showCreateModal = ref<boolean>(false)
 const createFormData = ref<CreateScheduleParams>({
     scope: '',
     dates: '',
     clockInTime: '',
     clockOutTime: '',
+    departmentId: props.filterForm.departmentId || props.departmentOptions[0]?.value,
 })
-const departmentId = ref<string>(props.departmentId)
 const loading = ref<boolean>(false)
 const time = ref<{ hours: number; minutes: number; seconds: number }[]>()
 const date = ref()
-const scope = ref<{ month: number; year: number }>()
-
+const scope = ref<{ month: number; year: number }>(getMonthAndYear(props.filterForm.scope))
+const monthYearPicker = ref<DatePickerInstance>()
+const timesPicker = ref<DatePickerInstance>()
+const datesPicker = ref<DatePickerInstance>()
+const datePickerStartDate = ref(parse(`${scope.value?.year}-${scope.value?.month}`, 'yyyy-MM', new Date()))
+const message = useMessage()
 const closeCreateModal = () => {
     createFormData.value = {
         scope: '',
         dates: '',
         clockInTime: '',
         clockOutTime: '',
+        departmentId: props.filterForm.departmentId,
     }
+    monthYearPicker.value?.clearValue()
+    datesPicker.value?.clearValue()
+    timesPicker.value?.clearValue()
     showCreateModal.value = false
 }
-const openCreateModal = () => {
-    departmentId.value = props.departmentId
+const employeeSchedule = ref<Schedule>()
+const openCreateModal = async () => {
+    createFormData.value.departmentId = props.filterForm.departmentId
     showCreateModal.value = true
+    getEmployee()
+    scope.value = getMonthAndYear(props.filterForm.scope)
+
+    if (props.isUpdate) {
+        const res: any = await apiGetScheduleByEmployeeId({
+            ...props.filterForm,
+            employeeId: props?.filterForm?.employeeId || employeeOptions?.value[0]?.value,
+        })
+        employeeSchedule.value = res.res as Schedule
+
+        createFormData.value.employeeId =  employeeSchedule.value.employeeId
+        // convert date into date picker
+        const datesArray = JSON.parse(employeeSchedule.value.dates.replace(/'/g, '"')) as number[]
+        const curScop = getMonthAndYear(props.filterForm.scope)
+        const dateObjects = datesArray.map((day) => new Date(curScop.year, curScop.month, day))
+        date.value = dateObjects
+
+        //convert time into time picker
+        time.value = [
+            getTimesPickerValue(employeeSchedule.value.clockInTime),
+            getTimesPickerValue(employeeSchedule.value.clockOutTime),
+        ]
+    }
 }
 
 const onSubmitCreate = () => {
-    createFormRef.value?.validate((errors: Array<FormValidationError> | undefined) => {
+    createFormRef.value?.validate(async (errors: Array<FormValidationError> | undefined) => {
         if (!errors) {
-            apiCreateSchedule(createFormData.value, departmentId.value)
+            try {
+                loading.value = true
+                if (props.isUpdate) {
+                    const res: any = await apiUpdateSchedule(createFormData.value)
+                    emit('currentDateChange', new Date(scope.value.year, scope.value.month, 1))
+                    emit('onDepartmentChange', createFormData.value.departmentId)
+                    emit('refreshData')
+                    message.success(res?.msg || 'Schedule Updated')
+                } else {
+                    const res: any = await apiCreateSchedule(createFormData.value)
+                    emit('currentDateChange', new Date(scope.value.year, scope.value.month, 1))
+                    emit('onDepartmentChange', createFormData.value.departmentId)
+                    message.success(res?.msg || 'Schedule Created')
+                }
+
+                closeCreateModal()
+            } catch (error: any) {
+                message.error(error.message)
+            } finally {
+                loading.value = false
+            }
         } else {
             console.log(errors)
         }
@@ -163,9 +252,9 @@ const onSubmitCreate = () => {
 const getEmployee = async () => {
     try {
         loading.value = true
-        const res: any = await apiAllEmployee({ departmentId: departmentId.value })
-        const employees = JSON.parse(res).res as Employee[]
-        employeeOptions.value = [{ label: 'All', value: undefined }]
+        const res: any = await apiAllEmployee({ departmentId: createFormData.value.departmentId })
+        const employees = res.res as Employee[]
+        employeeOptions.value = !props.isUpdate ? [{ label: 'All', value: undefined }] : []
         employees.map((e) => {
             employeeOptions.value.push({
                 label: `${e.id} - ${e.name}`,
@@ -180,6 +269,9 @@ const getEmployee = async () => {
 
 const dateFormat = (dates: Date[]): string => {
     let formatDates: string[] = []
+    if (!dates) {
+        return ''
+    }
     dates.forEach((date) => {
         formatDates.push(date.getDate().toString())
     })
@@ -189,7 +281,10 @@ const dateFormat = (dates: Date[]): string => {
 
 const updateScope = (value: { month: number; year: number } | undefined) => {
     if (value) {
-        createFormData.value.scope = moment( `${value.year}-${value.month}`).format('YYYY-MM')
+        createFormData.value.scope = moment(`${value.year}-${value.month + 1}`).format('YYYY-MM')
+        if (scope.value?.year != undefined && scope.value?.month != undefined) {
+            datePickerStartDate.value = new Date(parseInt(scope.value.year.toString()), scope.value.month)
+        }
     }
 }
 
@@ -205,7 +300,6 @@ const upateClockInOutTime = (times: { hours: number; minutes: number; seconds: n
 watch(time, () => upateClockInOutTime(time.value))
 watch(date, () => updateDates(date.value))
 watch(scope, () => updateScope(scope.value))
-watch(departmentId, getEmployee)
 </script>
 
 <style>

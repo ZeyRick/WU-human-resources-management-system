@@ -7,7 +7,7 @@ import type { logDark } from 'naive-ui'; import type { utc } from 'moment'; impo
                 <n-button @click="() => updateMonthClick(-1)">
                     <n-icon><ChevronBackOutline /></n-icon>
                 </n-button>
-                <n-button> Today </n-button>
+                <n-button @click="() => (currentDate = new Date())"> Today </n-button>
                 <n-button @click="() => updateMonthClick(1)">
                     <n-icon>
                         <ChevronForwardOutline />
@@ -35,7 +35,9 @@ import type { logDark } from 'naive-ui'; import type { utc } from 'moment'; impo
                     </div>
                 </div>
             </n-grid-item>
-            <n-grid-item v-for="index in 35 - daysInMonth - firstDayOfMonth" :key="`nm-${index}`">
+            <n-grid-item v-for="index in () => {
+                return 35 - (daysInMonth || 0 ) - (firstDayOfMonth || 0)
+            } " :key="`nm-${index}`">
                 <div :class="'disabled-date-cell'" />
             </n-grid-item>
         </n-grid>
@@ -78,18 +80,20 @@ import type { ScheduleInfo } from '~/types/schedule'
 import { format } from 'date-fns'
 import { ChevronBackOutline, ChevronForwardOutline } from '@vicons/ionicons5'
 
-const currentDate = ref<Date>(new Date())
+const props = defineProps<{
+    schedules: ScheduleInfo[]
+    currentDate: Date
+}>()
+const { schedules, currentDate } = toRefs(props)
 const year = ref<number>(currentDate.value.getFullYear())
 const month = ref<number>(currentDate.value.getMonth() + 1)
 const daysInMonth = ref<number>(new Date(year.value, month.value, 0).getDate())
 const firstDayOfMonth = ref<number>(new Date(year.value, month.value - 1, 1).getDay())
-const props = defineProps<{
-    schedules: ScheduleInfo[]
-}>()
+
 const showDetails = ref<boolean>(false)
 const selectedCell = ref<{ date: number; schedule: ScheduleInfo } | null>(null)
 const emit = defineEmits<{
-    (e: 'scopeChange', scope: string): void
+    (e: 'currentDateChange', newDate: Date): void
 }>()
 
 const onDateCellClick = (date: number, schedule: ScheduleInfo) => {
@@ -100,7 +104,7 @@ const onDateCellClick = (date: number, schedule: ScheduleInfo) => {
 const updateMonthClick = (value: number) => {
     const newDate = new Date(currentDate.value)
     newDate.setMonth(newDate.getMonth() + value)
-    currentDate.value = newDate
+    emit('currentDateChange', newDate)
 }
 
 watch(currentDate, () => {
@@ -110,7 +114,6 @@ watch(currentDate, () => {
     firstDayOfMonth.value = new Date(year.value, month.value - 1, 1).getDay()
     const date = new Date(2000, month.value - 1, 1) // Subtract 1 because months are 0-based in JavaScript
     const monthString = format(date, 'MM')
-    emit('scopeChange', `${year.value}-${monthString}`)
 })
 
 const weeks = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']

@@ -14,5 +14,9 @@
     "wed": "Wednesday",
     "thu": "Thursday",
     "fri": "Friday",
-    "sat": "Saturday"
+    "sat": "Saturday",
+    "click_in_out_time": "Clock In-Out Time",
+    "days": "Days",
+    "year_month": "Year-Month",
+    "department": "Department"
 }

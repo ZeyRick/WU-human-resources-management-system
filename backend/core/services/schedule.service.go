@@ -31,7 +31,7 @@ func (srv *ScheduleService) List(pageOpt *dtos.PageOpt, dto *dtos.ScheduleFilter
 	return result, err
 }
 
-func (srv *ScheduleService) GetAll(w http.ResponseWriter, r *http.Request, dto *dtos.ScheduleFilter) (*[]types.ScheduleInfo, error) {
+func (srv *ScheduleService) GetAllWithFormat(w http.ResponseWriter, r *http.Request, dto *dtos.ScheduleFilter) (*[]types.ScheduleInfo, error) {
 	schedulesData, err := srv.repo.GetAllByScope(dto)
 	if err != nil {
 		helper.UnexpectedError(w, r, http.StatusInternalServerError, err)
@@ -76,6 +76,16 @@ func (srv *ScheduleService) GetAll(w http.ResponseWriter, r *http.Request, dto *
 	return &result, err
 }
 
+func (srv *ScheduleService) GetByEmployeeId(w http.ResponseWriter, r *http.Request, dto *dtos.ScheduleFilter) {
+	schedulesData, err := srv.repo.GetAllByScope(dto)
+	if err != nil {
+		helper.UnexpectedError(w, r, http.StatusInternalServerError, err)
+		return
+	}
+	https.ResponseJSON(w, r, http.StatusOK, (*schedulesData)[0])
+	return
+}
+
 func (srv *ScheduleService) Add(w http.ResponseWriter, r *http.Request, dto *types.AddSchedule) {
 	employees, err := srv.employeeRepo.All(&dtos.EmployeeFilter{EmployeeId: dto.EmployeeId, DepartmentId: dto.DepartmentId})
 	if err != nil {
@@ -118,4 +128,37 @@ func (srv *ScheduleService) Add(w http.ResponseWriter, r *http.Request, dto *typ
 		return
 	}
 	https.ResponseMsg(w, r, http.StatusCreated, "Schedule created")
+}
+
+func (srv *ScheduleService) Update(w http.ResponseWriter, r *http.Request, dto *types.UpdateSchedule) {
+	employee, err := srv.employeeRepo.FindId(dto.EmployeeId)
+	if err != nil {
+		helper.UnexpectedError(w, r, http.StatusInternalServerError, err)
+		return
+	}
+	datesJson, err := json.Marshal(dto.Dates)
+	if err != nil {
+		helper.UnexpectedError(w, r, http.StatusInternalServerError, err)
+		return
+	}
+	existedSchedue, err := srv.repo.FindExistedScope(variable.Create[int](int(employee.ID)), dto.Scope)
+	if err != nil {
+		helper.UnexpectedError(w, r, http.StatusInternalServerError, err)
+		return
+	}
+	if existedSchedue.ID == 0 {
+		https.ResponseError(w, r, http.StatusInternalServerError, "Schedule not found")
+		return
+	}
+	converetedDates := "[" + string(datesJson)[1:len(string(datesJson))-1] + "]"
+	err = srv.repo.Update(&existedSchedue, &schedule.Schedule{
+		Dates:        converetedDates,
+		ClockInTime:  *dto.ClockInTime,
+		ClockOutTime: *dto.ClockOutTime,
+	})
+	if err != nil {
+		helper.UnexpectedError(w, r, http.StatusInternalServerError, err)
+		return
+	}
+	https.ResponseMsg(w, r, http.StatusCreated, "Schedule updated")
 }

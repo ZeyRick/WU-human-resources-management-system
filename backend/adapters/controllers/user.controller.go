@@ -4,6 +4,7 @@ import (
 	"backend/adapters/dtos"
 	"backend/core/services"
 	"backend/pkg/https"
+	"backend/pkg/jwttoken"
 	"backend/pkg/logger"
 	"backend/pkg/variable"
 	"net/http"
@@ -36,7 +37,10 @@ func (ctrl *UserController) UserRegister(w http.ResponseWriter, r *http.Request)
 		}
 	}
 	https.ResponseMsg(w, r, http.StatusCreated, "Register Complete")
-	return
+}
+
+func (ctrl *UserController) UserLogout(w http.ResponseWriter, r *http.Request) {
+	jwttoken.DeleteCookie(w, "LoginCookie")
 }
 
 func (ctrl *UserController) UserLogin(w http.ResponseWriter, r *http.Request) {
@@ -46,18 +50,17 @@ func (ctrl *UserController) UserLogin(w http.ResponseWriter, r *http.Request) {
 		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
-	userID, err := ctrl.userservice.UserLogin(w, &dto)
+	err = ctrl.userservice.UserLogin(w, r, &dto)
 	if err != nil {
-		logger.Trace(err)
 		if err.Error() == "401" {
-			https.ResponseError(w, r, http.StatusConflict, "Incorrect Username or Password")
+			https.ResponseError(w, r, http.StatusBadRequest, "Incorrect Username or Password")
+			return
 		} else {
+			logger.Trace(err)
 			https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
+			return
 		}
-		return
 	}
-	https.ResponseJSON(w, r, http.StatusOK, userID)
-	return
 }
 
 func (ctrl *UserController) GetUserData(w http.ResponseWriter, r *http.Request) {
@@ -79,5 +82,4 @@ func (ctrl *UserController) GetUserData(w http.ResponseWriter, r *http.Request) 
 		https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
 	}
 	https.ResponseJSON(w, r, http.StatusOK, *result)
-	return
 }

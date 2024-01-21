@@ -17,10 +17,11 @@ func initAdminRoutes(r chi.Router) {
 	schedule := controllers.NewScheduleController()
 	department := controllers.NewDepartmentController()
 
-	r.Route("/admin", func(r chi.Router) {
-		// private route
 
+
+	r.Route("/admin", func(r chi.Router) {
 		r.Post("/user/login", user.UserLogin)
+		r.Get("/user/logout", user.UserLogout)
 
 		r.Group(func(r chi.Router) {
 
@@ -42,7 +43,9 @@ func initAdminRoutes(r chi.Router) {
 
 			// Schedule
 			r.Post("/schedule", schedule.Add)
-			r.Get("/schedule", schedule.GetAll)
+			r.Get("/schedule", schedule.GetAllWithFormat)
+			r.Get("/schedule/{employeeId}", schedule.GetByEmployeeId)
+			r.Patch("/schedule", schedule.Update)
 
 			//department
 			r.Get("/department/all", department.All)
@@ -57,7 +60,6 @@ func LoginMiddleware(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 			return
 		}
-		https.ResponseMsg(w, r, http.StatusUnauthorized, "Missing Cookie")
-		return
+		https.ResponseMsg(w, r, http.StatusUnauthorized, "Unauthorized")
 	})
 }

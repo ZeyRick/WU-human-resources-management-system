@@ -7,5 +7,4 @@
 <script setup lang="ts">
 import type { Employee } from '~/types/employee'
 const props = defineProps<{ employees: Employee[] }>()
-console.log(props)
 </script>

@@ -10,15 +10,15 @@ import (
 )
 
 type Schedule struct {
-	ID           uint   `gorm:"primaryKey;autoIncrement"`
-	EmployeeId   *int   `gorm:"type:int;not null"`
-	Scope        string `gorm:"type:string;not null"`
-	Dates        string `gorm:"tyope:string"`
-	ClockInTime  time.Time
-	ClockOutTime time.Time
-	Employee     employee.Employee `gorm:"foreignkey:EmployeeId"`
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	ID           uint              `json:"id" gorm:"primaryKey;autoIncrement"`
+	EmployeeId   *int              `json:"employeeId" gorm:"type:int;not null"`
+	Scope        string            `json:"scope" gorm:"type:string;not null"`
+	Dates        string            `json:"dates" gorm:"tyope:string"`
+	ClockInTime  time.Time         `json:"clockInTime"`
+	ClockOutTime time.Time         `json:"clockOutTime"`
+	Employee     employee.Employee `json:"employee" gorm:"foreignkey:EmployeeId"`
+	CreatedAt    time.Time         `json:"createdAt"`
+	UpdatedAt    time.Time         `json:"updatedAt"`
 }
 
 type ScheduleRepo struct{}
@@ -35,6 +35,14 @@ func (repo *ScheduleRepo) Create(newSchedules *Schedule) error {
 	return nil
 }
 
+func (repo *ScheduleRepo) Update(oldSchedule *Schedule, newSchedule *Schedule) error {
+	result := db.Database.Model(oldSchedule).Updates(newSchedule)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
 func (repo *ScheduleRepo) BatchCreate(newSchedule *[]Schedule) error {
 	result := db.Database.Create(newSchedule)
 	if result.Error != nil {
@@ -42,7 +50,6 @@ func (repo *ScheduleRepo) BatchCreate(newSchedule *[]Schedule) error {
 	}
 	return nil
 }
-
 
 func (repo *ScheduleRepo) FindExistedScope(employeeId *int, scope string) (Schedule, error) {
 	var data Schedule
@@ -60,8 +67,8 @@ func (repo *ScheduleRepo) List(pageOpt *dtos.PageOpt, dto *dtos.ScheduleFilter) 
 
 func (repo *ScheduleRepo) GetAllByScope(dto *dtos.ScheduleFilter) (*[]Schedule, error) {
 	var data []Schedule
-	query :=  db.Database.Joins(`JOIN employees ON employees.id = schedules.employee_id`).Preload("Employee").
-	Where("employees.department_id = ?", *dto.DepartmentId)
+	query := db.Database.Joins(`JOIN employees ON employees.id = schedules.employee_id`).Preload("Employee").
+		Where("employees.department_id = ?", *dto.DepartmentId)
 	if *dto.EmployeeId != 0 {
 		query = query.Where(`employees.id = ?`, *dto.EmployeeId)
 	}

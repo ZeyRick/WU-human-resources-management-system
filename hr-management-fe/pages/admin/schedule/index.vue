@@ -43,16 +43,31 @@
                     />
                 </div>
             </div>
-            <ScheduleCreateModal
-                :departmentOptions="departmentOptions"
-                :departmentId="
-                    departmentOptions.find((department) => department?.value === filterForm.departmentId)?.value ||
-                    departmentOptions[0]?.value
-                "
-                :employeeOptions="employeeOptions"
-            />
+            <div style="display: flex;">
+                <div style="margin-right: 10px">
+                    <ScheduleCreateModal
+                        :is-update="true"
+                        :departmentOptions="departmentOptions"
+                        :filter-form="filterForm"
+                        :employeeOptions="employeeOptions"
+                        @currentDateChange="currentDateChange"
+                        @on-department-change="onDepartmentChange"
+                        @refresh-data="fetchData"
+                    />
+                </div>
+                <div>
+                    <ScheduleCreateModal
+                        :is-update="false"
+                        :departmentOptions="departmentOptions"
+                        :filter-form="filterForm"
+                        :employeeOptions="employeeOptions"
+                        @currentDateChange="currentDateChange"
+                        @on-department-change="onDepartmentChange"
+                    />
+                </div>
+            </div>
         </div>
-        <Calendar @scopeChange="scopeChange" :schedules="scheduleDatas" />
+        <Calendar :current-date="currentDate" @currentDateChange="currentDateChange" :schedules="scheduleDatas" />
     </n-layout>
 </template>
 
@@ -67,6 +82,7 @@ import type { ScheduleFilterParams, ScheduleInfo } from '~/types/schedule'
 import ScheduleCreateModal from '~/components/SchedulePage/ScheduleCreateModal.vue'
 import moment from 'moment'
 
+const currentDate = ref<Date>(new Date())
 const employeeOptions = ref<{ label: string; value: string }[]>([])
 const departmentOptions = ref<{ label: string; value: string }[]>([])
 const loading = ref<boolean>(true)
@@ -78,13 +94,17 @@ const filterForm = reactive<ScheduleFilterParams>({
     employeeId: '',
 })
 
-const scopeChange = (scope: string) => (filterForm.scope = scope)
+const currentDateChange = (newDate: Date) => {
+    currentDate.value = newDate
+    filterForm.scope = moment(currentDate.value).format('YYYY-MM')
+}
+
 const getDepartment = async () => {
     try {
         loadingBar.start()
         loading.value = true
         const res: any = await apiAllDepartment()
-        const departments = JSON.parse(res).res as Department[]
+        const departments = res.res as Department[]
         filterForm.departmentId = departments[0].id || ''
         departments.map((e) => {
             departmentOptions.value.push({
@@ -102,9 +122,8 @@ const getEmployee = async () => {
     try {
         loadingBar.start()
         loading.value = true
-        console.log(filterForm.departmentId)
         const res: any = await apiAllEmployee({ departmentId: filterForm.departmentId })
-        const employees = JSON.parse(res).res as Employee[]
+        const employees = res.res as Employee[]
         employeeOptions.value = [{ label: 'All', value: '' }]
         employees.map((e) => {
             employeeOptions.value.push({
@@ -124,7 +143,7 @@ const fetchData = async () => {
         loadingBar.start()
         loading.value = true
         const res: any = await apiGetSchedule(filterForm)
-        const jsonRes = JSON.parse(res).res
+        const jsonRes = res.res
         scheduleDatas.value = jsonRes
     } catch (error) {
         console.error(error)
@@ -134,17 +153,17 @@ const fetchData = async () => {
     }
 }
 
-const onDepartmentChange = (value: any) =>  {
+const onDepartmentChange = (value: any) => {
     filterForm.departmentId = value
-    getEmployee() 
+    getEmployee()
 }
-   
+
 watch(filterForm, fetchData)
 
-onMounted(() => {
-    fetchData()
-    getDepartment()
-    getEmployee()
+onMounted(async () => {
+    await getDepartment()
+    await getEmployee()
+    await fetchData()
 }),
     definePageMeta({
         layout: 'main',
