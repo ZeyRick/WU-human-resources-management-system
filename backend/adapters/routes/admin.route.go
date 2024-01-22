@@ -23,6 +23,8 @@ func initAdminRoutes(r chi.Router) {
 		r.Post("/user/login", user.UserLogin)
 		r.Get("/user/logout", user.UserLogout)
 
+		
+
 		r.Group(func(r chi.Router) {
 
 			r.Use(LoginMiddleware)
