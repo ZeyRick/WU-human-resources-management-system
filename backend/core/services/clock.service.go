@@ -31,21 +31,21 @@ func (srv *ClockService) Clock(w http.ResponseWriter, r *http.Request, payload d
 				https.ResponseError(w, r, http.StatusInternalServerError, "You must clock in first before clock out")
 				return err
 			}
-			helper.UnexpectedError(w, r, http.StatusInternalServerError, err)
+			helper.UnexpectedError(w, r,  err)
 			return err
 		}
 		curTime := time.Now().UTC()
 		hourWork := int(math.Round(prevClock.CreatedAt.Sub(curTime).Hours()))
 		err = srv.repo.Create(&clock.Clock{EmployeeId: payload.EmployeeId, ClockType: payload.ClockType, BaseModel: models.BaseModel{CreatedAt: curTime}, ClockOutHour: &hourWork})
 		if err != nil {
-			helper.UnexpectedError(w, r, http.StatusInternalServerError, err)
+			helper.UnexpectedError(w, r,  err)
 			return err
 		}
 		return nil
 	}
 	err := srv.repo.Create(&clock.Clock{EmployeeId: payload.EmployeeId, ClockType: payload.ClockType})
 	if err != nil {
-		helper.UnexpectedError(w, r, http.StatusInternalServerError, err)
+		helper.UnexpectedError(w, r,  err)
 		return err
 	}
 	return nil

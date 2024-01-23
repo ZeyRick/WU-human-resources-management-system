@@ -3,7 +3,8 @@ package services
 import (
 	"backend/adapters/dtos"
 	"backend/core/models/user"
-	"backend/core/types"
+	"backend/pkg/helper"
+	"backend/pkg/https"
 	"backend/pkg/hush"
 	"backend/pkg/jwttoken"
 	"errors"
@@ -24,25 +25,26 @@ func NewUserService() *UserService {
 	return &UserService{}
 }
 
-func (srv *UserService) UserRegister(w http.ResponseWriter, payload *dtos.UserRegister) error {
+func (srv *UserService) UserRegister(w http.ResponseWriter, r *http.Request, payload *dtos.UserRegister) {
 	newuser, err := srv.usermodel.FindByUserName(payload.Username)
 	if err != nil {
-		return err
+		helper.UnexpectedError(w, r, err)
+		return
 	}
 	if newuser.Username != "" {
-		err = errors.New("409")
-		return err
+		https.ResponseError(w, r, http.StatusBadRequest, "Username Already Exist")
+		return
 	}
 	password, err := hush.Hush(payload.Password)
 	if err != nil {
-		return err
+		return
 	}
 	newuser = user.User{Username: payload.Username, Name: payload.Name, Password: password, ProfilePic: payload.ProfilePic}
 	err = srv.usermodel.Create(&newuser)
-	return err
+	https.ResponseMsg(w, r, http.StatusCreated, "Register complete")
 }
 
-func (srv *UserService) UserLogin(w http.ResponseWriter, r *http.Request, payload *dtos.UserLogin) ( error) {
+func (srv *UserService) UserLogin(w http.ResponseWriter, r *http.Request, payload *dtos.UserLogin) error {
 	newuser, err := srv.usermodel.FindByUserName(payload.Username)
 	if err != nil {
 		return err
@@ -55,12 +57,12 @@ func (srv *UserService) UserLogin(w http.ResponseWriter, r *http.Request, payloa
 	if err != nil {
 		return err
 	}
-	
+
 	jwttoken.SetCookie(w, token, "LoginCookie")
 	return nil
 }
 
-func (srv *UserService) GetUserData(params *dtos.ListUser) (*types.ListData[user.User], error) {
-	result, err := srv.usermodel.List(params)
+func (srv *UserService) GetUserData(params *dtos.ListUser) (*[]user.User, error) {
+	result, err := srv.usermodel.All(params)
 	return result, err
 }

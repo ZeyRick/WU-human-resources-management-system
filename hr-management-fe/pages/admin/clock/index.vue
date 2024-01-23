@@ -10,15 +10,41 @@
                 margin-bottom: 20px;
             "
         >
-            <div>
-                <n-select
-                    :disable="loading"
-                    v-model:value="filterForm.employeeId"
-                    filterable
-                    :placeholder="i18n.global.t('employee')"
-                    :options="employeeOptions"
-                />
+            <div
+                style="
+                    flex-direction: row;
+                    display: flex;
+                    align-items: center;
+                    justify-content: start;
+                    overflow: hidden;
+                "
+            >
+                <div style="font-size: 16px; display: flex; align-items: center">
+                    Department:
+                    <n-select
+                        @update:value="onDepartmentChange"
+                        style="margin-left: 10px"
+                        :disable="loading"
+                        v-model:value="filterForm.departmentId"
+                        filterable
+                        :placeholder="i18n.global.t('department')"
+                        :options="departmentOptions"
+                    />
+                </div>
+                <div style="font-size: 16px; display: flex; align-items: center; margin-left: 10px">
+                    Employee:
+                    <div>
+                        <n-select
+                            :disable="loading"
+                            v-model:value="filterForm.employeeId"
+                            filterable
+                            :placeholder="i18n.global.t('employee')"
+                            :options="employeeOptions"
+                        />
+                    </div>
+                </div>
             </div>
+
             <div style="display: flex">
                 <n-button
                     size="large"
@@ -86,15 +112,19 @@ import { getNowLocal } from '~/utils/time'
 import { DATE_FORMAT } from '~/constants/time'
 import moment from 'moment'
 import type { Employee } from '~/types/employee'
+import type { Department } from '~/types/department'
+import { apiAllDepartment } from '~/apis/department'
 
 const employeeOptions = ref<{ label: string; value: string }[]>([])
+const departmentOptions = ref<{ label: string; value: string }[]>([])
 const pageOption = ref<Pagination>({ page: 1, size: 10 })
 const loading = ref<boolean>(true)
 const clockDatas = ref([])
 const totalPage = ref(0)
-const loadingBar = useLoadingBar()
+
 const filterForm = reactive<ClockFilter>({
-    employeeId: null,
+    employeeId: '',
+    departmentId: '',
     date: getNowLocal(DATE_FORMAT),
 })
 
@@ -105,12 +135,34 @@ const handleNextClick = () =>
     (filterForm.date = moment(filterForm.date, DATE_FORMAT).add(1, 'days').format(DATE_FORMAT))
 const handlerTimeChange = (value: string, formatValue: string) => (filterForm.date = formatValue)
 
+const getDepartment = async () => {
+    try {
+        
+        loading.value = true
+        const res: any = await apiAllDepartment()
+        const departments = res as Department[]
+        filterForm.departmentId = departments[0].id || ''
+        departmentOptions.value = [{ label: 'All', value: '' }]
+        departments.map((e) => {
+            departmentOptions.value.push({
+                label: `${e.id} - ${e.alias}`,
+                value: e.id,
+            })
+        })
+    } catch (error) {
+    } finally {
+        
+        loading.value = false
+    }
+}
+
 const getEmployee = async () => {
     try {
-        loadingBar.start()
         loading.value = true
-        const res: any = await apiAllEmployee()
-        const employees = JSON.parse(res).res as Employee[]
+        const res: any = await apiAllEmployee({ departmentId: filterForm.departmentId })
+        const employees = res as Employee[]
+        employeeOptions.value = [{ label: 'All', value: '' }]
+        filterForm.employeeId = ''
         employees.map((e) => {
             employeeOptions.value.push({
                 label: `${e.id} - ${e.name}`,
@@ -119,17 +171,22 @@ const getEmployee = async () => {
         })
     } catch (error) {
     } finally {
-        loadingBar.finish()
+        
         loading.value = false
     }
 }
 
+const onDepartmentChange = (value: any) => {
+    filterForm.departmentId = value
+    getEmployee()
+}
+
 const fetchData = async () => {
     try {
-        loadingBar.start()
+        
         loading.value = true
         const res: any = await apiGetClock(pageOption.value, filterForm)
-        const jsonRes = JSON.parse(res).res
+        const jsonRes = res
         totalPage.value = jsonRes.pageOpt.totalPage
         clockDatas.value = jsonRes.data
         pageOption.value = {
@@ -138,7 +195,7 @@ const fetchData = async () => {
         }
     } catch (error) {
     } finally {
-        loadingBar.finish()
+        
         loading.value = false
     }
 }
@@ -156,8 +213,9 @@ const onPageSizeChange = (pageSize: number) => {
 watch(filterForm, fetchData)
 
 onMounted(() => {
-    fetchData()
+    getDepartment()
     getEmployee()
+    fetchData()
 }),
     definePageMeta({
         layout: 'main',

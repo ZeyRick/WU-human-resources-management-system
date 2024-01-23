@@ -42,7 +42,7 @@ func (repo *ClockRepo) LatestClockIn(employeeId *int) (*Clock, error) {
 }
 
 func (repo *ClockRepo) List(pageOpt *dtos.PageOpt, dto *dtos.ClockFilter) (*types.ListData[Clock], error) {
-	query := db.Database.Joins("Employee")
+	query := db.Database.Joins(`JOIN employees ON employees.id = clocks.employee_id`).Preload("Employee").Order("id DESC")
 
 	if dto.Date != "" {
 		startOfDay, err := time.Parse("2006-01-02 15:04:05", dto.Date)
@@ -56,6 +56,10 @@ func (repo *ClockRepo) List(pageOpt *dtos.PageOpt, dto *dtos.ClockFilter) (*type
 
 	if dto.EmployeeId != 0 {
 		query = query.Where("clocks.employee_id = ?", dto.EmployeeId)
+	}
+
+	if dto.DepartmentId != 0 {
+		query = query.Where("employees.department_id = ?", dto.DepartmentId)
 	}
 
 	// datetime BETWEEN '2024-01-14 00:00:00' AND '2024-01-14 23:59:59'

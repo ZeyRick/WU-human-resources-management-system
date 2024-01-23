@@ -4,6 +4,11 @@ export const CommonFormRules = {
         message: 'Must Input',
         trigger: 'blur',
     },
+    name: {
+        required: true,
+        message: 'Must Input',
+        trigger: 'blur',
+    },
     password: {
         required: true,
         message: 'Must Input',

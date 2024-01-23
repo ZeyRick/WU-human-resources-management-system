@@ -23,13 +23,13 @@ func (ctrl *DepartmentController) All(w http.ResponseWriter, r *http.Request) {
 	dto, err := https.GetQuery[dtos.DepartmentFilter](r)
 	if err != nil {
 		logger.Trace(err)
-		helper.UnexpectedError(w, r, http.StatusInternalServerError, err)
+		helper.UnexpectedError(w, r,  err)
 		return
 	}
 	result, err := ctrl.service.All(&dto)
 	if err != nil {
 		logger.Trace(err)
-		helper.UnexpectedError(w, r, http.StatusInternalServerError, err)
+		helper.UnexpectedError(w, r,  err)
 		return
 	}
 	https.ResponseJSON(w, r, http.StatusOK, *result)

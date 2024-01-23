@@ -3,10 +3,10 @@ package controllers
 import (
 	"backend/adapters/dtos"
 	"backend/core/services"
+	"backend/pkg/helper"
 	"backend/pkg/https"
 	"backend/pkg/jwttoken"
 	"backend/pkg/logger"
-	"backend/pkg/variable"
 	"net/http"
 )
 
@@ -27,16 +27,7 @@ func (ctrl *UserController) UserRegister(w http.ResponseWriter, r *http.Request)
 		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
-	err = ctrl.userservice.UserRegister(w, &dto)
-	if err != nil {
-		logger.Trace(err)
-		if err.Error() == "409" {
-			https.ResponseError(w, r, http.StatusConflict, "Username Already Exist")
-		} else {
-			https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
-		}
-	}
-	https.ResponseMsg(w, r, http.StatusCreated, "Register Complete")
+	ctrl.userservice.UserRegister(w,r, &dto)
 }
 
 func (ctrl *UserController) UserLogout(w http.ResponseWriter, r *http.Request) {
@@ -66,20 +57,13 @@ func (ctrl *UserController) UserLogin(w http.ResponseWriter, r *http.Request) {
 func (ctrl *UserController) GetUserData(w http.ResponseWriter, r *http.Request) {
 	dto, err := https.GetQuery[dtos.ListUser](r)
 	if err != nil {
-		logger.Trace(err)
-		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
+		helper.UnexpectedError(w, r, err)
 		return
-	}
-	if dto.PageOpt.Page == nil || *dto.PageOpt.Page == 0 {
-		dto.PageOpt.Page = variable.Create[int64](1)
-	}
-	if dto.PageOpt.Size == nil || *dto.PageOpt.Size == 0 {
-		dto.PageOpt.Size = variable.Create[int64](10)
 	}
 	result, err := ctrl.userservice.GetUserData(&dto)
 	if err != nil {
-		logger.Trace(err)
-		https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
+		helper.UnexpectedError(w, r, err)
+		return
 	}
 	https.ResponseJSON(w, r, http.StatusOK, *result)
 }

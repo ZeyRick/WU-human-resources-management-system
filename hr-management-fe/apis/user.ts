@@ -1,7 +1,16 @@
-import { useMessage } from 'naive-ui'
+import type { CreateUserType } from '~/types/user'
 
-export const apiCreateUser = () => {
-    $fetch('/ggwellplay')
+export const apiGetUser = async () => {
+    return privateRequest('/admin/user', {
+        method: 'get',
+    })
+}
+
+export const apiCreateUser = async (params: CreateUserType) => {
+    return privateRequest('/admin/user', {
+        method: 'post',
+        body: params,
+    })
 }
 
 export const apiLogin = async (params: LoginParams) => {

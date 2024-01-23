@@ -3,16 +3,15 @@ package user
 import (
 	"backend/adapters/dtos"
 	"backend/core/models"
-	"backend/core/types"
 	"backend/pkg/db"
 )
 
 type User struct {
 	models.BaseModel
-	Username   string `gorm:"type:string;not null"`
-	Name       string `gorm:"type:string;not null"`
-	Password   string `gorm:"type:string;not null"`
-	ProfilePic string `gorm:"type:string;not null"`
+	Username   string `json:"username" gorm:"type:string;not null"`
+	Name       string `json:"name" gorm:"type:string;not null"`
+	Password   string `json:"password" gorm:"type:string;not null"`
+	ProfilePic string `json:"profilePic" gorm:"type:string;not null"`
 }
 
 type UserRepo struct{}
@@ -72,6 +71,15 @@ func (repo *UserRepo) GetUsers(offSet, limit int) ([]User, error) {
 	return user, nil
 }
 
-func (repo *UserRepo) List(dto *dtos.ListUser) (*types.ListData[User], error) {
-	return models.List[User](&dto.PageOpt, db.Database, "users")
+func (repo *UserRepo) All(dto *dtos.ListUser) (*[]User, error) {
+	var data []User
+	query := db.Database.Where("username != ?", "root").Order("id DESC")
+	if (dto.Name != "") {
+		query.Where("name = ? AND", dto.Name)
+	}
+	result := query.Find(&data)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &data, nil
 }

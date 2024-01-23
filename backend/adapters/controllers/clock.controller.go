@@ -45,13 +45,13 @@ func (ctrl *ClockController) List(w http.ResponseWriter, r *http.Request) {
 	}
 	if err != nil {
 		logger.Trace(err)
-		helper.UnexpectedError(w, r, http.StatusInternalServerError, err)
+		helper.UnexpectedError(w, r,  err)
 		return
 	}
 	result, err := ctrl.clockService.List(&pageOpt, &dto)
 	if err != nil {
 		logger.Trace(err)
-		helper.UnexpectedError(w, r, http.StatusInternalServerError, err)
+		helper.UnexpectedError(w, r,  err)
 		return
 	}
 	https.ResponseJSON(w, r, http.StatusOK, result)

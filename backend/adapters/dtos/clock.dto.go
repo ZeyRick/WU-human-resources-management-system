@@ -16,5 +16,6 @@ type ListClock struct {
 type ClockFilter struct {
 	Date         string `json:"string,omitempty"`
 	EmployeeName string `json:"employeeName,string,omitempty"`
-	EmployeeId   int   `json:"employeeId,string,omitempty"`
+	EmployeeId   int    `json:"employeeId,string,omitempty"`
+	DepartmentId int    `json:"departmentId,string,omitempty"`
 }

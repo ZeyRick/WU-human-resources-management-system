@@ -202,9 +202,9 @@ const openCreateModal = async () => {
             ...props.filterForm,
             employeeId: props?.filterForm?.employeeId || employeeOptions?.value[0]?.value,
         })
-        employeeSchedule.value = res.res as Schedule
+        employeeSchedule.value = res as Schedule
 
-        createFormData.value.employeeId =  employeeSchedule.value.employeeId
+        createFormData.value.employeeId = employeeSchedule.value.employeeId
         // convert date into date picker
         const datesArray = JSON.parse(employeeSchedule.value.dates.replace(/'/g, '"')) as number[]
         const curScop = getMonthAndYear(props.filterForm.scope)
@@ -226,17 +226,19 @@ const onSubmitCreate = () => {
                 loading.value = true
                 if (props.isUpdate) {
                     const res: any = await apiUpdateSchedule(createFormData.value)
-                    emit('currentDateChange', new Date(scope.value.year, scope.value.month, 1))
-                    emit('onDepartmentChange', createFormData.value.departmentId)
-                    emit('refreshData')
                     message.success(res?.msg || 'Schedule Updated')
                 } else {
                     const res: any = await apiCreateSchedule(createFormData.value)
-                    emit('currentDateChange', new Date(scope.value.year, scope.value.month, 1))
-                    emit('onDepartmentChange', createFormData.value.departmentId)
                     message.success(res?.msg || 'Schedule Created')
                 }
-
+                emit('currentDateChange', new Date(scope.value.year, scope.value.month, 1))
+                emit('onDepartmentChange', createFormData.value.departmentId)
+                if (
+                    props.filterForm.scope != createFormData.value.scope &&
+                    props.filterForm.departmentId != createFormData.value.departmentId
+                ) {
+                    emit('refreshData')
+                }
                 closeCreateModal()
             } catch (error: any) {
                 message.error(error.message)
@@ -253,7 +255,7 @@ const getEmployee = async () => {
     try {
         loading.value = true
         const res: any = await apiAllEmployee({ departmentId: createFormData.value.departmentId })
-        const employees = res.res as Employee[]
+        const employees = res as Employee[]
         employeeOptions.value = !props.isUpdate ? [{ label: 'All', value: undefined }] : []
         employees.map((e) => {
             employeeOptions.value.push({

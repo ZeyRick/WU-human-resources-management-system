@@ -23,13 +23,13 @@ func (ctrl *EmployeeController) All(w http.ResponseWriter, r *http.Request) {
 	dto, err := https.GetQuery[dtos.EmployeeFilter](r)
 	if err != nil {
 		logger.Trace(err)
-		helper.UnexpectedError(w, r, http.StatusInternalServerError, err)
+		helper.UnexpectedError(w, r,  err)
 		return
 	}
 	result, err := ctrl.service.All(&dto)
 	if err != nil {
 		logger.Trace(err)
-		helper.UnexpectedError(w, r, http.StatusInternalServerError, err)
+		helper.UnexpectedError(w, r,  err)
 		return
 	}
 	https.ResponseJSON(w, r, http.StatusOK, *result)
@@ -39,13 +39,13 @@ func (ctrl *EmployeeController) List(w http.ResponseWriter, r *http.Request) {
 	pageOpt, dto, err := https.GetPaginationWithType[dtos.EmployeeFilter](r)
 	if err != nil {
 		logger.Trace(err)
-		helper.UnexpectedError(w, r, http.StatusInternalServerError, err)
+		helper.UnexpectedError(w, r,  err)
 		return
 	}
 	result, err := ctrl.service.List(&pageOpt, &dto)
 	if err != nil {
 		logger.Trace(err)
-		helper.UnexpectedError(w, r, http.StatusInternalServerError, err)
+		helper.UnexpectedError(w, r,  err)
 		return
 	}
 	https.ResponseJSON(w, r, http.StatusOK, *result)
@@ -61,7 +61,7 @@ func (ctrl *EmployeeController) Add(w http.ResponseWriter, r *http.Request) {
 	err = ctrl.service.Add(&dto)
 	if err != nil {
 		logger.Trace(err)
-		helper.UnexpectedError(w, r, http.StatusInternalServerError, err)
+		helper.UnexpectedError(w, r,  err)
 		return
 	}
 	https.ResponseMsg(w, r, http.StatusCreated, "Employee Created")

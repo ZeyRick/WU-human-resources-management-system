@@ -1,7 +1,7 @@
 export type EmployeeParams = {
     id?: number
     employeeName?: string
-    departmentId?: string
+    departmentId?: string | null
 }
 
 export type Employee = {

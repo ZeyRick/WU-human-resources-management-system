@@ -65,7 +65,7 @@ import type { logDark } from 'naive-ui'; import type { utc } from 'moment'; impo
                     <div>{{ index + 1 }}. {{ employee.name }}</div>
                     <div>
                         {{ format(new Date(employee.clockInTime), 'H:mm') }} -
-                        {{ format(new Date(employee.clockInTime), 'H:mm') }}
+                        {{ format(new Date(employee.clockOutTime), 'H:mm') }}
                     </div>
                 </div>
             </n-card>

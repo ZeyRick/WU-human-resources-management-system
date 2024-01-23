@@ -63,6 +63,7 @@
                         :employeeOptions="employeeOptions"
                         @currentDateChange="currentDateChange"
                         @on-department-change="onDepartmentChange"
+                        @refresh-data="fetchData"
                     />
                 </div>
             </div>
@@ -87,7 +88,7 @@ const employeeOptions = ref<{ label: string; value: string }[]>([])
 const departmentOptions = ref<{ label: string; value: string }[]>([])
 const loading = ref<boolean>(true)
 const scheduleDatas = ref<ScheduleInfo[]>([])
-const loadingBar = useLoadingBar()
+
 const filterForm = reactive<ScheduleFilterParams>({
     scope: moment().format('YYYY-MM'),
     departmentId: '',
@@ -101,10 +102,10 @@ const currentDateChange = (newDate: Date) => {
 
 const getDepartment = async () => {
     try {
-        loadingBar.start()
+        
         loading.value = true
         const res: any = await apiAllDepartment()
-        const departments = res.res as Department[]
+        const departments = res as Department[]
         filterForm.departmentId = departments[0].id || ''
         departments.map((e) => {
             departmentOptions.value.push({
@@ -114,17 +115,17 @@ const getDepartment = async () => {
         })
     } catch (error) {
     } finally {
-        loadingBar.finish()
         loading.value = false
     }
 }
 const getEmployee = async () => {
     try {
-        loadingBar.start()
+        
         loading.value = true
         const res: any = await apiAllEmployee({ departmentId: filterForm.departmentId })
-        const employees = res.res as Employee[]
+        const employees = res as Employee[]
         employeeOptions.value = [{ label: 'All', value: '' }]
+        filterForm.employeeId = ''
         employees.map((e) => {
             employeeOptions.value.push({
                 label: `${e.id} - ${e.name}`,
@@ -133,22 +134,21 @@ const getEmployee = async () => {
         })
     } catch (error) {
     } finally {
-        loadingBar.finish()
+        
         loading.value = false
     }
 }
 
 const fetchData = async () => {
     try {
-        loadingBar.start()
+        
         loading.value = true
         const res: any = await apiGetSchedule(filterForm)
-        const jsonRes = res.res
-        scheduleDatas.value = jsonRes
+        scheduleDatas.value = res
     } catch (error) {
         console.error(error)
     } finally {
-        loadingBar.finish()
+        
         loading.value = false
     }
 }
@@ -163,7 +163,6 @@ watch(filterForm, fetchData)
 onMounted(async () => {
     await getDepartment()
     await getEmployee()
-    await fetchData()
 }),
     definePageMeta({
         layout: 'main',

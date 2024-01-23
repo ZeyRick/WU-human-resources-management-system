@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func UnexpectedError(w http.ResponseWriter, r *http.Request, statusCode int, err error) {
+func UnexpectedError(w http.ResponseWriter, r *http.Request, err error) {
 	logger.Trace(err)
 	https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
 }
