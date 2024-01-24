@@ -224,7 +224,6 @@ onMounted(() => {
 
 <style>
 .n-data-table {
-    border-top: 220px !important;
     overflow: hidden;
 }
 </style>

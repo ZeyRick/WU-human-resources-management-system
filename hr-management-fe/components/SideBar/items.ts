@@ -19,9 +19,8 @@ export const menuOptions: MenuOption[] = [
         key: 'schedule',
     },
     {
-        label: renderRoute('/admin/user', i18n.global.t('employee_list')),
-        key: 'hear-the-wind-sing1',
-        href: 'https://en.wikipedia.org/wiki/Hear_the_Wind_Sing',
+        label: renderRoute('/admin/employee', i18n.global.t('employee_list')),
+        key: 'employee',
     },
     {
         label: renderRoute('/admin/report', i18n.global.t('employee_report')),

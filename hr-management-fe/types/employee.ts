@@ -11,3 +11,8 @@ export type Employee = {
     clockInTime: string
     clockOutTime: string
 }
+
+export const BIND_STATUS_ENUM = {
+    APPROVE: 'approved',
+    PENDING: 'pending',
+}

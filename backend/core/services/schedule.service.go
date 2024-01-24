@@ -87,7 +87,7 @@ func (srv *ScheduleService) GetByEmployeeId(w http.ResponseWriter, r *http.Reque
 }
 
 func (srv *ScheduleService) Add(w http.ResponseWriter, r *http.Request, dto *types.AddSchedule) {
-	employees, err := srv.employeeRepo.All(&dtos.EmployeeFilter{EmployeeId: dto.EmployeeId, DepartmentId: dto.DepartmentId})
+	employees, err := srv.employeeRepo.All(&dtos.EmployeeFilter{EmployeeId: *dto.EmployeeId, DepartmentId: *dto.DepartmentId})
 	if err != nil {
 		helper.UnexpectedError(w, r,  err)
 		return

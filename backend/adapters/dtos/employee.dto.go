@@ -7,8 +7,7 @@ type AddEmployee struct {
 }
 
 type EmployeeFilter struct {
-	ID           *int   `json:"id" validate:"omitempty"`
-	Name         string `json:"name" validate:"omitempty"`
-	DepartmentId *int   `json:"departmentId" validate:"omitempty"`
-	EmployeeId   *int   `json:"employeeId" validate:"omitempty"`
+	EmployeeName string `json:"employeeName" validate:"omitempty"`
+	DepartmentId int    `json:"departmentId" validate:"omitempty"`
+	EmployeeId   int    `json:"employeeId" validate:"omitempty"`
 }

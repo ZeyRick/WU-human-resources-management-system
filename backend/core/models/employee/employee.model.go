@@ -3,15 +3,17 @@ package employee
 import (
 	"backend/adapters/dtos"
 	"backend/core/models"
+	"backend/core/models/department"
 	"backend/core/types"
 	"backend/pkg/db"
 )
 
 type Employee struct {
 	models.BaseModel
-	Name         string `json:"name" gorm:"type:string;not null"`
-	DepartmentId *int   `json:"departmentId" gorm:"type:number;not null"`
-	ProfilePic   string `json:"profilePic" gorm:"type:string;not null"`
+	Name         string                `json:"name" gorm:"type:string;not null"`
+	DepartmentId *int                  `json:"departmentId" gorm:"type:number;not null"`
+	Department   department.Department `json:"department"`
+	ProfilePic   string                `json:"profilePic" gorm:"type:string;not null"`
 }
 
 type EmployeeRepo struct{}
@@ -37,18 +39,42 @@ func (repo *EmployeeRepo) Create(newEmployee *Employee) error {
 	return nil
 }
 
+func (repo *EmployeeRepo) Delete(employeeId *int) error {
+	result := db.Database.Delete(&Employee{}, *employeeId)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
+func (repo *EmployeeRepo) GetOneById(employeeId *int) (*Employee, error) {
+	var data Employee
+	result := db.Database.Limit(1).Find(&data, *employeeId)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &data, nil
+}
+
 func (repo *EmployeeRepo) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter) (*types.ListData[Employee], error) {
-	return models.List[Employee](pageOpt, db.Database, "employees")
+	query := db.Database.Joins(`JOIN departments ON employees.department_id = departments.id`).Preload("Department")
+	if dto.DepartmentId != 0 {
+		query = query.Where("employees.department_id = ?", dto.DepartmentId)
+	}
+	if dto.EmployeeName != "" {
+		query = query.Where(`name LIKE ?`, "%"+dto.EmployeeName+"%")
+	}
+	return models.List[Employee](pageOpt, query, "employees")
 }
 
 func (repo *EmployeeRepo) All(dto *dtos.EmployeeFilter) (*[]Employee, error) {
 	var data []Employee
 	query := db.Database
-	if dto.DepartmentId  != nil {
-		query = query.Where("department_id = ?", *dto.DepartmentId)
+	if dto.DepartmentId != 0 {
+		query = query.Where("department_id = ?", dto.DepartmentId)
 	}
-	if dto.EmployeeId  != nil {
-		query = query.Where("id = ?", *dto.EmployeeId)
+	if dto.EmployeeId != 0 {
+		query = query.Where("id = ?", dto.EmployeeId)
 	}
 	dbRes := query.Find(&data)
 	if dbRes.Error != nil {

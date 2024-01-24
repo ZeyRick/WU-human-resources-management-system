@@ -41,6 +41,9 @@ export const privateRequest = async (path: string, object: Object) => {
                 message.error(response._data?.msg || 'Someting Went Wrong')
                 throw new Error(response._data?.msg || 'Someting Went Wrong')
             }
+            if (response._data?.msg) {
+                message.success(response._data?.msg)
+            }
             if (response._data?.res) {
                 response._data = response._data.res
             }

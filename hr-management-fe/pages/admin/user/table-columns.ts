@@ -24,4 +24,13 @@ export const tableColumns: DataTableColumns<RowData> = [
             return aslocalTime(data.createdAt) || '-'
         },
     },
+    {
+        title: 'Operate',
+        key: 'operate',
+        titleAlign: 'center',
+        align: 'center',
+        render: (data, index) => {
+            return '-'
+        },
+    },
 ]

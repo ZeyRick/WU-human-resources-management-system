@@ -24,6 +24,16 @@ func (srv *EmployeeService) Add(payload *dtos.AddEmployee) error {
 	})
 }
 
+func (srv *EmployeeService) Delete(employeeId *int) error {
+	return srv.repo.Delete(employeeId)
+}
+
+func (srv *EmployeeService) GetOneById(employeeId *int) (*employee.Employee, error) {
+	return srv.repo.GetOneById(employeeId)
+}
+
+
+
 func (srv *EmployeeService) List( pageOpt *dtos.PageOpt,dto *dtos.EmployeeFilter) ( *types.ListData[employee.Employee] ,error) {
 	return srv.repo.List(pageOpt, dto)
 }

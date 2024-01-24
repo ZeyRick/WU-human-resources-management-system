@@ -27,7 +27,7 @@
                 Create
             </n-button>
         </div>
-        <n-data-table style="margin-top: 20px;" :columns="tableColumns" :data="userData" />
+        <n-data-table size="large" style="margin-top: 20px" :columns="tableColumns" :data="userData" />
 
         <n-modal
             :show="showCreateModal"
@@ -45,7 +45,11 @@
             >
                 <n-form ref="createFormRef" :rules="CommonFormRules" :model="createFormData">
                     <n-form-item path="userName" label="UserName">
-                        <n-input :input-props="{ 'auto-complete': 'off' }"  v-model:value="createFormData.userName" @keydown.enter.prevent />
+                        <n-input
+                            :input-props="{ 'auto-complete': 'off' }"
+                            v-model:value="createFormData.userName"
+                            @keydown.enter.prevent
+                        />
                     </n-form-item>
                     <n-form-item path="name" label="Name">
                         <n-input v-model:value="createFormData.name" @keydown.enter.prevent />

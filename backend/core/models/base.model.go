@@ -13,7 +13,7 @@ type BaseModel struct {
 	ID        uint       `json:"id" gorm:"primaryKey;autoIncrement"`
 	CreatedAt time.Time  `json:"createdAt"`
 	UpdatedAt time.Time  `json:"updatedAt"`
-	DeletedAt *time.Time `json:"deletedAt" gorm:"index"`
+	DeletedAt gorm.DeletedAt `json:"deletedAt" gorm:"index"`
 }
 
 func paginate(pageOpt *dtos.PageOpt) func(db *gorm.DB) *gorm.DB {
@@ -37,7 +37,7 @@ func paginate(pageOpt *dtos.PageOpt) func(db *gorm.DB) *gorm.DB {
 
 func List[T any](pageOpt *dtos.PageOpt, db *gorm.DB, tableName string) (*types.ListData[T], error) {
 	var data []T
-	selectResult := db.Scopes(paginate(pageOpt)).Find(&data)
+	selectResult := db.Scopes(paginate(pageOpt)).Order("id DESC").Find(&data)
 	if selectResult.Error != nil {
 		return nil, selectResult.Error
 	}
