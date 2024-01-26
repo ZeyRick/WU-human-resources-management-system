@@ -1,12 +1,16 @@
 package dtos
 
 type AddSchedule struct {
-	EmployeeId *int   `json:"employeeId,string,required"`
-	Scope      string `json:"scope"`
-	Dates      []int  `json:"dates,numbers"`
+	EmployeeId   *int   `json:"employeeId" validate:"required"`
+	Scope        string `json:"scope" validate:"required"`
+	Dates        string  `json:"dates" validate:"required"`
+	ClockInTime  string `json:"clockInTime" validate:"required"`
+	ClockOutTime string `json:"clockOutTime" validate:"required"`
+	DepartmentId *int `json:"departmentId" validate:"required"`
 }
 
 type ScheduleFilter struct {
-	EmployeeId *int    `json:"employeeId,omitempty"`
-	Scope      string  `json:"scope,omitempty"`
+	EmployeeId   *int   `json:"employeeId,omitempty"`
+	Scope        string `json:"scope" validate:"required"`
+	DepartmentId *int   `json:"departmentId" validate:"required"`
 }

@@ -15,11 +15,15 @@ func initAdminRoutes(r chi.Router) {
 	employee := controllers.NewEmployeeController()
 	clock := controllers.NewClockController()
 	schedule := controllers.NewScheduleController()
+	department := controllers.NewDepartmentController()
+
+
 
 	r.Route("/admin", func(r chi.Router) {
-		// private route
-
 		r.Post("/user/login", user.UserLogin)
+		r.Get("/user/logout", user.UserLogout)
+
+		
 
 		r.Group(func(r chi.Router) {
 
@@ -28,8 +32,8 @@ func initAdminRoutes(r chi.Router) {
 			r.Get("/hello", helloWorld.GetHelloWorld)
 
 			// User
-			r.Post("/user/register", user.UserRegister)
-			r.Get("/user/userdata", user.GetUserData)
+			r.Post("/user", user.UserRegister)
+			r.Get("/user", user.GetUserData)
 
 			// Clock
 			r.Get("/clock", clock.List)
@@ -38,10 +42,16 @@ func initAdminRoutes(r chi.Router) {
 			r.Post("/employee", employee.Add)
 			r.Get("/employee", employee.List)
 			r.Get("/employee/all", employee.All)
+			r.Delete("/employee/{employeeId}", employee.Delete)
 
 			// Schedule
 			r.Post("/schedule", schedule.Add)
-			r.Get("/schedule", schedule.List)
+			r.Get("/schedule", schedule.GetAllWithFormat)
+			r.Get("/schedule/{employeeId}", schedule.GetByEmployeeId)
+			r.Patch("/schedule", schedule.Update)
+
+			//department
+			r.Get("/department/all", department.All)
 		})
 	})
 }
@@ -53,7 +63,6 @@ func LoginMiddleware(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 			return
 		}
-		https.ResponseMsg(w, r, http.StatusUnauthorized, "Missing Cookie")
-		return
+		https.ResponseMsg(w, r, http.StatusUnauthorized, "Unauthorized")
 	})
 }

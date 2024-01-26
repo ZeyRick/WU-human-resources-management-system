@@ -3,6 +3,7 @@ package controllers
 import (
 	"backend/adapters/dtos"
 	"backend/core/services"
+	"backend/pkg/helper"
 	"backend/pkg/https"
 	"backend/pkg/logger"
 	"net/http"
@@ -25,10 +26,9 @@ func (ctr *ClockController) Clock(w http.ResponseWriter, r *http.Request) {
 		logger.Trace(err)
 		return
 	}
-	err = ctr.clockService.Clock(clockDto)
+	err = ctr.clockService.Clock(w, r, clockDto)
 	if err != nil {
 		logger.Trace(err)
-		https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
 		return
 	}
 	https.ResponseMsg(w, r, http.StatusCreated, "Clock Created")
@@ -45,13 +45,13 @@ func (ctrl *ClockController) List(w http.ResponseWriter, r *http.Request) {
 	}
 	if err != nil {
 		logger.Trace(err)
-		https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
+		helper.UnexpectedError(w, r, err)
 		return
 	}
 	result, err := ctrl.clockService.List(&pageOpt, &dto)
 	if err != nil {
 		logger.Trace(err)
-		https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
+		helper.UnexpectedError(w, r, err)
 		return
 	}
 	https.ResponseJSON(w, r, http.StatusOK, result)

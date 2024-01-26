@@ -13,6 +13,5 @@ type UserRegister struct {
 }
 
 type ListUser struct {
-	PageOpt PageOpt `json:"pageOpt,required"`
 	Name    string  `json:"name,string,omitempty"`
 }

@@ -77,12 +77,6 @@
                         />
                     </n-form-item>
 
-                    <div style="padding-left: 10px">
-                        <n-checkbox style="text-align: start; color: white; font-size: 16px">
-                            <n-p align-text style="text-align: start; color: white; font-size: 16px">Remember Me</n-p>
-                        </n-checkbox>
-                    </div>
-
                     <n-button
                         style="height: 65px"
                         class="button"
@@ -150,11 +144,10 @@ const handleClick = (e: MouseEvent) => {
         if (!errors) {
             try {
                 loading.value = true
-                const res = await apiLogin(loginData.value)
-                console.log(res)
+                await apiLogin(loginData.value)
                 message.success('Login Success')
-            } catch (error) {
-                message.error('Something went wrong')
+            } catch (error: any) {
+                message.error(error.message)
             } finally {
                 loading.value = false
             }

@@ -42,8 +42,8 @@ func SetCookie(w http.ResponseWriter, token string, cookieName string) {
 		Name:     cookieName,
 		Value:    token,
 		Path:     "/",
-		HttpOnly: true,
-		Secure:   true,
+		HttpOnly: false,
+		Secure:   false,
 	}
 	http.SetCookie(w, cookie)
 }
@@ -97,7 +97,8 @@ func DeleteCookie(w http.ResponseWriter, cookieName string) {
 		Name:   cookieName,
 		MaxAge: -1,
 		Path:   "/",
-		Secure: true,
+		HttpOnly: false,
+		Secure:   false,
 	}
 	http.SetCookie(w, cookie)
 }
@@ -111,8 +112,8 @@ func UpdateCookieExpiredTime(w http.ResponseWriter, cookieName string, expiredTi
 		Name:     cookieName,
 		Value:    token,
 		Path:     "/",
-		HttpOnly: true,
-		Secure:   true,
+		HttpOnly: false,
+		Secure:   false,
 	}
 	http.SetCookie(w, cookie)
 	return nil
