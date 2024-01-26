@@ -77,6 +77,14 @@
                         />
                     </n-form-item>
 
+                    <div style="padding-left: 10px">
+                        <n-checkbox
+                            v-model:checked="loginData.rememberMe"
+                            style="text-align: start; color: white; font-size: 16px"
+                        >
+                            <n-p align-text style="text-align: start; color: white; font-size: 16px">Remember Me</n-p>
+                        </n-checkbox>
+                    </div>
                     <n-button
                         style="height: 65px"
                         class="button"
@@ -116,6 +124,7 @@ import { useMessage } from 'naive-ui'
 const loginData = ref<LoginParams>({
     username: '',
     password: '',
+    rememberMe: false,
 })
 const loginFormRef = ref<FormInst | null>(null)
 
@@ -140,7 +149,7 @@ const loading = ref<boolean>(false)
 const handleClick = (e: MouseEvent) => {
     if (loading.value) return
     e.preventDefault()
-    loginFormRef.value?.validate( async (errors: Array<FormValidationError> | undefined) => {
+    loginFormRef.value?.validate(async (errors: Array<FormValidationError> | undefined) => {
         if (!errors) {
             try {
                 loading.value = true

@@ -1,8 +1,10 @@
 import { createDiscreteApi, darkTheme, useLoadingBar } from 'naive-ui'
+import { useAuthStore } from '~/store/auth'
 import { useRequestId } from '~/store/requestId'
 
 export const privateRequest = async (path: string, object: Object) => {
     const requestId = useRequestId()
+    const { token } = useAuthStore()
     if (requestId.requests[path]) {
         return
     }
@@ -21,16 +23,21 @@ export const privateRequest = async (path: string, object: Object) => {
     return $fetch(path, {
         headers: {
             Accept: '*/*',
+            Authorization: token ? `Bearer ${token}` : '',
         },
-        credentials: 'include',
         baseURL: String(config.public.apiURL),
         onResponse({ response }) {
             requestId.removeRequest(path)
             if (response.status === 401) {
+                const { storeToken } = useAuthStore()
                 const authCookie = useCookie('auth')
                 authCookie.value = null
+                storeToken(null)
                 message.error('Please Login First')
                 navigateTo('/admin/login')
+                if (loadingBar) {
+                    loadingBar.error()
+                }
                 return
             }
             response._data = JSON.parse(response._data)

@@ -7,7 +7,6 @@ import (
 	"backend/pkg/https"
 	"backend/pkg/hush"
 	"backend/pkg/jwttoken"
-	"errors"
 	"net/http"
 )
 
@@ -41,25 +40,29 @@ func (srv *UserService) UserRegister(w http.ResponseWriter, r *http.Request, pay
 	}
 	newuser = user.User{Username: payload.Username, Name: payload.Name, Password: password, ProfilePic: payload.ProfilePic}
 	err = srv.usermodel.Create(&newuser)
+	if err != nil {
+		helper.UnexpectedError(w,r,err)
+		return
+	}
 	https.ResponseMsg(w, r, http.StatusCreated, "Register complete")
 }
 
-func (srv *UserService) UserLogin(w http.ResponseWriter, r *http.Request, payload *dtos.UserLogin) error {
+func (srv *UserService) UserLogin(w http.ResponseWriter, r *http.Request, payload *dtos.UserLogin) {
 	newuser, err := srv.usermodel.FindByUserName(payload.Username)
 	if err != nil {
-		return err
+		helper.UnexpectedError(w, r, err)
+		return
 	}
 	if newuser.Username == "" || hush.ComparePassword(newuser.Password, payload.Password) != nil {
-		err = errors.New("401")
-		return err
+		https.ResponseError(w, r, http.StatusBadRequest, "Wrong username or password")
+		return
 	}
-	token, err := jwttoken.GenterateToken(newuser.ID, 24*30)
+	token, err := jwttoken.GenterateToken(newuser.ID, 24 * 7)
 	if err != nil {
-		return err
+		helper.UnexpectedError(w, r, err)
+		return
 	}
-
-	jwttoken.SetCookie(w, token, "LoginCookie")
-	return nil
+	https.ResponseJSON(w, r, http.StatusOK, token)	
 }
 
 func (srv *UserService) GetUserData(params *dtos.ListUser) (*[]user.User, error) {

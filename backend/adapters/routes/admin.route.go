@@ -2,9 +2,7 @@ package routes
 
 import (
 	"backend/adapters/controllers"
-	"backend/pkg/https"
-	"backend/pkg/jwttoken"
-	"net/http"
+	"backend/adapters/middlewares"
 
 	"github.com/go-chi/chi"
 )
@@ -21,13 +19,12 @@ func initAdminRoutes(r chi.Router) {
 
 	r.Route("/admin", func(r chi.Router) {
 		r.Post("/user/login", user.UserLogin)
-		r.Get("/user/logout", user.UserLogout)
 
 		
 
 		r.Group(func(r chi.Router) {
 
-			r.Use(LoginMiddleware)
+			r.Use(middlewares.LoginMiddleware)
 			// for testing
 			r.Get("/hello", helloWorld.GetHelloWorld)
 
@@ -53,16 +50,5 @@ func initAdminRoutes(r chi.Router) {
 			//department
 			r.Get("/department/all", department.All)
 		})
-	})
-}
-
-func LoginMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ok, _ := jwttoken.CheckCookie(w, r, "LoginCookie", 24*30)
-		if ok {
-			next.ServeHTTP(w, r)
-			return
-		}
-		https.ResponseMsg(w, r, http.StatusUnauthorized, "Unauthorized")
 	})
 }
