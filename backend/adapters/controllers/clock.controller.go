@@ -5,7 +5,6 @@ import (
 	"backend/core/services"
 	"backend/pkg/https"
 	"backend/pkg/logger"
-	"backend/pkg/variable"
 	"net/http"
 	"time"
 )
@@ -40,7 +39,7 @@ func (ctrl *ClockController) List(w http.ResponseWriter, r *http.Request) {
 	if dto.Date != "" {
 		if _, err := time.Parse("2006-01-02 15:04:05", dto.Date); err != nil {
 			logger.Trace(err)
-			https.ResponseError(w,r,http.StatusBadRequest, "Bad time format")
+			https.ResponseError(w, r, http.StatusBadRequest, "Bad time format")
 			return
 		}
 	}
@@ -56,35 +55,4 @@ func (ctrl *ClockController) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	https.ResponseJSON(w, r, http.StatusOK, result)
-}
-
-
-func (ctrl *ClockController) List(w http.ResponseWriter, r *http.Request) {
-	dto, err := https.GetQuery[dtos.ListClock](r)
-	if err != nil {
-		logger.Trace(err)
-		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
-		return
-	}
-	pageOpt, err := https.GetPagination(r)
-	if err != nil {
-		logger.Trace(err)
-		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
-		return
-	}
-	if pageOpt.Page == nil{
-		pageOpt.Page = variable.Create[int64](1)
-	}
-	if pageOpt.Size == nil{
-		pageOpt.Size = variable.Create[int64](10)
-	}
-	dto.PageOpt = pageOpt
-	result, err := ctrl.clockService.List(&dto)
-	if err != nil {
-		logger.Trace(err)
-		https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
-		return
-	}
-	https.ResponseJSON(w, r, http.StatusOK, result)
-	return
 }

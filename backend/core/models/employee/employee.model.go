@@ -9,8 +9,10 @@ import (
 
 type Employee struct {
 	models.BaseModel
-	Name       string `gorm:"type:string;not null"`
-	ProfilePic string `gorm:"type:string;not null"`
+	Name       string         `gorm:"type:string;not null"`
+	ProfilePic string         `gorm:"type:string;not null"`
+	TelegramID int64          `gorm:"type:int;not null"`
+	Status     types.PendType `gorm:"type:ENUM;not null"`
 }
 
 type EmployeeRepo struct{}
