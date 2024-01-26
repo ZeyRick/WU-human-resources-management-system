@@ -58,8 +58,8 @@ func (repo *EmployeeRepo) GetOneById(employeeId *int) (*Employee, error) {
 
 func (repo *EmployeeRepo) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter) (*types.ListData[Employee], error) {
 	query := db.Database.Joins(`JOIN departments ON employees.department_id = departments.id`).Preload("Department")
-	if dto.DepartmentId != 0 {
-		query = query.Where("employees.department_id = ?", dto.DepartmentId)
+	if dto.DepartmentId != nil {
+		query = query.Where("employees.department_id = ?", *dto.DepartmentId)
 	}
 	if dto.EmployeeName != "" {
 		query = query.Where(`name LIKE ?`, "%"+dto.EmployeeName+"%")
@@ -70,11 +70,11 @@ func (repo *EmployeeRepo) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter) 
 func (repo *EmployeeRepo) All(dto *dtos.EmployeeFilter) (*[]Employee, error) {
 	var data []Employee
 	query := db.Database
-	if dto.DepartmentId != 0 {
-		query = query.Where("department_id = ?", dto.DepartmentId)
+	if dto.DepartmentId != nil {
+		query = query.Where("department_id = ?", *dto.DepartmentId)
 	}
-	if dto.EmployeeId != 0 {
-		query = query.Where("id = ?", dto.EmployeeId)
+	if dto.EmployeeId != nil {
+		query = query.Where("id = ?", *dto.EmployeeId)
 	}
 	dbRes := query.Find(&data)
 	if dbRes.Error != nil {

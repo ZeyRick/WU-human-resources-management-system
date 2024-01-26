@@ -234,8 +234,8 @@ const onSubmitCreate = () => {
                 emit('currentDateChange', new Date(scope.value.year, scope.value.month, 1))
                 emit('onDepartmentChange', createFormData.value.departmentId)
                 if (
-                    props.filterForm.scope != createFormData.value.scope &&
-                    props.filterForm.departmentId != createFormData.value.departmentId
+                    props.filterForm.scope == createFormData.value.scope &&
+                    props.filterForm.departmentId == createFormData.value.departmentId
                 ) {
                     emit('refreshData')
                 }
