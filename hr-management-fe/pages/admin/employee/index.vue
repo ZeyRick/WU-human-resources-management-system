@@ -22,8 +22,8 @@
                     :options="departmentOptions"
                 />
             </div>
-            <div style="margin-left: 15px; font-size: 16px; display: flex; align-items: center; white-space: nowrap;">
-               <div> Employee Name:</div>
+            <div style="margin-left: 15px; font-size: 16px; display: flex; align-items: center; white-space: nowrap">
+                <div>Employee Name:</div>
                 <n-input
                     style="margin-left: 10px"
                     :disable="loading"
@@ -55,9 +55,6 @@
 <script setup lang="ts">
 import { clockColumns } from './table-columns'
 import { apiListEmployee, apiDeleteEmployee } from '~/apis/employee'
-import { getNowLocal } from '~/utils/time'
-import { DATE_FORMAT } from '~/constants/time'
-import moment from 'moment'
 import type { Employee, EmployeeParams } from '~/types/employee'
 import type { Department } from '~/types/department'
 import { apiAllDepartment } from '~/apis/department'
@@ -80,8 +77,9 @@ const columns: DataTableColumns<RowData> = [
         render: (data: any, index: any) => {
             return h(OperateButton, {
                 text: 'Remove',
+                loading: loading.value,
                 positiveClick: () => handleDelete(data.id),
-            })
+            }) 
         },
     },
 ]
@@ -95,6 +93,7 @@ const handleDelete = async (employeeId: string) => {
     try {
         loading.value = true
         const res: any = await apiDeleteEmployee(employeeId)
+        await fetchData()
     } catch (error) {
     } finally {
         loading.value = false

@@ -28,16 +28,16 @@ func (repo *UserRepo) Create(newUser *User) error {
 	return nil
 }
 
-func (repo *UserRepo) FindById(userId *uint) (User, error) {
+func (repo *UserRepo) FindById(userId *int) (*User, error) {
 	user := User{}
 	result := db.Database.Limit(1).Find(&user, *userId)
 	if result.Error != nil {
-		return User{}, result.Error
+		return &User{}, result.Error
 	}
-	return user, nil
+	return &user, nil
 }
 
-func (repo *UserRepo) DeleteById(userId *uint) (int64, error) {
+func (repo *UserRepo) DeleteById(userId *int) (int64, error) {
 	result := db.Database.Delete(&User{}, *userId)
 	if result.Error != nil {
 		return 0, result.Error

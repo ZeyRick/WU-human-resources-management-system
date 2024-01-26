@@ -4,9 +4,11 @@
         :positive-text="positiveText"
         @positive-click="positiveClick"
         @negative-click="negativeClick"
+        :loading="loadingRef"
+       
     >
         <template #trigger>
-            <n-button>{{ text }}</n-button>
+            <n-button  :style="style" :loading="loadingRef">{{ text }}</n-button>
         </template>
         {{ description }}
     </n-popconfirm>
@@ -22,12 +24,16 @@ interface props {
     positiveText?: string
     negativeText?: string
     description?: string
+    loading?: boolean
+    style?: string
 }
 
-withDefaults(defineProps<props>(), {
+const props = withDefaults(defineProps<props>(), {
     text: 'Button',
     description: 'Are you sure ?',
     negativeText: 'Cancel',
     positiveText: 'Confirm',
 })
+
+const loadingRef = toRef(props.loading)
 </script>

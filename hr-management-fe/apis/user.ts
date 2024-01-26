@@ -2,16 +2,45 @@ import { useAuthStore } from '~/store/auth'
 import type { CreateUserType } from '~/types/user'
 
 export const apiGetUser = async () => {
-    return privateRequest('/admin/user', {
-        method: 'get',
-    })
+    return privateRequest(
+        '/admin/user',
+        {
+            method: 'get',
+        },
+        'getUser',
+    )
+}
+
+export const apiDelUser = async (userId: string) => {
+    return privateRequest(
+        `/admin/user/${userId}`,
+        {
+            method: 'delete',
+        },
+        'delUser',
+    )
+}
+
+export const apiUserResetPW = async (userId: string, pw: string) => {
+    return privateRequest(
+        `/admin/user/${userId}`,
+        {
+            method: 'patch',
+            body: { password: pw },
+        },
+        'apiUserResetPW',
+    )
 }
 
 export const apiCreateUser = async (params: CreateUserType) => {
-    return privateRequest('/admin/user', {
-        method: 'post',
-        body: params,
-    })
+    return privateRequest(
+        '/admin/user',
+        {
+            method: 'post',
+            body: params,
+        },
+        'createUser',
+    )
 }
 
 export const apiLogin = async (params: LoginParams) => {

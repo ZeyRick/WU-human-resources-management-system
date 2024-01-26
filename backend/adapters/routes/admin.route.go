@@ -31,6 +31,8 @@ func initAdminRoutes(r chi.Router) {
 			// User
 			r.Post("/user", user.UserRegister)
 			r.Get("/user", user.GetUserData)
+			r.Delete("/user/{userId}", user.Delete)
+			r.Patch("/user/{userId}", user.ResetPW)
 
 			// Clock
 			r.Get("/clock", clock.List)

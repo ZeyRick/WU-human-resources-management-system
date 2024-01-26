@@ -1,8 +1,8 @@
 package dtos
 
 type UserLogin struct {
-	Username   string `json:"username" validate:"required"`
-	Password   string `json:"password" validate:"required"`
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }
 
 type UserRegister struct {
@@ -14,4 +14,8 @@ type UserRegister struct {
 
 type ListUser struct {
 	Name string `json:"name,string,omitempty"`
+}
+
+type UserResetPwParams struct {
+	Password string `json:"password" validate:"required"`
 }

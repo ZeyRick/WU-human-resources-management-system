@@ -2,13 +2,13 @@ import { createDiscreteApi, darkTheme, useLoadingBar } from 'naive-ui'
 import { useAuthStore } from '~/store/auth'
 import { useRequestId } from '~/store/requestId'
 
-export const privateRequest = async (path: string, object: Object) => {
+export const privateRequest = async (path: string, object: Object, key: string) => {
     const requestId = useRequestId()
     const { token } = useAuthStore()
-    if (requestId.requests[path]) {
+    if (requestId.requests[key]) {
         return
     }
-    requestId.addRequest(path, '1')
+    requestId.addRequest(key, '1')
     const loadingBar = useLoadingBar()
     if (loadingBar) {
         loadingBar.start()
@@ -27,7 +27,7 @@ export const privateRequest = async (path: string, object: Object) => {
         },
         baseURL: String(config.public.apiURL),
         onResponse({ response }) {
-            requestId.removeRequest(path)
+            requestId.removeRequest(key)
             if (response.status === 401) {
                 const { storeToken } = useAuthStore()
                 const authCookie = useCookie('auth')

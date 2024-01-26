@@ -20,7 +20,6 @@ export const clockColumns: DataTableColumns<RowData> = [
         titleAlign: 'center',
         align: 'center',
         render: (data, index) => {
-            console.log(data)
             return data.name || '-'
         },
     },

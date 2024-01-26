@@ -6,7 +6,9 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
 
+	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/gorilla/schema"
 )
@@ -40,7 +42,7 @@ func ResponseError(w http.ResponseWriter, r *http.Request, statusCode int, v str
 func ResponseJSON(w http.ResponseWriter, r *http.Request, statusCode int, v interface{}) {
 	byteBody := JsonBody{
 		Code: 0,
-		Res: v,
+		Res:  v,
 	}
 	w.WriteHeader(statusCode)
 	render.JSON(w, r, byteBody)
@@ -67,6 +69,18 @@ func GetBody[T any](r *http.Request) (T, error) {
 		return data, err
 	}
 	return data, nil
+}
+
+func GetParamsID(r *http.Request, key string) (*int, error) {
+	idStr := chi.URLParam(r, key)
+	if idStr == "" {
+		return nil, nil
+	}
+	userId, err := strconv.Atoi(idStr)
+	if err != nil {
+		return nil, err
+	}
+	return &userId, nil
 }
 
 func GetQuery[T any](r *http.Request) (T, error) {
