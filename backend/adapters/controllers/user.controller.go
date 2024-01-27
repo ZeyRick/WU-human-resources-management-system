@@ -5,8 +5,8 @@ import (
 	"backend/core/services"
 	"backend/pkg/helper"
 	"backend/pkg/https"
-	"backend/pkg/jwttoken"
 	"backend/pkg/logger"
+	"backend/pkg/variable"
 	"net/http"
 )
 
@@ -27,13 +27,30 @@ func (ctrl *UserController) UserRegister(w http.ResponseWriter, r *http.Request)
 		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
-	ctrl.userservice.UserRegister(w,r, &dto)
+	ctrl.userservice.UserRegister(w, r, &dto)
 }
 
-func (ctrl *UserController) UserLogout(w http.ResponseWriter, r *http.Request) {
-	jwttoken.DeleteCookie(w, "LoginCookie")
+func (ctrl *UserController) Delete(w http.ResponseWriter, r *http.Request) {
+	userId, err := https.GetParamsID(r, "userId")
+	if err != nil {
+		helper.UnexpectedError(w, r, err)
+		return
+	}
+	if userId == nil {
+		https.ResponseError(w, r, http.StatusBadRequest, "Missing user id")
+		return
+	}
+	user, err := ctrl.userservice.FindById(userId)
+	if err != nil {
+		helper.UnexpectedError(w, r, err)
+		return
+	}
+	if user == nil {
+		https.ResponseError(w, r, http.StatusBadRequest, "Employee not found")
+		return
+	}
+	ctrl.userservice.Delete(w, r, variable.Create[int](int(user.ID)))
 }
-
 func (ctrl *UserController) UserLogin(w http.ResponseWriter, r *http.Request) {
 	dto, err := https.GetBody[dtos.UserLogin](r)
 	if err != nil {
@@ -41,17 +58,35 @@ func (ctrl *UserController) UserLogin(w http.ResponseWriter, r *http.Request) {
 		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
-	err = ctrl.userservice.UserLogin(w, r, &dto)
+	ctrl.userservice.UserLogin(w, r, &dto)
+}
+
+func (ctrl *UserController) ResetPW(w http.ResponseWriter, r *http.Request) {
+	userId, err := https.GetParamsID(r, "userId")
 	if err != nil {
-		if err.Error() == "401" {
-			https.ResponseError(w, r, http.StatusBadRequest, "Incorrect Username or Password")
-			return
-		} else {
-			logger.Trace(err)
-			https.ResponseError(w, r, http.StatusInternalServerError, "Something went wrong")
-			return
-		}
+		helper.UnexpectedError(w, r, err)
+		return
 	}
+	if userId == nil {
+		https.ResponseError(w, r, http.StatusBadRequest, "Missing user id")
+		return
+	}
+	dto, err := https.GetBody[dtos.UserResetPwParams](r)
+	if err != nil {
+		logger.Trace(err)
+		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+	user, err := ctrl.userservice.FindById(userId)
+	if err != nil {
+		helper.UnexpectedError(w, r, err)
+		return
+	}
+	if user == nil {
+		https.ResponseError(w, r, http.StatusBadRequest, "Employee not found")
+		return
+	}
+	ctrl.userservice.ResetPW(w, r, userId, &dto)
 }
 
 func (ctrl *UserController) GetUserData(w http.ResponseWriter, r *http.Request) {

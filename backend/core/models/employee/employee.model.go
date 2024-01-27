@@ -60,7 +60,7 @@ func (repo *EmployeeRepo) GetOneById(employeeId *int) (*Employee, error) {
 
 func (repo *EmployeeRepo) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter) (*types.ListData[Employee], error) {
 	query := db.Database.Joins(`JOIN departments ON employees.department_id = departments.id`).Preload("Department")
-	if dto.DepartmentId != nil {
+	if dto.DepartmentId != nil && *dto.DepartmentId != 0 {
 		query = query.Where("employees.department_id = ?", *dto.DepartmentId)
 	}
 	if dto.EmployeeName != "" {

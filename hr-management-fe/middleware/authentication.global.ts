@@ -1,14 +1,19 @@
-import { useAuthStore } from '~/store/auth.ts'
+import { useAuthStore } from '~/store/auth'
 
 export default defineNuxtRouteMiddleware((to) => {
-    const auth = useAuthStore()
-    console.log(`2123x`)
-    console.log(auth.authenticated)
-    if (auth.authenticated && to?.name === 'admin-login') {
+    const { token, storeToken } = useAuthStore()
+    let curToken = token
+    if (!token) {
+        curToken = useCookie('lin').value
+        storeToken(useCookie('lin').value)
+    }
+
+    if (curToken && to?.name === 'admin-login') {
         return navigateTo('/admin/schedule')
     }
 
-    if (!auth.authenticated && to?.name !== 'admin-login') {
+    // if token doesn't exist redirect to login
+    if (!curToken && to?.name !== 'admin-login') {
         abortNavigation()
         return navigateTo('/admin/login')
     }

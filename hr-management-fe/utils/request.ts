@@ -1,12 +1,14 @@
 import { createDiscreteApi, darkTheme, useLoadingBar } from 'naive-ui'
+import { useAuthStore } from '~/store/auth'
 import { useRequestId } from '~/store/requestId'
 
-export const privateRequest = async (path: string, object: Object) => {
+export const privateRequest = async (path: string, object: Object, key: string) => {
     const requestId = useRequestId()
-    if (requestId.requests[path]) {
+    const { token } = useAuthStore()
+    if (requestId.requests[key]) {
         return
     }
-    requestId.addRequest(path, '1')
+    requestId.addRequest(key, '1')
     const loadingBar = useLoadingBar()
     if (loadingBar) {
         loadingBar.start()
@@ -21,16 +23,21 @@ export const privateRequest = async (path: string, object: Object) => {
     return $fetch(path, {
         headers: {
             Accept: '*/*',
+            Authorization: token ? `Bearer ${token}` : '',
         },
-        credentials: 'include',
         baseURL: String(config.public.apiURL),
         onResponse({ response }) {
-            requestId.removeRequest(path)
+            requestId.removeRequest(key)
             if (response.status === 401) {
+                const { storeToken } = useAuthStore()
                 const authCookie = useCookie('auth')
                 authCookie.value = null
+                storeToken(null)
                 message.error('Please Login First')
                 navigateTo('/admin/login')
+                if (loadingBar) {
+                    loadingBar.error()
+                }
                 return
             }
             response._data = JSON.parse(response._data)

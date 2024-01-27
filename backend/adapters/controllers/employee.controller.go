@@ -8,9 +8,6 @@ import (
 	"backend/pkg/logger"
 	"backend/pkg/variable"
 	"net/http"
-	"strconv"
-
-	"github.com/go-chi/chi"
 )
 
 type EmployeeController struct {
@@ -72,17 +69,16 @@ func (ctrl *EmployeeController) Add(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ctrl *EmployeeController) Delete(w http.ResponseWriter, r *http.Request) {
-	employeeIdStr := chi.URLParam(r, "employeeId")
-	if employeeIdStr == "" {
+	employeeId, err := https.GetParamsID(r, "employeeId")
+	if err != nil {
+		helper.UnexpectedError(w, r, err)
+		return
+	}
+	if employeeId == nil {
 		https.ResponseError(w, r, http.StatusBadRequest, "Missing employee id")
 		return
 	}
-	employeeId, err := strconv.Atoi(employeeIdStr)
-	if err != nil {
-		https.ResponseError(w, r, http.StatusBadRequest, "Invalid employee id")
-		return
-	}
-	employee, err := ctrl.service.GetOneById(&employeeId)
+	employee, err := ctrl.service.GetOneById(employeeId)
 	if err != nil {
 		helper.UnexpectedError(w, r, err)
 		return
