@@ -29,7 +29,6 @@ func (srv *ConfirmationService) Pend(id int64) error {
 }
 
 func (srv *ConfirmationService) PendingList(id int64) error {
-	fmt.Println("Hello")
 	return srv.repo.Create(&employee.Employee{
 		TelegramID: id,
 		Status:     types.Pending,

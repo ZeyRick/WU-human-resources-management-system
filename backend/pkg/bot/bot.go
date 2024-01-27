@@ -23,6 +23,7 @@ type BotInstance struct {
 }
 
 var Instance *BotInstance
+var registering bool
 
 func (ctr *Bot) TelegramBot() {
 	bot, err := tgbotapi.NewBotAPI("6727294709:AAEi4reWROwsc5SkjY-DfurFR2pBB_I6eBM")
@@ -49,13 +50,7 @@ func (ctr *Bot) HandleUpdate(updates tgbotapi.UpdatesChannel) {
 				msg.ReplyMarkup = ButtonInChat("Register", "Register")
 				Instance.bot.Send(msg)
 			}
-			//msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Hello "+update.Message.From.FirstName+" "+update.Message.From.LastName+" you can clock in and out from the button below.")
-			//msg.ReplyMarkup = ButtonOnTypingSection([]string{"ClockIn", "ClockOut"})
-			//bot.Send(msg)
-		}
-		if update.CallbackQuery != nil {
-			data := update.CallbackQuery.Data
-			if data == "Register" {
+			if registering {
 				err := ctr.ConfirmationService.Pend(update.CallbackQuery.From.ID)
 				if err != nil {
 					logger.Trace(err)
@@ -63,6 +58,16 @@ func (ctr *Bot) HandleUpdate(updates tgbotapi.UpdatesChannel) {
 					Instance.bot.Send(msg)
 					return
 				}
+				registering = false
+			}
+			//msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Hello "+update.Message.From.FirstName+" "+update.Message.From.LastName+" you can clock in and out from the button below.")
+			//msg.ReplyMarkup = ButtonOnTypingSection([]string{"ClockIn", "ClockOut"})
+			//bot.Send(msg)
+		}
+		if update.CallbackQuery != nil {
+			data := update.CallbackQuery.Data
+			if data == "Register" {
+				registering = true
 			}
 		}
 	}

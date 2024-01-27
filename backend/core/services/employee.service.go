@@ -16,10 +16,9 @@ func NewEmployeeService() *EmployeeService {
 	}
 }
 
-
 func (srv *EmployeeService) Add(payload *dtos.AddEmployee) error {
 	return srv.repo.Create(&employee.Employee{
-		Name: payload.Name,
+		Name:       payload.Name,
 		ProfilePic: payload.ProfilePic,
 	})
 }
@@ -32,12 +31,14 @@ func (srv *EmployeeService) GetOneById(employeeId *int) (*employee.Employee, err
 	return srv.repo.GetOneById(employeeId)
 }
 
-
-
-func (srv *EmployeeService) List( pageOpt *dtos.PageOpt,dto *dtos.EmployeeFilter) ( *types.ListData[employee.Employee] ,error) {
+func (srv *EmployeeService) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter) (*types.ListData[employee.Employee], error) {
 	return srv.repo.List(pageOpt, dto)
 }
 
-func (srv *EmployeeService) All(dto *dtos.EmployeeFilter) (*[]employee.Employee,error) {
-	return  srv.repo.All(dto)
+func (srv *EmployeeService) All(dto *dtos.EmployeeFilter) (*[]employee.Employee, error) {
+	return srv.repo.All(dto)
+}
+
+func (srv *EmployeeService) PendingList(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter) (*types.ListData[employee.Employee], error) {
+	return srv.repo.PendingList(pageOpt, dto)
 }

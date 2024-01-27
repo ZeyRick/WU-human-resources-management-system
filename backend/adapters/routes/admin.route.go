@@ -17,13 +17,9 @@ func initAdminRoutes(r chi.Router) {
 	schedule := controllers.NewScheduleController()
 	department := controllers.NewDepartmentController()
 
-
-
 	r.Route("/admin", func(r chi.Router) {
 		r.Post("/user/login", user.UserLogin)
 		r.Get("/user/logout", user.UserLogout)
-
-		
 
 		r.Group(func(r chi.Router) {
 
@@ -42,6 +38,7 @@ func initAdminRoutes(r chi.Router) {
 			r.Post("/employee", employee.Add)
 			r.Get("/employee", employee.List)
 			r.Get("/employee/all", employee.All)
+			r.Get("/employee/pending", employee.PendingList)
 			r.Delete("/employee/{employeeId}", employee.Delete)
 
 			// Schedule

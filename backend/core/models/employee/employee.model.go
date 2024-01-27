@@ -84,3 +84,15 @@ func (repo *EmployeeRepo) All(dto *dtos.EmployeeFilter) (*[]Employee, error) {
 	}
 	return &data, nil
 }
+
+func (repo *EmployeeRepo) PendingList(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter) (*types.ListData[Employee], error) {
+	query := db.Database.Joins(`JOIN departments ON employees.department_id = departments.id`).Preload("Department")
+	query = query.Where("employees.status = Pending")
+	if dto.DepartmentId != nil {
+		query = query.Where("department_id = ?", *dto.DepartmentId)
+	}
+	if dto.EmployeeName != "" {
+		query = query.Where(`name LIKE ?`, "%"+dto.EmployeeName+"%")
+	}
+	return models.List[Employee](pageOpt, query, "employees")
+}

@@ -98,3 +98,19 @@ func (ctrl *EmployeeController) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 	https.ResponseMsg(w, r, http.StatusCreated, "Employee deleted")
 }
+
+func (ctrl *EmployeeController) PendingList(w http.ResponseWriter, r *http.Request) {
+	pageOpt, dto, err := https.GetPaginationWithType[dtos.EmployeeFilter](r)
+	if err != nil {
+		logger.Trace(err)
+		helper.UnexpectedError(w, r, err)
+		return
+	}
+	result, err := ctrl.service.PendingList(&pageOpt, &dto)
+	if err != nil {
+		logger.Trace(err)
+		helper.UnexpectedError(w, r, err)
+		return
+	}
+	https.ResponseJSON(w, r, http.StatusOK, *result)
+}
