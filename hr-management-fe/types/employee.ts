@@ -12,6 +12,11 @@ export type Employee = {
     clockOutTime: string
 }
 
+export type CreateEmployeeType = {
+    name: string
+    departmentId: string
+}
+
 export const BIND_STATUS_ENUM = {
     APPROVE: 'approved',
     PENDING: 'pending',

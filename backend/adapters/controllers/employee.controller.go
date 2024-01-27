@@ -52,6 +52,25 @@ func (ctrl *EmployeeController) List(w http.ResponseWriter, r *http.Request) {
 	https.ResponseJSON(w, r, http.StatusOK, *result)
 }
 
+func (ctrl *EmployeeController) Edit(w http.ResponseWriter, r *http.Request) {
+	employeeId, err := https.GetParamsID(r, "employeeId")
+	if err != nil {
+		helper.UnexpectedError(w, r, err)
+		return
+	}
+	if employeeId == nil {
+		https.ResponseError(w, r, http.StatusBadRequest, "Missing user id")
+		return
+	}
+	dto, err := https.GetBody[dtos.AddEmployee](r)
+	if err != nil {
+		logger.Trace(err)
+		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+	ctrl.service.Edit(w, r, employeeId, &dto)
+}
+
 func (ctrl *EmployeeController) Add(w http.ResponseWriter, r *http.Request) {
 	dto, err := https.GetBody[dtos.AddEmployee](r)
 	if err != nil {
@@ -59,13 +78,7 @@ func (ctrl *EmployeeController) Add(w http.ResponseWriter, r *http.Request) {
 		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
-	err = ctrl.service.Add(&dto)
-	if err != nil {
-		logger.Trace(err)
-		helper.UnexpectedError(w, r, err)
-		return
-	}
-	https.ResponseMsg(w, r, http.StatusCreated, "Employee Created")
+	ctrl.service.Add(w, r, &dto)
 }
 
 func (ctrl *EmployeeController) Delete(w http.ResponseWriter, r *http.Request) {
