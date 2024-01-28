@@ -1,7 +1,7 @@
 import type { Employee } from './employee'
 
 export type CreateScheduleParams = {
-    employeeId?: number | undefined
+    employeeId: number[]
     scope: string
     dates: string
     clockInTime: string

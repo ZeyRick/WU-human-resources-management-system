@@ -11,7 +11,7 @@ import (
 
 type Schedule struct {
 	ID           uint              `json:"id" gorm:"primaryKey;autoIncrement"`
-	EmployeeId   *int              `json:"employeeId" gorm:"type:int;not null"`
+	EmployeeId   int               `json:"employeeId" gorm:"type:int;not null"`
 	Scope        string            `json:"scope" gorm:"type:string;not null"`
 	Dates        string            `json:"dates" gorm:"tyope:string"`
 	ClockInTime  time.Time         `json:"clockInTime"`
@@ -35,8 +35,9 @@ func (repo *ScheduleRepo) Create(newSchedules *Schedule) error {
 	return nil
 }
 
-func (repo *ScheduleRepo) Update(oldSchedule *Schedule, newSchedule *Schedule) error {
-	result := db.Database.Model(oldSchedule).Updates(newSchedule)
+func (repo *ScheduleRepo) Update(employeeIds []int, newSchedule *Schedule) error {
+	result := db.Database.Table("schedules").Where("employee_id IN ? AND scope = ?", employeeIds, newSchedule.Scope).
+		Updates(newSchedule)
 	if result.Error != nil {
 		return result.Error
 	}

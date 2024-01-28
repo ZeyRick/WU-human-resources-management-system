@@ -63,8 +63,7 @@ func (ctr *ScheduleController) Add(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	ctr.service.Add(w, r, &types.AddSchedule{
-		EmployeeId:   body.EmployeeId,
-		DepartmentId: body.DepartmentId,
+		EmployeeIds:  body.EmployeeIds,
 		Scope:        body.Scope,
 		Dates:        body.Dates,
 		ClockInTime:  clockInTime,
@@ -109,8 +108,7 @@ func (ctr *ScheduleController) Update(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	ctr.service.Update(w, r, &types.UpdateSchedule{
-		EmployeeId:   body.EmployeeId,
-		DepartmentId: body.DepartmentId,
+		EmployeeIds:  body.EmployeeIds,
 		Scope:        body.Scope,
 		Dates:        body.Dates,
 		ClockInTime:  clockInTime,
@@ -122,13 +120,13 @@ func (ctrl *ScheduleController) List(w http.ResponseWriter, r *http.Request) {
 	pageOpt, dto, err := https.GetPaginationWithType[dtos.ScheduleFilter](r)
 	if err != nil {
 		logger.Trace(err)
-		helper.UnexpectedError(w, r,  err)
+		helper.UnexpectedError(w, r, err)
 		return
 	}
 	result, err := ctrl.service.List(&pageOpt, &dto)
 	if err != nil {
 		logger.Trace(err)
-		helper.UnexpectedError(w, r,  err)
+		helper.UnexpectedError(w, r, err)
 		return
 	}
 	https.ResponseJSON(w, r, http.StatusOK, result)
@@ -138,7 +136,7 @@ func (ctrl *ScheduleController) GetAllWithFormat(w http.ResponseWriter, r *http.
 	dto, err := https.GetQuery[dtos.ScheduleFilter](r)
 	if err != nil {
 		logger.Trace(err)
-		helper.UnexpectedError(w, r,  err)
+		helper.UnexpectedError(w, r, err)
 		return
 	}
 	result, err := ctrl.service.GetAllWithFormat(w, r, &dto)
@@ -153,7 +151,7 @@ func (ctrl *ScheduleController) GetByEmployeeId(w http.ResponseWriter, r *http.R
 	dto, err := https.GetQuery[dtos.ScheduleFilter](r)
 	if err != nil {
 		logger.Trace(err)
-		helper.UnexpectedError(w, r,  err)
+		helper.UnexpectedError(w, r, err)
 		return
 	}
 	employeeId := chi.URLParam(r, "employeeId")
@@ -164,7 +162,7 @@ func (ctrl *ScheduleController) GetByEmployeeId(w http.ResponseWriter, r *http.R
 	employeeIdInt, err := strconv.Atoi(employeeId)
 	if err != nil {
 		logger.Trace(err)
-		helper.UnexpectedError(w, r,  err)
+		helper.UnexpectedError(w, r, err)
 		return
 	}
 	dto.EmployeeId = &employeeIdInt

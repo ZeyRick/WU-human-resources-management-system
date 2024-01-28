@@ -35,9 +35,12 @@ import type { logDark } from 'naive-ui'; import type { utc } from 'moment'; impo
                     </div>
                 </div>
             </n-grid-item>
-            <n-grid-item v-for="index in () => {
-                return 35 - (daysInMonth || 0 ) - (firstDayOfMonth || 0)
-            } " :key="`nm-${index}`">
+            <n-grid-item
+                v-for="index in () => {
+                    return 35 - (daysInMonth || 0) - (firstDayOfMonth || 0)
+                }"
+                :key="`nm-${index}`"
+            >
                 <div :class="'disabled-date-cell'" />
             </n-grid-item>
         </n-grid>
@@ -132,6 +135,7 @@ const getDateClass = (date: number) => {
     height: 40px;
 }
 .date-cell {
+    overflow: hidden;
     border: 1px solid rgba(0, 0, 0, 0.12);
     height: 130px;
     font-size: 15px;
@@ -166,6 +170,7 @@ const getDateClass = (date: number) => {
     border: 1px solid rgba(0, 0, 0, 0.12);
     height: 130px;
     font-size: 15px;
+    overflow: hidden;
     background-color: rgba(46, 145, 243, 0.12);
 }
 </style>

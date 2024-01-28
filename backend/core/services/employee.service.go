@@ -67,6 +67,6 @@ func (srv *EmployeeService) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter
 	return srv.repo.List(pageOpt, dto)
 }
 
-func (srv *EmployeeService) All(dto *dtos.EmployeeFilter) (*[]employee.Employee, error) {
+func (srv *EmployeeService) All(dto *dtos.EmployeeFilter) (*[]types.EmployeeWithSchedule, error) {
 	return srv.repo.All(dto)
 }

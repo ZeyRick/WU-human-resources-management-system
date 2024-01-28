@@ -43,7 +43,7 @@
                     />
                 </div>
             </div>
-            <div style="display: flex;">
+            <div style="display: flex">
                 <div style="margin-right: 10px">
                     <ScheduleCreateModal
                         :is-update="true"
@@ -73,11 +73,10 @@
 </template>
 
 <script setup lang="ts">
-import { useLoadingBar } from 'naive-ui'
 import { apiGetSchedule } from '~/apis/schedule'
 import { apiAllEmployee } from '~/apis/employee'
 import { apiAllDepartment } from '~/apis/department'
-import type { Employee } from '~/types/employee'
+import type { EmployeeWithSchedule } from '~/types/employee'
 import type { Department } from '~/types/department'
 import type { ScheduleFilterParams, ScheduleInfo } from '~/types/schedule'
 import ScheduleCreateModal from '~/components/SchedulePage/ScheduleCreateModal.vue'
@@ -88,6 +87,7 @@ const employeeOptions = ref<{ label: string; value: string }[]>([])
 const departmentOptions = ref<{ label: string; value: string }[]>([])
 const loading = ref<boolean>(true)
 const scheduleDatas = ref<ScheduleInfo[]>([])
+const diableUpdate = ref<boolean>(true)
 
 const filterForm = reactive<ScheduleFilterParams>({
     scope: moment().format('YYYY-MM'),
@@ -102,7 +102,6 @@ const currentDateChange = (newDate: Date) => {
 
 const getDepartment = async () => {
     try {
-        
         loading.value = true
         const res: any = await apiAllDepartment()
         const departments = res as Department[]
@@ -120,10 +119,9 @@ const getDepartment = async () => {
 }
 const getEmployee = async () => {
     try {
-        
         loading.value = true
         const res: any = await apiAllEmployee({ departmentId: filterForm.departmentId })
-        const employees = res as Employee[]
+        const employees = res as EmployeeWithSchedule[]
         employeeOptions.value = [{ label: 'All', value: '' }]
         filterForm.employeeId = ''
         employees.map((e) => {
@@ -134,21 +132,19 @@ const getEmployee = async () => {
         })
     } catch (error) {
     } finally {
-        
         loading.value = false
     }
 }
 
 const fetchData = async () => {
     try {
-        
         loading.value = true
         const res: any = await apiGetSchedule(filterForm)
         scheduleDatas.value = res
+        diableUpdate.value = true
     } catch (error) {
         console.error(error)
     } finally {
-        
         loading.value = false
     }
 }
