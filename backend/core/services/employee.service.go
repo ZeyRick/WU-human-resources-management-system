@@ -8,6 +8,7 @@ import (
 	"backend/pkg/helper"
 	"backend/pkg/https"
 	"net/http"
+	"strings"
 )
 
 type EmployeeService struct {
@@ -21,21 +22,16 @@ func NewEmployeeService() *EmployeeService {
 }
 
 func (srv *EmployeeService) Edit(w http.ResponseWriter, r *http.Request, employeeId *int, payload *dtos.AddEmployee) {
-	curEmployee, err := srv.repo.FindId(employeeId)
-	if err != nil {
-		helper.UnexpectedError(w, r, err)
-		return
-	}
-	if curEmployee.ID == 0 {
-		https.ResponseError(w, r, http.StatusBadRequest, "User not found")
-		return
-	}
-	_, err = srv.repo.UpdateById(&employee.Employee{
-		BaseModel:    models.BaseModel{ID: curEmployee.ID},
+	_, err := srv.repo.UpdateById(&employee.Employee{
+		BaseModel:    models.BaseModel{ID: uint(*employeeId)},
 		Name:         payload.Name,
 		DepartmentId: &payload.DepartmentId,
 	})
 	if err != nil {
+		if strings.Contains(err.Error(), "Duplicate entry") {
+			https.ResponseError(w, r, http.StatusBadRequest, "Employee name already existed")
+			return
+		}
 		helper.UnexpectedError(w, r, err)
 		return
 	}
@@ -43,21 +39,16 @@ func (srv *EmployeeService) Edit(w http.ResponseWriter, r *http.Request, employe
 }
 
 func (srv *EmployeeService) Add(w http.ResponseWriter, r *http.Request, payload *dtos.AddEmployee) {
-	existEmployee, err := srv.repo.GetOneByName(payload.Name)
-	if err != nil {
-		helper.UnexpectedError(w, r, err)
-		return
-	}
-	if existEmployee.ID != 0 {
-		https.ResponseError(w, r, http.StatusBadRequest, "Employee already exists")
-		return
-	}
-	err = srv.repo.Create(&employee.Employee{
+	err := srv.repo.Create(&employee.Employee{
 		Name:         payload.Name,
 		ProfilePic:   payload.ProfilePic,
 		DepartmentId: &payload.DepartmentId,
 	})
 	if err != nil {
+		if strings.Contains(err.Error(), "Duplicate entry") {
+			https.ResponseError(w, r, http.StatusBadRequest, "Employee already existed")
+			return
+		}
 		helper.UnexpectedError(w, r, err)
 		return
 	}

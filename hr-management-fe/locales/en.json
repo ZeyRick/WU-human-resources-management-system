@@ -18,5 +18,13 @@
     "click_in_out_time": "Clock In-Out Time",
     "days": "Days",
     "year_month": "Year-Month",
-    "department": "Department"
+    "department": "Department",
+    "schedules": "Schedules",
+    "users": "Users",
+    "departments": "Departments",
+    "telegram_requests": "Telegram requests",
+    "department_alias": "Department alias",
+    "status": "Status",
+    "telegram_id": "Telegram ID",
+    "telegram_username": "Telegram username"
 }

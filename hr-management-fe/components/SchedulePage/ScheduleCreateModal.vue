@@ -226,10 +226,8 @@ const onSubmitCreate = () => {
                 loading.value = true
                 if (props.isUpdate) {
                     const res: any = await apiUpdateSchedule(createFormData.value)
-                    message.success(res?.msg || 'Schedule Updated')
                 } else {
                     const res: any = await apiCreateSchedule(createFormData.value)
-                    message.success(res?.msg || 'Schedule Created')
                 }
                 emit('currentDateChange', new Date(scope.value.year, scope.value.month, 1))
                 emit('onDepartmentChange', createFormData.value.departmentId)

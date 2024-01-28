@@ -59,7 +59,7 @@ func (ctrl *EmployeeController) Edit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if employeeId == nil {
-		https.ResponseError(w, r, http.StatusBadRequest, "Missing user id")
+		https.ResponseError(w, r, http.StatusBadRequest, "Missing employee id")
 		return
 	}
 	dto, err := https.GetBody[dtos.AddEmployee](r)

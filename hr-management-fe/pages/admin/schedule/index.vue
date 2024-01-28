@@ -163,6 +163,7 @@ watch(filterForm, fetchData)
 onMounted(async () => {
     await getDepartment()
     await getEmployee()
+    await fetchData()
 }),
     definePageMeta({
         layout: 'main',

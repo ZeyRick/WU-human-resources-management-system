@@ -113,7 +113,6 @@ watch(currentDate, () => {
     daysInMonth.value = new Date(year.value, month.value, 0).getDate()
     firstDayOfMonth.value = new Date(year.value, month.value - 1, 1).getDay()
     const date = new Date(2000, month.value - 1, 1) // Subtract 1 because months are 0-based in JavaScript
-    const monthString = format(date, 'MM')
 })
 
 const weeks = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']

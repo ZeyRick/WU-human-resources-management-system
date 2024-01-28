@@ -31,6 +31,47 @@
         <n-data-table :loading="loading" size="large" style="margin-top: 20px" :columns="columns" :data="userData" />
 
         <n-modal
+            :show="showCreateModal"
+            :mask-closable="false"
+            @negative-click="closeCreateModal"
+            @positive-click="onSubmitCreate"
+        >
+            <n-card
+                style="width: 600px"
+                title="Create New User"
+                :bordered="false"
+                size="huge"
+                role="dialog"
+                aria-modal="true"
+            >
+                <n-form ref="createFormRef" :rules="CommonFormRules" :model="createForm">
+                    <n-form-item path="userName" label="UserName">
+                        <n-input
+                            :loading="loading"
+                            :input-props="{ 'auto-complete': 'off' }"
+                            v-model:value="createForm.userName"
+                            @keydown.enter.prevent
+                        />
+                    </n-form-item>
+                    <n-form-item path="name" label="Name">
+                        <n-input :loading="loading" v-model:value="createForm.name" @keydown.enter.prevent />
+                    </n-form-item>
+                    <n-form-item path="password" label="Password">
+                        <n-input
+                            :loading="loading"
+                            type="password"
+                            v-model:value="createForm.password"
+                            @keydown.enter.prevent
+                        />
+                    </n-form-item>
+                </n-form>
+                <div style="display: flex; gap: 10px; justify-content: flex-end">
+                    <n-button :loading="loading" round @click="closeCreateModal"> Cancel </n-button>
+                    <n-button :loading="loading" round @click="onSubmitCreate"> Create </n-button>
+                </div>
+            </n-card>
+        </n-modal>
+        <n-modal
             :show="showResetPwModal"
             :mask-closable="false"
             @negative-click="closeCreateModal"
@@ -86,7 +127,7 @@ const showResetPwModal = ref<boolean>(false)
 const resetPwForm = ref<{ password: string }>({
     password: '',
 })
-const createFormData = ref<CreateUserType>(defaultCreateData)
+const createForm = ref<CreateUserType>(defaultCreateData)
 const selectedUser = ref<any>(null)
 const columns: DataTableColumns<RowData> = [
     ...tableColumns,
@@ -163,8 +204,8 @@ const onSubmitCreate = () => {
         if (!errors) {
             try {
                 loading.value = true
-                await apiCreateUser(createFormData.value)
-                createFormData.value = defaultCreateData
+                await apiCreateUser(createForm.value)
+                createForm.value = defaultCreateData
                 closeCreateModal()
                 await fetchData()
             } catch (error) {

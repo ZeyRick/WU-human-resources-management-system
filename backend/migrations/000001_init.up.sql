@@ -5,6 +5,7 @@ CREATE TABLE users (
     password varchar(255) NOT NULL,
     profile_pic TEXT(255),
     PRIMARY KEY (id),
+UNIQUE (username),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP DEFAULT NULL
