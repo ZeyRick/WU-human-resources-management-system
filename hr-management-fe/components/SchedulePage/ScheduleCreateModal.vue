@@ -16,7 +16,7 @@
                 <AddCircleOutline />
             </n-icon>
         </template>
-        {{ props.isUpdate ? 'Update' : 'Create' }}
+        {{ props.isUpdate ? 'Update' : 'Add' }}
     </n-button>
     <n-modal
         :show="showCreateModal"
@@ -40,19 +40,24 @@
                         pane-style="height: 100%;"
                         type="segment"
                         animated
+                        :on-update:value="(value: string) => (curTab = value)"
                     >
-                        <n-tab-pane name="Employees" tab="Employees">
-                            <n-form-item path="departmentId" :label="i18n.global.t('department')">
+                        <n-tab-pane name="employees" tab="Employees">
+                            <n-form-item  :label="i18n.global.t('select_department')">
                                 <n-select
                                     :disabled="loading || props.isUpdate"
                                     v-model:value="createFormData.departmentId"
                                     filterable
                                     :placeholder="i18n.global.t('department')"
-                                    :options="props.departmentOptions"
+                                    :options="[{ label: 'All', value: '' }, ...props.departmentOptions]"
                                     @update:value="getEmployee"
                                 />
                             </n-form-item>
-                            <n-form-item style="height: 100%" path="employeeId" :label="i18n.global.t('department')">
+                            <n-form-item
+                                style="height: 100%"
+                                path="employeeId"
+                                :label="i18n.global.t('select_employee')"
+                            >
                                 <n-transfer
                                     v-model:value="createFormData.employeeId"
                                     style="height: 100%"
@@ -64,7 +69,7 @@
                                 />
                             </n-form-item>
                         </n-tab-pane>
-                        <n-tab-pane name="Schedule" tab="Schedule"
+                        <n-tab-pane name="schedule" tab="Schedule"
                             ><n-form-item path="clockOutTime" :label="i18n.global.t('click_in_out_time')">
                                 <VueDatePicker
                                     class="timePicker"
@@ -84,7 +89,9 @@
                             </n-form-item>
                             <n-form-item
                                 path="dates"
-                                :label="`${i18n.global.t('days')}${isUpdate ? ` ${createFormData.scope}` : ''}`"
+                                :label="`${i18n.global.t('employee_work_days')}${
+                                    isUpdate ? ` ${createFormData.scope}` : ''
+                                }`"
                             >
                                 <VueDatePicker
                                     :style="timePickerOpen ? 'display: none;' : ''"
@@ -104,6 +111,7 @@
                                     hide-offset-dates
                                     :month-change-on-scroll="false"
                                     focus-start-date
+                                    :start-date="createFormData.scope"
                                     week-start="0"
                                     @update-month-year="updateScope"
                                 >
@@ -112,10 +120,12 @@
                         </n-tab-pane>
                     </n-tabs>
                     <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px">
-                        <n-button size="large" round @click="onSelectAllDates"> Select all </n-button>
+                        <n-button v-if="curTab == 'schedule'" size="large" round @click="onSelectAllDates">
+                            Select all
+                        </n-button>
                         <n-button size="large" round @click="closeCreateModal"> Cancel </n-button>
                         <n-button size="large" round @click="onSubmitCreate">
-                            {{ isUpdate ? 'Update' : 'Create' }}
+                            {{ isUpdate ? 'Update' : 'Add' }}
                         </n-button>
                     </div>
                 </n-form>
@@ -185,6 +195,7 @@ const createFormData = ref<CreateScheduleParams>({
     departmentId: props.filterForm.departmentId || props.departmentOptions[0]?.value,
 })
 const loading = ref<boolean>(false)
+const curTab = ref<string>('employees')
 const time = ref<{ hours: number; minutes: number; seconds: number }[]>()
 const date = ref()
 const monthYearPicker = ref<DatePickerInstance>()

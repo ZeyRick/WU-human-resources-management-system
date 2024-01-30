@@ -137,11 +137,10 @@ const handlerTimeChange = (value: string, formatValue: string) => (filterForm.da
 
 const getDepartment = async () => {
     try {
-        
         loading.value = true
         const res: any = await apiAllDepartment()
         const departments = res as Department[]
-        filterForm.departmentId = departments[0].id || ''
+        filterForm.departmentId = ''
         departmentOptions.value = [{ label: 'All', value: '' }]
         departments.map((e) => {
             departmentOptions.value.push({

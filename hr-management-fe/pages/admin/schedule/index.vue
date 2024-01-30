@@ -105,6 +105,7 @@ const getDepartment = async () => {
         loading.value = true
         const res: any = await apiAllDepartment()
         const departments = res as Department[]
+        departmentOptions.value = [{ label: 'All', value: '' }]
         filterForm.departmentId = departments[0].id || ''
         departments.map((e) => {
             departmentOptions.value.push({

@@ -26,5 +26,8 @@
     "department_alias": "Department alias",
     "status": "Status",
     "telegram_id": "Telegram ID",
-    "telegram_username": "Telegram username"
+    "telegram_username": "Telegram username",
+    "select_department": "Select Department",
+    "select_employee": "Select Employee",
+    "employee_work_days": "Employee Work Days"
 }

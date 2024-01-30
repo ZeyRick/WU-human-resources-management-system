@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 import { darkTheme, type GlobalThemeOverrides } from 'naive-ui';
-import { PRIMARY_COLOR } from '~/constants/theme';
+import { PRIMARY_COLOR, DARK_THEME} from '~/constants/theme';
 import { useDarkThemeStore } from '~/store/theme';
 
 const isDarkTheme = computed(() => useDarkThemeStore().isDarkTheme)
@@ -20,7 +20,7 @@ const isDarkTheme = computed(() => useDarkThemeStore().isDarkTheme)
 const darkThemeOverrides: GlobalThemeOverrides = {
   common: {
     primaryColor: PRIMARY_COLOR,
-    bodyColor: '#303030',
+    bodyColor:  DARK_THEME.BACK_GROUND_COLOR,
     iconColor: '#2A947D',
   },
 }

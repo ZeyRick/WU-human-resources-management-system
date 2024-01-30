@@ -107,7 +107,7 @@ func (repo *EmployeeRepo) All(dto *dtos.EmployeeFilter) (*[]types.EmployeeWithSc
 		COALESCE(schedules.created_at, '0001-01-01 00:00:00') AS schedule_created_at,
 		COALESCE(schedules.updated_at, '0001-01-01 00:00:00') AS schedule_updated_at
 	`)
-	if dto.DepartmentId != nil {
+	if dto.DepartmentId != nil && *dto.DepartmentId != 0 {
 		query = query.Where("department_id = ?", *dto.DepartmentId)
 	}
 	if dto.EmployeeId != nil {
