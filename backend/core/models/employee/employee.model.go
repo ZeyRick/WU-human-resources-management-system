@@ -13,7 +13,6 @@ type Employee struct {
 	Name         string                `json:"name" gorm:"type:string;not null"`
 	DepartmentId *int                  `json:"departmentId" gorm:"type:number;not null"`
 	Department   department.Department `json:"department"`
-	ProfilePic   string                `json:"profilePic" gorm:"type:string;not null"`
 }
 
 type EmployeeRepo struct{}
@@ -93,7 +92,6 @@ func (repo *EmployeeRepo) All(dto *dtos.EmployeeFilter) (*[]types.EmployeeWithSc
 		employees.id,
 		employees.name,
 		employees.department_id,
-		employees.profile_pic,
 		departments.id AS department_id,
 		departments.alias AS department_alias,
 		departments.created_at AS department_created_at,

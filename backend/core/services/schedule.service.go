@@ -57,7 +57,6 @@ func (srv *ScheduleService) GetAllWithFormat(w http.ResponseWriter, r *http.Requ
 					var employeeData = types.FormatedEmployee{
 						Name:         mySchedule.Employee.Name,
 						DepartmentId: mySchedule.Employee.DepartmentId,
-						ProfilePic:   mySchedule.Employee.ProfilePic,
 						ClockInTime:  mySchedule.ClockInTime.String(),
 						ClockOutTime: mySchedule.ClockOutTime.String(),
 					}

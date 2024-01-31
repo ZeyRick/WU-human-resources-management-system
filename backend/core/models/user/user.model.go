@@ -11,6 +11,7 @@ type User struct {
 	Username   string `json:"username" gorm:"type:string;not null"`
 	Name       string `json:"name" gorm:"type:string;not null"`
 	Password   string `json:"password" gorm:"type:string;not null"`
+	UserLevel  *int   `json:"userLevel" gorm:"type:string;not null"`
 	ProfilePic string `json:"profilePic" gorm:"type:string;not null"`
 }
 
@@ -74,7 +75,7 @@ func (repo *UserRepo) GetUsers(offSet, limit int) ([]User, error) {
 func (repo *UserRepo) All(dto *dtos.ListUser) (*[]User, error) {
 	var data []User
 	query := db.Database.Where("username != ?", "root").Order("id DESC")
-	if (dto.Name != "") {
+	if dto.Name != "" {
 		query.Where("name = ? AND", dto.Name)
 	}
 	result := query.Find(&data)

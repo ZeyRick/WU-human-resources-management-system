@@ -41,7 +41,6 @@ func (srv *EmployeeService) Edit(w http.ResponseWriter, r *http.Request, employe
 func (srv *EmployeeService) Add(w http.ResponseWriter, r *http.Request, payload *dtos.AddEmployee) {
 	err := srv.repo.Create(&employee.Employee{
 		Name:         payload.Name,
-		ProfilePic:   payload.ProfilePic,
 		DepartmentId: &payload.DepartmentId,
 	})
 	if err != nil {

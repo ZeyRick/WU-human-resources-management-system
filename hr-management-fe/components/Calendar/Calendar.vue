@@ -35,13 +35,13 @@
                     <div>{{ index + 1 }}</div>
 
                     <div
-                        v-if="schdule.employees.length <= 2"
+                        v-if="schdule.employees && schdule.employees.length <= 2"
                         style="margin-bottom: 5px"
                         v-for="employee in schdule.employees"
                     >
                         <n-tag strong size="small" :bordered="false" type="success"> {{ employee.name }} </n-tag>
                     </div>
-                    <div v-else-if="schdule.employees.length > 2">
+                    <div v-else-if="schdule.employees && schdule.employees.length > 2">
                         <div style="margin-bottom: 5px">
                             <n-tag strong size="small" :bordered="false" type="success">
                                 {{ schdule.employees[0].name }}
