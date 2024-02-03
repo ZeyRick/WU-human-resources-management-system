@@ -64,6 +64,15 @@
                             @keydown.enter.prevent
                         />
                     </n-form-item>
+                    <n-form-item path="userLeval" label="User Leval">
+                        <n-select
+                            :disable="loading"
+                            v-model:value="createForm.userLevel"
+                            filterable
+                            :placeholder="i18n.global.t('department')"
+                            :options="userLevalOptions"
+                        />
+                    </n-form-item>
                 </n-form>
                 <div style="display: flex; gap: 10px; justify-content: flex-end">
                     <n-button :loading="loading" round @click="closeCreateModal"> Cancel </n-button>
@@ -114,6 +123,7 @@ import type { User, CreateUserType } from '~/types/user'
 import type { RowData } from 'naive-ui/es/data-table/src/interface'
 import OperateButton from '~/components/OperateButton/OperateButton.vue'
 import NormalButton from '~/components/OperateButton/NormalButton.vue'
+import { USER_LEVEL } from '~/constants/userLevel'
 const showCreateModal = ref<boolean>(false)
 const createFormRef = ref<FormInst>()
 const userData = ref<User[]>()
@@ -122,6 +132,7 @@ const defaultCreateData: CreateUserType = {
     userName: '',
     password: '',
     name: '',
+    userLevel: USER_LEVEL.ADMIN,
 }
 const showResetPwModal = ref<boolean>(false)
 const resetPwForm = ref<{ password: string }>({
@@ -155,6 +166,10 @@ const columns: DataTableColumns<RowData> = [
             ]
         },
     },
+]
+const userLevalOptions: { label: string; value: string }[] = [
+    { label: 'Admin', value: USER_LEVEL.ADMIN },
+    { label: 'Super Admin', value: USER_LEVEL.SUPER_ADMIN },
 ]
 
 const handleDelete = async (userId: string) => {
@@ -229,5 +244,6 @@ const openCreateModal = () => (showCreateModal.value = true)
 
 definePageMeta({
     layout: 'main',
+    middleware: ['permission']
 })
 </script>

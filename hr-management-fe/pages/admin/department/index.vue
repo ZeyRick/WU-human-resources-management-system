@@ -103,9 +103,8 @@ import { AddCircleOutline } from '@vicons/ionicons5'
 import { tableColumns } from './table-columns'
 import { CommonFormRules } from '../../../constants/formRules'
 import { type DataTableColumns, type FormInst, type FormValidationError } from 'naive-ui'
-import { apiCreateUser, apiDelUser, apiUserResetPW } from '../../../apis/user'
+import {  apiDelUser  } from '../../../apis/user'
 import { apiCreateDeparment, apiListDepartment, apiEditDepartment } from '../../../apis/department'
-import type { CreateUserType } from '~/types/user'
 import type { RowData } from 'naive-ui/es/data-table/src/interface'
 import OperateButton from '~/components/OperateButton/OperateButton.vue'
 import NormalButton from '~/components/OperateButton/NormalButton.vue'
@@ -120,7 +119,6 @@ const loading = ref<boolean>(false)
 const defaultCreateData: CreateDepartmentParams = {
     alias: '',
 }
-const showResetPwModal = ref<boolean>(false)
 const createForm = ref<CreateDepartmentParams>(defaultCreateData)
 const filterForm = reactive({
     alias: '',

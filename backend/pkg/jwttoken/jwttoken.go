@@ -3,13 +3,11 @@ package jwttoken
 import (
 	"errors"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 )
-
-// This is the secret key we need to store it in somewhere safe
-var secretkey = "this_is_the_key_needed_to_store_in_env"
 
 type Claims struct {
 	ID       uint
@@ -34,11 +32,13 @@ func GenterateToken(userID uint, expiredTime int) (string, error) {
 		ExpireAt: expires.Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	secretkey := os.Getenv("JWT_KEY")
 	return token.SignedString([]byte(secretkey))
 }
 
 func ValidateToken(w http.ResponseWriter, r *http.Request, tokenString string) (bool, uint) {
 	claims := &Claims{}
+	secretkey := os.Getenv("JWT_KEY")
 	_, err := jwt.ParseWithClaims(tokenString, claims,
 		func(token *jwt.Token) (interface{}, error) {
 			return []byte(secretkey), nil

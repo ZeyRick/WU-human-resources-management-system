@@ -7,11 +7,16 @@ ALTER TABLE
 ALTER TABLE
     users
 ADD
-    COLUMN user_level INT NOT NULL;
+COLUMN user_level VARCHAR(25) NOT NULL;
+
+ALTER TABLE
+    users
+ADD
+    COLUMN profile_pic VARCHAR(255);
 
 UPDATE
     users
 SET
-    user_level = 99
+user_level = 'root'
 WHERE
     username = 'root';

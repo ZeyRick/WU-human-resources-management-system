@@ -19,7 +19,6 @@ func initAdminRoutes(r chi.Router) {
 		r.Post("/user/login", user.UserLogin)
 
 		r.Group(func(r chi.Router) {
-
 			r.Use(middlewares.LoginMiddleware)
 			// for testing
 			r.Get("/hello", helloWorld.GetHelloWorld)
@@ -27,6 +26,7 @@ func initAdminRoutes(r chi.Router) {
 			// User
 			r.Post("/user", user.UserRegister)
 			r.Get("/user", user.GetUserData)
+			r.Get("/user/userInfo", user.GetUserInfo)
 			r.Delete("/user/{userId}", user.Delete)
 			r.Patch("/user/{userId}", user.ResetPW)
 
