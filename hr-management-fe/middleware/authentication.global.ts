@@ -13,8 +13,8 @@ export default defineNuxtRouteMiddleware((to) => {
     }
 
     // if token doesn't exist redirect to login
-    // if (!curToken && to?.name !== 'admin-login') {
-    //     abortNavigation()
-    //     return navigateTo('/admin/login')
-    // }
+    if (!curToken && to?.name !== 'admin-login') {
+        abortNavigation()
+        return navigateTo('/admin/login')
+    }
 })
