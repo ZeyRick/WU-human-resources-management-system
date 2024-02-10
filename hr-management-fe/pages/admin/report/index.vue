@@ -36,21 +36,30 @@ import type { RowData } from 'naive-ui/es/data-table/src/interface'
 import { NLayout,NInput,NSelect, NCard, NText, type DataTableColumns } from 'naive-ui'
 import type { Employee, EmployeeParams, CreateEmployeeType } from '~/types/employee'
 import type { Department } from '~/types/department'
-import { apiAllDepartment } from '~/apis/department'
+import { apiAllDepartment,apiListDepartment } from '~/apis/department'
 import './index.css';
+const departmentData = ref<Department[]>()
 const searchTerm = ref('')
 const filterForm = reactive<EmployeeParams>({
     employeeName: '',
     departmentId: '',
 })
+
+const departmentOptions = ref([]);
+
+onMounted(async () => {
+  try {
+    const res: any = await apiListDepartment({page:1,size: 100}, undefined);
+    departmentOptions.value = res.data.map((department: Department) => ({ label: department.alias, value: department.id }));
+  } catch (error) {
+    // handle error
+  }
+});
+
 const onDepartmentChange = (value: any) => {
     filterForm.departmentId = value
 }
-const departmentOptions = ref([
-  { label: 'Department 1', value: '1' },
-  { label: 'Department 2', value: '2' },
-  // Add more departments as needed
-]);
+
 const Columns: DataTableColumns<RowData> = [
   {
     title: 'ID', 
