@@ -18,18 +18,17 @@
                 "
             />
         </div>
-        <n-menu  icon-size="30" :collapsed-width="64" :collapsed-icon-size="22" :options="menuOptions" />
+        <n-menu icon-size="30" :collapsed-width="64" :collapsed-icon-size="22" :options="menuOptions" />
     </n-layout-sider>
 </template>
 
 <script setup lang="ts">
 import type { MenuOption, NImage } from 'naive-ui'
-import { h, ref } from 'vue';
-import { RouterLink } from 'vue-router';
-import { menuOptions } from './items';
-
+import { ref } from 'vue'
+import { getMenuOptions } from './items'
 
 const isCollapsed = ref(false)
+const menuOptions = getMenuOptions();
 
 const collapseUpdated = (collalsed: boolean) => (isCollapsed.value = collalsed)
 </script>

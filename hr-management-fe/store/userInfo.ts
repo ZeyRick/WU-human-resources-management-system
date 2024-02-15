@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { USER_LEVEL } from '~/constants/userLevel'
 import type { User } from '~/types/user'
 
 export const useUserInfoStore = defineStore('userInfo', {
@@ -11,6 +12,9 @@ export const useUserInfoStore = defineStore('userInfo', {
         },
         clearUserInfo() {
             this.userInfo = null
+        },
+        hasSuperAdminPermission(): boolean {
+            return this.userInfo?.userLevel == USER_LEVEL.SUPER_ADMIN || this.userInfo?.userLevel == USER_LEVEL.ROOT
         },
     },
 })
