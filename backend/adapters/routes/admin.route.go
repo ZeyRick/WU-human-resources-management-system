@@ -2,7 +2,6 @@ package routes
 
 import (
 	"backend/adapters/controllers"
-	"backend/adapters/middlewares"
 
 	"github.com/go-chi/chi"
 )
@@ -14,13 +13,14 @@ func initAdminRoutes(r chi.Router) {
 	clock := controllers.NewClockController()
 	schedule := controllers.NewScheduleController()
 	department := controllers.NewDepartmentController()
+	employee_request := controllers.NewEmployeeRequestController()
 
 	r.Route("/admin", func(r chi.Router) {
 		r.Post("/user/login", user.UserLogin)
 
 		r.Group(func(r chi.Router) {
 
-			r.Use(middlewares.LoginMiddleware)
+			//r.Use(middlewares.LoginMiddleware)
 			// for testing
 			r.Get("/hello", helloWorld.GetHelloWorld)
 
@@ -38,8 +38,11 @@ func initAdminRoutes(r chi.Router) {
 			r.Patch("/employee/{employeeId}", employee.Edit)
 			r.Get("/employee", employee.List)
 			r.Get("/employee/all", employee.All)
-			r.Get("/employee/pending", employee.PendingList)
 			r.Delete("/employee/{employeeId}", employee.Delete)
+
+			// Employee Request
+			r.Get("/employee_request", employee_request.List)
+			r.Get("/employee_request/confirmation", employee_request.Confirmation)
 
 			// Schedule
 			r.Post("/schedule", schedule.Add)

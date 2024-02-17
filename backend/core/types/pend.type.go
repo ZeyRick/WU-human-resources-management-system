@@ -1,8 +1,8 @@
 package types
 
-type PendType string
+type ConfirmationType string
 
 const (
-	Pending PendType = "pending"
-	Confirm PendType = "confirm"
+	Rejected ConfirmationType = "rejected"
+	Confirm  ConfirmationType = "confirm"
 )

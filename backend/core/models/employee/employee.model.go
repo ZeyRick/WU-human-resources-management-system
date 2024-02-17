@@ -13,7 +13,6 @@ type Employee struct {
 	Name         string                `gorm:"type:string;not null"`
 	ProfilePic   string                `gorm:"type:string;not null"`
 	TelegramID   int64                 `gorm:"type:int;not null"`
-	Status       types.PendType        `gorm:"type:ENUM;not null"`
 	DepartmentId *int                  `json:"departmentId" gorm:"type:number;not null"`
 	Department   department.Department `json:"department"`
 }
@@ -102,14 +101,11 @@ func (repo *EmployeeRepo) All(dto *dtos.EmployeeFilter) (*[]Employee, error) {
 	return &data, nil
 }
 
-func (repo *EmployeeRepo) PendingList(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter) (*types.ListData[Employee], error) {
-	query := db.Database.Joins(`JOIN departments ON employees.department_id = departments.id`).Preload("Department")
-	query = query.Where("employees.status = Pending")
-	if dto.DepartmentId != nil {
-		query = query.Where("department_id = ?", *dto.DepartmentId)
+func (repo *EmployeeRepo) FindTelegramId(telegramId *int64) (*Employee, error) {
+	var data Employee
+	result := db.Database.Where("telegram_id = ?", telegramId).Limit(1).Find(&data)
+	if result.Error != nil {
+		return nil, result.Error
 	}
-	if dto.EmployeeName != "" {
-		query = query.Where(`name LIKE ?`, "%"+dto.EmployeeName+"%")
-	}
-	return models.List[Employee](pageOpt, query, "employees")
+	return &data, nil
 }

@@ -2,10 +2,10 @@ package main
 
 import (
 	"backend/adapters/routes"
-	"backend/pkg/bot"
 	"backend/pkg/chi"
 	"backend/pkg/db"
 	"backend/pkg/logger"
+	"backend/pkg/telegrambot"
 
 	"github.com/joho/godotenv"
 )
@@ -21,7 +21,7 @@ func main() {
 	db.InitDatabase()
 
 	//Start Teleggram bot api
-	bot.NewBot().TelegramBot()
+	telegrambot.NewBot().TelegramBot()
 
 	r := routes.InitRoutes()
 	// start the api server
