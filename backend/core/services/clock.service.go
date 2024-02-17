@@ -82,7 +82,7 @@ func (srv *ClockService) ClockFromTelegram(telegramID *int64, clockType types.Cl
 		}
 		curTime := time.Now().UTC()
 		hourWork := int(math.Round(prevClock.CreatedAt.Sub(curTime).Hours()))
-		err = srv.repo.Create(&clock.Clock{EmployeeId: empID2, ClockType: clockType, BaseModel: models.BaseModel{CreatedAt: curTime}, ClockOutHour: &hourWork})
+		err = srv.repo.Create(&clock.Clock{EmployeeId: empID2, ClockType: clockType, BaseModel: models.BaseModel{CreatedAt: curTime}, ClockOutMinute: &hourWork})
 		if err != nil {
 			return err
 		}
