@@ -10,15 +10,17 @@ import (
 )
 
 type Schedule struct {
-	ID           uint              `json:"id" gorm:"primaryKey;autoIncrement"`
-	EmployeeId   *int              `json:"employeeId" gorm:"type:int;not null"`
-	Scope        string            `json:"scope" gorm:"type:string;not null"`
-	Dates        string            `json:"dates" gorm:"tyope:string"`
-	ClockInTime  time.Time         `json:"clockInTime"`
-	ClockOutTime time.Time         `json:"clockOutTime"`
-	Employee     employee.Employee `json:"employee" gorm:"foreignkey:EmployeeId"`
-	CreatedAt    time.Time         `json:"createdAt"`
-	UpdatedAt    time.Time         `json:"updatedAt"`
+	ID                uint              `json:"id" gorm:"primaryKey;autoIncrement"`
+	EmployeeId        int               `json:"employeeId" gorm:"type:int;not null"`
+	Scope             string            `json:"scope" gorm:"type:string;not null"`
+	Dates             string            `json:"dates" gorm:"tyope:string"`
+	ClockInTime       time.Time         `json:"clockInTime"`
+	ClockOutTime      time.Time         `json:"clockOutTime"`
+	MinuteWorkPerDay  *int           `json:"minuteWorkPerDay"`
+	MinuteBreakPerDay *int              `json:"minuteBreakPerDay"`
+	Employee          employee.Employee `json:"employee" gorm:"foreignkey:EmployeeId"`
+	CreatedAt         time.Time         `json:"createdAt"`
+	UpdatedAt         time.Time         `json:"updatedAt"`
 }
 
 type ScheduleRepo struct{}
@@ -35,8 +37,9 @@ func (repo *ScheduleRepo) Create(newSchedules *Schedule) error {
 	return nil
 }
 
-func (repo *ScheduleRepo) Update(oldSchedule *Schedule, newSchedule *Schedule) error {
-	result := db.Database.Model(oldSchedule).Updates(newSchedule)
+func (repo *ScheduleRepo) Update(employeeIds []int, newSchedule *Schedule) error {
+	result := db.Database.Table("schedules").Where("employee_id IN ? AND scope = ?", employeeIds, newSchedule.Scope).
+		Updates(newSchedule)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -67,9 +70,11 @@ func (repo *ScheduleRepo) List(pageOpt *dtos.PageOpt, dto *dtos.ScheduleFilter) 
 
 func (repo *ScheduleRepo) GetAllByScope(dto *dtos.ScheduleFilter) (*[]Schedule, error) {
 	var data []Schedule
-	query := db.Database.Joins(`JOIN employees ON employees.id = schedules.employee_id`).Preload("Employee").
-		Where("employees.department_id = ?", *dto.DepartmentId)
-	if *dto.EmployeeId != 0 {
+	query := db.Database.Joins(`JOIN employees ON employees.id = schedules.employee_id`).Preload("Employee")
+	if dto.DepartmentId != nil && *dto.DepartmentId != 0 {
+		query = query.Where("employees.department_id = ?", *dto.DepartmentId)
+	}
+	if dto.EmployeeId != nil && *dto.EmployeeId != 0 {
 		query = query.Where(`employees.id = ?`, *dto.EmployeeId)
 	}
 	result := query.Find(&data, "scope = ?", dto.Scope)

@@ -19,7 +19,6 @@ export const privateRequest = async (path: string, object: Object, key: string) 
             theme: darkTheme,
         },
     })
-
     return $fetch(path, {
         headers: {
             Accept: '*/*',

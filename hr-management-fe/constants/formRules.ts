@@ -9,6 +9,11 @@ export const CommonFormRules = {
         message: 'Must Input',
         trigger: 'blur',
     },
+    alias: {
+        required: true,
+        message: 'Must Input',
+        trigger: 'blur',
+    },
     password: {
         required: true,
         message: 'Must Input',
@@ -24,6 +29,12 @@ export const CommonFormRules = {
         type: 'number',
         required: true,
         message: 'Must Input',
+        trigger: 'blur',
+    },
+    minuteBreakTime: {
+        type: 'number',
+        required: true,
+        message: 'Break Time Must Input',
         trigger: 'blur',
     },
     dates: {

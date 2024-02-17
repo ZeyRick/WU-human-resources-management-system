@@ -7,10 +7,11 @@ import (
 	"backend/core/types"
 	"backend/pkg/helper"
 	"backend/pkg/https"
+	"backend/pkg/logger"
 	"backend/pkg/times"
-	"backend/pkg/variable"
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/http"
 )
 
@@ -34,12 +35,12 @@ func (srv *ScheduleService) List(pageOpt *dtos.PageOpt, dto *dtos.ScheduleFilter
 func (srv *ScheduleService) GetAllWithFormat(w http.ResponseWriter, r *http.Request, dto *dtos.ScheduleFilter) (*[]types.ScheduleInfo, error) {
 	schedulesData, err := srv.repo.GetAllByScope(dto)
 	if err != nil {
-		helper.UnexpectedError(w, r,  err)
+		helper.UnexpectedError(w, r, err)
 		return nil, err
 	}
 	dayInMonth, err := times.DaysInMonth(dto.Scope)
 	if err != nil {
-		helper.UnexpectedError(w, r,  err)
+		helper.UnexpectedError(w, r, err)
 		return nil, err
 	}
 	var result []types.ScheduleInfo
@@ -50,7 +51,7 @@ func (srv *ScheduleService) GetAllWithFormat(w http.ResponseWriter, r *http.Requ
 			var scheduleDates []int
 			err := json.Unmarshal([]byte(mySchedule.Dates), &scheduleDates)
 			if err != nil {
-				helper.UnexpectedError(w, r,  err)
+				helper.UnexpectedError(w, r, err)
 				return nil, err
 			}
 			for _, date := range scheduleDates {
@@ -58,7 +59,6 @@ func (srv *ScheduleService) GetAllWithFormat(w http.ResponseWriter, r *http.Requ
 					var employeeData = types.FormatedEmployee{
 						Name:         mySchedule.Employee.Name,
 						DepartmentId: mySchedule.Employee.DepartmentId,
-						ProfilePic:   mySchedule.Employee.ProfilePic,
 						ClockInTime:  mySchedule.ClockInTime.String(),
 						ClockOutTime: mySchedule.ClockOutTime.String(),
 					}
@@ -79,85 +79,79 @@ func (srv *ScheduleService) GetAllWithFormat(w http.ResponseWriter, r *http.Requ
 func (srv *ScheduleService) GetByEmployeeId(w http.ResponseWriter, r *http.Request, dto *dtos.ScheduleFilter) {
 	schedulesData, err := srv.repo.GetAllByScope(dto)
 	if err != nil {
-		helper.UnexpectedError(w, r,  err)
+		helper.UnexpectedError(w, r, err)
+		return
+	}
+	if len(*schedulesData) < 1 {
+		https.ResponseError(w, r, http.StatusOK, "User has no schedule")
 		return
 	}
 	https.ResponseJSON(w, r, http.StatusOK, (*schedulesData)[0])
-	return
 }
 
 func (srv *ScheduleService) Add(w http.ResponseWriter, r *http.Request, dto *types.AddSchedule) {
-	employees, err := srv.employeeRepo.All(&dtos.EmployeeFilter{EmployeeId: dto.EmployeeId, DepartmentId: dto.DepartmentId})
-	if err != nil {
-		helper.UnexpectedError(w, r,  err)
-		return
-	}
-	if len(*employees) < 1 {
-		https.ResponseError(w, r, http.StatusInternalServerError, "No user found")
-		return
-	}
+	// employees, err := srv.employeeRepo.All(&dtos.EmployeeFilter{EmployeeId: dto.EmployeeIds, DepartmentId: dto.DepartmentId})
+	// if err != nil {
+	// 	helper.UnexpectedError(w, r,  err)
+	// 	return
+	// }
+	// if len(*employees) < 1 {
+	// 	https.ResponseError(w, r, http.StatusInternalServerError, "No user found")
+	// 	return
+	// }
 	datesJson, err := json.Marshal(dto.Dates)
 	if err != nil {
-		helper.UnexpectedError(w, r,  err)
+		helper.UnexpectedError(w, r, err)
 		return
 	}
 	var newSchedules []schedule.Schedule
-	for _, curEmployee := range *employees {
-		existedSchedue, err := srv.repo.FindExistedScope(variable.Create[int](int(curEmployee.ID)), dto.Scope)
-		if err != nil {
-			helper.UnexpectedError(w, r,  err)
-			return
-		}
-		if existedSchedue.ID != 0 {
-			https.ResponseError(w, r, http.StatusInternalServerError, "Employee name: "+curEmployee.Name+" already has a schedule")
-			return
-		}
+	for _, curEmployeeId := range *dto.EmployeeIds {
+		// existedSchedue, err := srv.repo.FindExistedScope(&curEmployeeId, dto.Scope)
+		// if err != nil {
+		// 	helper.UnexpectedError(w, r, err)
+		// 	return
+		// }
+		// if existedSchedue.ID != 0 {
+		// 	https.ResponseError(w, r, http.StatusInternalServerError, fmt.Sprintf(`"Employee ID: %d already has a schedule"`, curEmployeeId))
+		// 	return
+		// }
+		logger.Console(dto)
+		minuteWorkPerDay := int(math.Round(dto.ClockOutTime.Sub(*dto.ClockInTime).Minutes())) - *dto.MinuteBreakTime
 		converetedDates := "[" + string(datesJson)[1:len(string(datesJson))-1] + "]"
 		newSchedules = append(newSchedules, schedule.Schedule{
-			EmployeeId:   variable.Create[int](int(curEmployee.ID)),
-			Scope:        dto.Scope,
-			Dates:        converetedDates,
-			ClockInTime:  *dto.ClockInTime,
-			ClockOutTime: *dto.ClockOutTime,
+			EmployeeId:        curEmployeeId,
+			Scope:             dto.Scope,
+			Dates:             converetedDates,
+			ClockInTime:       *dto.ClockInTime,
+			ClockOutTime:      *dto.ClockOutTime,
+			MinuteWorkPerDay:  &minuteWorkPerDay,
+			MinuteBreakPerDay: dto.MinuteBreakTime,
 		})
 	}
 
 	err = srv.repo.BatchCreate(&newSchedules)
 	if err != nil {
-		helper.UnexpectedError(w, r,  err)
+		helper.UnexpectedError(w, r, err)
 		return
 	}
 	https.ResponseMsg(w, r, http.StatusCreated, "Schedule created")
 }
 
 func (srv *ScheduleService) Update(w http.ResponseWriter, r *http.Request, dto *types.UpdateSchedule) {
-	employee, err := srv.employeeRepo.FindId(dto.EmployeeId)
-	if err != nil {
-		helper.UnexpectedError(w, r,  err)
-		return
-	}
 	datesJson, err := json.Marshal(dto.Dates)
 	if err != nil {
-		helper.UnexpectedError(w, r,  err)
-		return
-	}
-	existedSchedue, err := srv.repo.FindExistedScope(variable.Create[int](int(employee.ID)), dto.Scope)
-	if err != nil {
-		helper.UnexpectedError(w, r,  err)
-		return
-	}
-	if existedSchedue.ID == 0 {
-		https.ResponseError(w, r, http.StatusInternalServerError, "Schedule not found")
+		helper.UnexpectedError(w, r, err)
 		return
 	}
 	converetedDates := "[" + string(datesJson)[1:len(string(datesJson))-1] + "]"
-	err = srv.repo.Update(&existedSchedue, &schedule.Schedule{
+	err = srv.repo.Update(*dto.EmployeeIds, &schedule.Schedule{
 		Dates:        converetedDates,
+		Scope:        dto.Scope,
 		ClockInTime:  *dto.ClockInTime,
 		ClockOutTime: *dto.ClockOutTime,
 	})
 	if err != nil {
-		helper.UnexpectedError(w, r,  err)
+		helper.UnexpectedError(w, r, err)
 		return
 	}
 	https.ResponseMsg(w, r, http.StatusCreated, "Schedule updated")

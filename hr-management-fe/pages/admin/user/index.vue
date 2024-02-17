@@ -31,6 +31,56 @@
         <n-data-table :loading="loading" size="large" style="margin-top: 20px" :columns="columns" :data="userData" />
 
         <n-modal
+            :show="showCreateModal"
+            :mask-closable="false"
+            @negative-click="closeCreateModal"
+            @positive-click="onSubmitCreate"
+        >
+            <n-card
+                style="width: 600px"
+                title="Create New User"
+                :bordered="false"
+                size="huge"
+                role="dialog"
+                aria-modal="true"
+            >
+                <n-form ref="createFormRef" :rules="CommonFormRules" :model="createForm">
+                    <n-form-item path="userName" label="UserName">
+                        <n-input
+                            :loading="loading"
+                            :input-props="{ 'auto-complete': 'off' }"
+                            v-model:value="createForm.userName"
+                            @keydown.enter.prevent
+                        />
+                    </n-form-item>
+                    <n-form-item path="name" label="Name">
+                        <n-input :loading="loading" v-model:value="createForm.name" @keydown.enter.prevent />
+                    </n-form-item>
+                    <n-form-item path="password" label="Password">
+                        <n-input
+                            :loading="loading"
+                            type="password"
+                            v-model:value="createForm.password"
+                            @keydown.enter.prevent
+                        />
+                    </n-form-item>
+                    <n-form-item path="userLeval" label="User Leval">
+                        <n-select
+                            :disable="loading"
+                            v-model:value="createForm.userLevel"
+                            filterable
+                            :placeholder="i18n.global.t('department')"
+                            :options="userLevalOptions"
+                        />
+                    </n-form-item>
+                </n-form>
+                <div style="display: flex; gap: 10px; justify-content: flex-end">
+                    <n-button :loading="loading" round @click="closeCreateModal"> Cancel </n-button>
+                    <n-button :loading="loading" round @click="onSubmitCreate"> Create </n-button>
+                </div>
+            </n-card>
+        </n-modal>
+        <n-modal
             :show="showResetPwModal"
             :mask-closable="false"
             @negative-click="closeCreateModal"
@@ -73,6 +123,7 @@ import type { User, CreateUserType } from '~/types/user'
 import type { RowData } from 'naive-ui/es/data-table/src/interface'
 import OperateButton from '~/components/OperateButton/OperateButton.vue'
 import NormalButton from '~/components/OperateButton/NormalButton.vue'
+import { USER_LEVEL } from '~/constants/userLevel'
 const showCreateModal = ref<boolean>(false)
 const createFormRef = ref<FormInst>()
 const userData = ref<User[]>()
@@ -81,12 +132,13 @@ const defaultCreateData: CreateUserType = {
     userName: '',
     password: '',
     name: '',
+    userLevel: USER_LEVEL.ADMIN,
 }
 const showResetPwModal = ref<boolean>(false)
 const resetPwForm = ref<{ password: string }>({
     password: '',
 })
-const createFormData = ref<CreateUserType>(defaultCreateData)
+const createForm = ref<CreateUserType>(defaultCreateData)
 const selectedUser = ref<any>(null)
 const columns: DataTableColumns<RowData> = [
     ...tableColumns,
@@ -114,6 +166,10 @@ const columns: DataTableColumns<RowData> = [
             ]
         },
     },
+]
+const userLevalOptions: { label: string; value: string }[] = [
+    { label: 'Admin', value: USER_LEVEL.ADMIN },
+    { label: 'Super Admin', value: USER_LEVEL.SUPER_ADMIN },
 ]
 
 const handleDelete = async (userId: string) => {
@@ -163,8 +219,8 @@ const onSubmitCreate = () => {
         if (!errors) {
             try {
                 loading.value = true
-                await apiCreateUser(createFormData.value)
-                createFormData.value = defaultCreateData
+                await apiCreateUser(createForm.value)
+                createForm.value = defaultCreateData
                 closeCreateModal()
                 await fetchData()
             } catch (error) {
@@ -188,5 +244,6 @@ const openCreateModal = () => (showCreateModal.value = true)
 
 definePageMeta({
     layout: 'main',
+    middleware: ['permission']
 })
 </script>

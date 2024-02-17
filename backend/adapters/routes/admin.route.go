@@ -13,25 +13,30 @@ func initAdminRoutes(r chi.Router) {
 	clock := controllers.NewClockController()
 	schedule := controllers.NewScheduleController()
 	department := controllers.NewDepartmentController()
+	report := controllers.NewReportController()
 	employee_request := controllers.NewEmployeeRequestController()
 
 	r.Route("/admin", func(r chi.Router) {
 		r.Post("/user/login", user.UserLogin)
+		r.Get("/report", report.List)
 
 		r.Group(func(r chi.Router) {
-
-			//r.Use(middlewares.LoginMiddleware)
+			r.Use(middlewares.LoginMiddleware)
 			// for testing
 			r.Get("/hello", helloWorld.GetHelloWorld)
 
 			// User
 			r.Post("/user", user.UserRegister)
 			r.Get("/user", user.GetUserData)
+			r.Get("/user/userInfo", user.GetUserInfo)
 			r.Delete("/user/{userId}", user.Delete)
 			r.Patch("/user/{userId}", user.ResetPW)
 
 			// Clock
 			r.Get("/clock", clock.List)
+
+			//report
+		
 
 			// Employe
 			r.Post("/employee", employee.Add)
@@ -50,8 +55,11 @@ func initAdminRoutes(r chi.Router) {
 			r.Get("/schedule/{employeeId}", schedule.GetByEmployeeId)
 			r.Patch("/schedule", schedule.Update)
 
-			//department
+			// Department
 			r.Get("/department/all", department.All)
+			r.Get("/department", department.List)
+			r.Post("/department", department.Add)
+			r.Patch("/department/{departmentId}", department.Edit)
 		})
 	})
 }

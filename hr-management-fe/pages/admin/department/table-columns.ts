@@ -1,16 +1,16 @@
-import type { DataTableColumns } from "naive-ui";
-import type { RowData } from "naive-ui/es/data-table/src/interface";
+import type { DataTableColumns } from 'naive-ui'
+import type { RowData } from 'naive-ui/es/data-table/src/interface'
 
 export const tableColumns: DataTableColumns<RowData> = [
     {
-        title: 'Username',
-        key: 'username',
+        title: 'ID',
+        key: 'id',
         titleAlign: 'center',
         align: 'center',
     },
     {
-        title: 'Name',
-        key: 'name',
+        title: 'Alias',
+        key: 'alias',
         titleAlign: 'center',
         align: 'center',
     },

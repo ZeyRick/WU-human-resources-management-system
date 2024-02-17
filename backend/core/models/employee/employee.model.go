@@ -85,10 +85,29 @@ func (repo *EmployeeRepo) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter) 
 	return models.List[Employee](pageOpt, query, "employees")
 }
 
-func (repo *EmployeeRepo) All(dto *dtos.EmployeeFilter) (*[]Employee, error) {
-	var data []Employee
-	query := db.Database
-	if dto.DepartmentId != nil {
+func (repo *EmployeeRepo) All(dto *dtos.EmployeeFilter) (*[]types.EmployeeWithSchedule, error) {
+	var data []types.EmployeeWithSchedule
+	query := db.Database.Model(&Employee{}).
+		Joins("LEFT JOIN schedules ON schedules.employee_id = employees.id AND schedules.scope = ?", dto.Scope).
+		Joins("LEFT JOIN departments ON departments.id = employees.department_id").
+		Select(`
+		employees.id,
+		employees.name,
+		employees.department_id,
+		departments.id AS department_id,
+		departments.alias AS department_alias,
+		departments.created_at AS department_created_at,
+		departments.updated_at AS department_updated_at,
+		COALESCE(schedules.id, 0) AS schedule_id,
+		COALESCE(schedules.employee_id, 0) AS schedule_employee_id,
+		COALESCE(schedules.scope, '') AS schedule_scope,
+		COALESCE(schedules.dates, '') AS schedule_dates,
+		COALESCE(schedules.clock_in_time, '0001-01-01 00:00:00') AS schedule_clock_in_time,
+		COALESCE(schedules.clock_out_time, '0001-01-01 00:00:00') AS schedule_clock_out_time,
+		COALESCE(schedules.created_at, '0001-01-01 00:00:00') AS schedule_created_at,
+		COALESCE(schedules.updated_at, '0001-01-01 00:00:00') AS schedule_updated_at
+	`)
+	if dto.DepartmentId != nil && *dto.DepartmentId != 0 {
 		query = query.Where("department_id = ?", *dto.DepartmentId)
 	}
 	if dto.EmployeeId != nil {

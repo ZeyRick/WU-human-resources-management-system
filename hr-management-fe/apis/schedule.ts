@@ -54,12 +54,16 @@ export const apiGetSchedule = async (filter: ScheduleFilterParams) => {
 }
 
 export const apiGetScheduleByEmployeeId = async (filter: ScheduleFilterParams) => {
-    return privateRequest(
-        `/admin/schedule/${filter.employeeId}`,
-        {
-            method: 'get',
-            query: { ...filter },
-        },
-        'getScheduleByEmployeeId',
-    )
+    try {
+        return privateRequest(
+            `/admin/schedule/${filter.employeeId}`,
+            {
+                method: 'get',
+                query: { ...filter },
+            },
+            'getScheduleByEmployeeId',
+        )
+    } catch (error) {
+        return error
+    }
 }

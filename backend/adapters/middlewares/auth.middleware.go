@@ -3,6 +3,7 @@ package middlewares
 import (
 	"backend/pkg/https"
 	"backend/pkg/jwttoken"
+	"context"
 	"net/http"
 	"strings"
 )
@@ -20,9 +21,10 @@ func LoginMiddleware(next http.Handler) http.Handler {
 			return
 		}
 		reqToken = splitToken[1]
-		ok, _ := jwttoken.ValidateToken(w, r, reqToken)
+		ok, userId := jwttoken.ValidateToken(w, r, reqToken)
 		if ok {
-			next.ServeHTTP(w, r)
+			ctx := context.WithValue(r.Context(), "userId", userId)
+			next.ServeHTTP(w, r.WithContext(ctx))
 			return
 		}
 		https.ResponseError(w, r, http.StatusUnauthorized, "Unauthorized")

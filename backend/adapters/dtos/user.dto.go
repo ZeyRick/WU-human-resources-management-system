@@ -9,7 +9,7 @@ type UserRegister struct {
 	Username   string `json:"username" validate:"required"`
 	Name       string `json:"name" validate:"required"`
 	Password   string `json:"password" validate:"required"`
-	ProfilePic string `json:"profilePic,omitempty"`
+	UserLeval  string `json:"userLevel" validate:"required"`
 }
 
 type ListUser struct {

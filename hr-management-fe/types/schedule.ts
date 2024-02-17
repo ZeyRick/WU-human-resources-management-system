@@ -1,12 +1,13 @@
 import type { Employee } from './employee'
 
 export type CreateScheduleParams = {
-    employeeId?: number | undefined
+    employeeId: number[]
     scope: string
     dates: string
     clockInTime: string
     clockOutTime: string
     departmentId: string
+    minuteBreakTime: number
 }
 
 export type ScheduleFilterParams = {
@@ -29,6 +30,8 @@ export type Schedule = {
     clockInTime: string
     clockOutTime: string
     employee: Employee
+    minuteBreakPerDay: number
+    minuteWorkPerDay: number
     createdAt: string
     updatedAt: string
 }

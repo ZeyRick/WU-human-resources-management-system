@@ -38,7 +38,7 @@ func (srv *UserService) UserRegister(w http.ResponseWriter, r *http.Request, pay
 	if err != nil {
 		return
 	}
-	newuser = user.User{Username: payload.Username, Name: payload.Name, Password: password, ProfilePic: payload.ProfilePic}
+	newuser = user.User{Username: payload.Username, Name: payload.Name, Password: password, UserLevel: payload.UserLeval}
 	err = srv.usermodel.Create(&newuser)
 	if err != nil {
 		helper.UnexpectedError(w, r, err)

@@ -20,6 +20,28 @@ func NewUserController() *UserController {
 	}
 }
 
+func (ctrl *UserController) GetUserInfo(w http.ResponseWriter, r *http.Request) {
+	logger.Console("333")
+	userId := r.Context().Value("userId").(uint)
+	if userId == 0 {
+		https.ResponseError(w, r, http.StatusUnauthorized, "Invalid user id")
+		return
+	}
+	user, err := ctrl.userservice.FindById(variable.Create[int](int(userId)))
+	if err != nil {
+		logger.Trace(err)
+		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+	if user == nil {
+		https.ResponseError(w, r, http.StatusUnauthorized, "Invalid user")
+		return
+	}
+	user.Password = ""
+	logger.Console(user)
+	https.ResponseJSON(w,r, http.StatusOK, user)
+}
+
 func (ctrl *UserController) UserRegister(w http.ResponseWriter, r *http.Request) {
 	dto, err := https.GetBody[dtos.UserRegister](r)
 	if err != nil {
