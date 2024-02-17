@@ -5,6 +5,7 @@ import (
 	"backend/pkg/chi"
 	"backend/pkg/db"
 	"backend/pkg/logger"
+	"backend/pkg/telegrambot"
 
 	"github.com/joho/godotenv"
 )
@@ -19,8 +20,10 @@ func main() {
 	//init database
 	db.InitDatabase()
 
+	//Start Teleggram bot api
+	telegrambot.NewBot().TelegramBot()
+
 	r := routes.InitRoutes()
 	// start the api server
 	chi.StartServerWithGracefulShutdown(r)
-
 }

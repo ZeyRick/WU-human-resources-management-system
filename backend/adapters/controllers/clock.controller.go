@@ -39,19 +39,19 @@ func (ctrl *ClockController) List(w http.ResponseWriter, r *http.Request) {
 	if dto.Date != "" {
 		if _, err := time.Parse("2006-01-02 15:04:05", dto.Date); err != nil {
 			logger.Trace(err)
-			https.ResponseError(w,r,http.StatusBadRequest, "Bad time format")
+			https.ResponseError(w, r, http.StatusBadRequest, "Bad time format")
 			return
 		}
 	}
 	if err != nil {
 		logger.Trace(err)
-		helper.UnexpectedError(w, r,  err)
+		helper.UnexpectedError(w, r, err)
 		return
 	}
 	result, err := ctrl.clockService.List(&pageOpt, &dto)
 	if err != nil {
 		logger.Trace(err)
-		helper.UnexpectedError(w, r,  err)
+		helper.UnexpectedError(w, r, err)
 		return
 	}
 	https.ResponseJSON(w, r, http.StatusOK, result)

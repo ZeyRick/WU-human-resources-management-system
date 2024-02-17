@@ -10,7 +10,9 @@ import (
 
 type Employee struct {
 	models.BaseModel
-	Name         string                `json:"name" gorm:"type:string;not null"`
+	Name         string                `gorm:"type:string;not null"`
+	ProfilePic   string                `gorm:"type:string;not null"`
+	TelegramID   int64                 `gorm:"type:int;not null"`
 	DepartmentId *int                  `json:"departmentId" gorm:"type:number;not null"`
 	Department   department.Department `json:"department"`
 }
@@ -114,6 +116,15 @@ func (repo *EmployeeRepo) All(dto *dtos.EmployeeFilter) (*[]types.EmployeeWithSc
 	dbRes := query.Find(&data)
 	if dbRes.Error != nil {
 		return nil, dbRes.Error
+	}
+	return &data, nil
+}
+
+func (repo *EmployeeRepo) FindTelegramId(telegramId *int64) (*Employee, error) {
+	var data Employee
+	result := db.Database.Where("telegram_id = ?", telegramId).Limit(1).Find(&data)
+	if result.Error != nil {
+		return nil, result.Error
 	}
 	return &data, nil
 }

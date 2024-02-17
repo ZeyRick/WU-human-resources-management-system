@@ -15,10 +15,11 @@ func initAdminRoutes(r chi.Router) {
 	schedule := controllers.NewScheduleController()
 	department := controllers.NewDepartmentController()
 	report := controllers.NewReportController()
+	employee_request := controllers.NewEmployeeRequestController()
 
 	r.Route("/admin", func(r chi.Router) {
 		r.Post("/user/login", user.UserLogin)
-		r.Get("/report", report.List)
+		
 
 		r.Group(func(r chi.Router) {
 			r.Use(middlewares.LoginMiddleware)
@@ -36,7 +37,7 @@ func initAdminRoutes(r chi.Router) {
 			r.Get("/clock", clock.List)
 
 			//report
-		
+			r.Get("/report", report.List)
 
 			// Employe
 			r.Post("/employee", employee.Add)
@@ -44,6 +45,10 @@ func initAdminRoutes(r chi.Router) {
 			r.Get("/employee", employee.List)
 			r.Get("/employee/all", employee.All)
 			r.Delete("/employee/{employeeId}", employee.Delete)
+
+			// Employee Request
+			r.Get("/employee_request", employee_request.List)
+			r.Get("/employee_request/confirmation", employee_request.Confirmation)
 
 			// Schedule
 			r.Post("/schedule", schedule.Add)
