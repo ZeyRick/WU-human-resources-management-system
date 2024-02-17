@@ -294,6 +294,7 @@ const openCreateModal = async () => {
             })
             employeeSchedule.value = res as Schedule
 
+            breakTime.value = employeeSchedule.value.minuteBreakPerDay
             createFormData.value.employeeId = [employeeSchedule.value.employeeId]
             createFormData.value.scope = props.filterForm.scope
             // convert date into date picker

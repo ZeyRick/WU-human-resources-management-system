@@ -30,6 +30,8 @@ export type Schedule = {
     clockInTime: string
     clockOutTime: string
     employee: Employee
+    minuteBreakPerDay: number
+    minuteWorkPerDay: number
     createdAt: string
     updatedAt: string
 }
