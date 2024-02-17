@@ -31,6 +31,12 @@ export const CommonFormRules = {
         message: 'Must Input',
         trigger: 'blur',
     },
+    minuteBreakTime: {
+        type: 'number',
+        required: true,
+        message: 'Break Time Must Input',
+        trigger: 'blur',
+    },
     dates: {
         required: true,
         message: 'Must Input',

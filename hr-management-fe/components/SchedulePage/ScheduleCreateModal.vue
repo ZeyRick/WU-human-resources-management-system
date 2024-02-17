@@ -43,7 +43,7 @@
                         :on-update:value="(value: string) => (curTab = value)"
                     >
                         <n-tab-pane name="employees" tab="Employees">
-                            <n-form-item  :label="i18n.global.t('select_department')">
+                            <n-form-item :label="i18n.global.t('select_department')">
                                 <n-select
                                     :disabled="loading || props.isUpdate"
                                     v-model:value="createFormData.departmentId"
@@ -69,24 +69,58 @@
                                 />
                             </n-form-item>
                         </n-tab-pane>
-                        <n-tab-pane name="schedule" tab="Schedule"
-                            ><n-form-item path="clockOutTime" :label="i18n.global.t('click_in_out_time')">
-                                <VueDatePicker
-                                    class="timePicker"
-                                    ref="timesPicker"
-                                    :clearable="false"
-                                    v-model="time"
-                                    time-picker
-                                    dark
-                                    range
-                                    @open="() => (timePickerOpen = true)"
-                                    @closed="() => (timePickerOpen = false)"
+                        <n-tab-pane name="schedule" tab="Schedule">
+                            <div style="display: flex; flex-direction: row; gap: 50px">
+                                <n-form-item
+                                    style="flex: 1"
+                                    path="clockOutTime"
+                                    :label="i18n.global.t('click_in_out_time')"
                                 >
-                                    <template #input-icon>
-                                        <n-icon size="25px"> <TimerOutline /></n-icon>
-                                    </template>
-                                </VueDatePicker>
-                            </n-form-item>
+                                    <VueDatePicker
+                                        class="timePicker"
+                                        ref="timesPicker"
+                                        :clearable="false"
+                                        v-model="time"
+                                        time-picker
+                                        dark
+                                        range
+                                        @open="() => (timePickerOpen = true)"
+                                        @closed="() => (timePickerOpen = false)"
+                                    >
+                                        <template #input-icon>
+                                            <n-icon size="25px"> <TimerOutline /></n-icon>
+                                        </template>
+                                    </VueDatePicker>
+                                </n-form-item>
+                                <n-form-item
+                                    style="flex: 1"
+                                    path="minuteBreakTime"
+                                    :label="i18n.global.t('break_time_minute')"
+                                >
+                                    <n-input-number
+                                        size="large"
+                                        default-value="1"
+                                        :loading="loading"
+                                        :input-props="{ 'auto-complete': 'off' }"
+                                        v-model:value="breakTime"
+                                        @keydown.enter.prevent
+                                        :min="0"
+                                        :precision="0"
+                                        :max="selectedBreakTimeOption == 'hour' ? 24 : 24 * 60"
+                                    >
+                                        <template #suffix>
+                                            <n-dropdown
+                                                trigger="hover"
+                                                placement="bottom-start"
+                                                :options="breakTimeOptions"
+                                                @select="handleBreakTimeOptionsSelect"
+                                            >
+                                                <n-button>{{ i18n.global.t(selectedBreakTimeOption) }}</n-button>
+                                            </n-dropdown>
+                                        </template></n-input-number
+                                    >
+                                </n-form-item>
+                            </div>
                             <n-form-item
                                 path="dates"
                                 :label="`${i18n.global.t('employee_work_days')}${
@@ -147,6 +181,17 @@ import '@vuepic/vue-datepicker/dist/main.css'
 import moment from 'moment'
 
 const timePickerOpen = ref<boolean>(false)
+const breakTimeOptions = [
+    {
+        label: 'minutes',
+        key: 'minutes',
+    },
+    {
+        label: 'hours',
+        key: 'hours',
+    },
+]
+const selectedBreakTimeOption = ref<string>('minutes')
 const props = defineProps<{
     isUpdate: boolean
     employeeOptions: { label: string; value: string }[]
@@ -189,6 +234,7 @@ const showCreateModal = ref<boolean>(false)
 const createFormData = ref<CreateScheduleParams>({
     scope: '',
     employeeId: [],
+    minuteBreakTime: 1,
     dates: '',
     clockInTime: '',
     clockOutTime: '',
@@ -198,6 +244,7 @@ const loading = ref<boolean>(false)
 const curTab = ref<string>('employees')
 const time = ref<{ hours: number; minutes: number; seconds: number }[]>()
 const date = ref()
+const breakTime = ref<number>(1)
 const monthYearPicker = ref<DatePickerInstance>()
 const timesPicker = ref<DatePickerInstance>()
 const datesPicker = ref<DatePickerInstance>()
@@ -207,6 +254,7 @@ const closeCreateModal = () => {
         scope: '',
         dates: '',
         employeeId: [],
+        minuteBreakTime: breakTime.value,
         clockInTime: '',
         clockOutTime: '',
         departmentId: props.filterForm.departmentId,
@@ -216,7 +264,22 @@ const closeCreateModal = () => {
     timesPicker.value?.clearValue()
     showCreateModal.value = false
 }
+
 const employeeSchedule = ref<Schedule>()
+
+const handleBreakTimeOptionsSelect = (key: string) => {
+    if (selectedBreakTimeOption.value != key) {
+        switch (key) {
+            case 'minute':
+                breakTime.value = Math.ceil(breakTime.value * 60)
+                break
+            case 'hour':
+                breakTime.value = Math.ceil(breakTime.value / 60)
+                break
+        }
+    }
+    selectedBreakTimeOption.value = key
+}
 const openCreateModal = async () => {
     createFormData.value.departmentId = props.filterForm.departmentId
     createFormData.value.scope = moment().format('YYYY-MM')
@@ -256,21 +319,27 @@ const onSubmitCreate = () => {
         if (!errors) {
             try {
                 loading.value = true
+                createFormData.value.minuteBreakTime =
+                    selectedBreakTimeOption.value == 'hours' ? breakTime.value * 60 : breakTime.value
+                let res: any
                 if (props.isUpdate) {
-                    const res: any = await apiUpdateSchedule(createFormData.value)
+                    res = await apiUpdateSchedule(createFormData.value)
                 } else {
-                    const res: any = await apiCreateSchedule(createFormData.value)
+                    res = await apiCreateSchedule(createFormData.value)
                 }
-                const curScop = getMonthAndYear(createFormData.value.scope)
-                emit('currentDateChange', new Date(curScop.year, curScop.month, 1))
-                emit('onDepartmentChange', createFormData.value.departmentId)
-                if (
-                    props.filterForm.scope == createFormData.value.scope &&
-                    props.filterForm.departmentId == createFormData.value.departmentId
-                ) {
-                    emit('refreshData')
+
+                if (res) {
+                    const curScop = getMonthAndYear(createFormData.value.scope)
+                    emit('currentDateChange', new Date(curScop.year, curScop.month, 1))
+                    emit('onDepartmentChange', createFormData.value.departmentId)
+                    if (
+                        props.filterForm.scope == createFormData.value.scope &&
+                        props.filterForm.departmentId == createFormData.value.departmentId
+                    ) {
+                        emit('refreshData')
+                    }
+                    closeCreateModal()
                 }
-                closeCreateModal()
             } catch (error: any) {
                 message.error(error.message)
             } finally {
@@ -353,7 +422,7 @@ watch(date, () => updateDates(date.value))
 }
 
 .timePicker {
-    --dp-menu-min-width: 370px; /*Adjust the min width of the menu*/
+    --dp-menu-min-width: 230px; /*Adjust the min width of the menu*/
     --dp-font-size: 1.1rem; /*Default font-size*/
 }
 

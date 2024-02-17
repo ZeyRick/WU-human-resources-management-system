@@ -7,6 +7,7 @@ export type CreateScheduleParams = {
     clockInTime: string
     clockOutTime: string
     departmentId: string
+    minuteBreakTime: number
 }
 
 export type ScheduleFilterParams = {

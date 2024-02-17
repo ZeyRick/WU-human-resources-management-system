@@ -29,5 +29,8 @@
     "telegram_username": "Telegram username",
     "select_department": "Select Department",
     "select_employee": "Select Employee",
-    "employee_work_days": "Employee Work Days"
+    "employee_work_days": "Employee Work Days",
+    "break_time_minute": "Break Time",
+    "minutes": "Minutes",
+    "hours": "Hours"
 }

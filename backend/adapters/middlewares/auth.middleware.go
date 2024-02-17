@@ -3,7 +3,6 @@ package middlewares
 import (
 	"backend/pkg/https"
 	"backend/pkg/jwttoken"
-	"backend/pkg/logger"
 	"context"
 	"net/http"
 	"strings"
@@ -24,7 +23,6 @@ func LoginMiddleware(next http.Handler) http.Handler {
 		reqToken = splitToken[1]
 		ok, userId := jwttoken.ValidateToken(w, r, reqToken)
 		if ok {
-			logger.Console("222")
 			ctx := context.WithValue(r.Context(), "userId", userId)
 			next.ServeHTTP(w, r.WithContext(ctx))
 			return

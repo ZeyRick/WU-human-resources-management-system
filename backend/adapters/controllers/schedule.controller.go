@@ -68,6 +68,7 @@ func (ctr *ScheduleController) Add(w http.ResponseWriter, r *http.Request) {
 		Dates:        body.Dates,
 		ClockInTime:  clockInTime,
 		ClockOutTime: clockoutTime,
+		MinuteBreakTime: body.MinuteBreakTime,
 	})
 }
 
