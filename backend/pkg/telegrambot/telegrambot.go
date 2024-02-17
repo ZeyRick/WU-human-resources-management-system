@@ -2,6 +2,7 @@ package telegrambot
 
 import (
 	"backend/core/services"
+	"backend/core/types"
 	"backend/pkg/logger"
 	"fmt"
 	"log"
@@ -12,11 +13,13 @@ import (
 
 type Bot struct {
 	EmployeeRequestService *services.EmployeeRequestService
+	ClockService           *services.ClockService
 }
 
 func NewBot() *Bot {
 	return &Bot{
 		EmployeeRequestService: services.NewEmployeeRequestService(),
+		ClockService:           services.NewClockService(),
 	}
 }
 
@@ -54,10 +57,28 @@ func (ctr *Bot) HandleUpdate(updates tgbotapi.UpdatesChannel) {
 				ctr.AddToPending(update)
 			}
 			if update.Message.Location != nil {
-				fmt.Println(update.Message.Location)
+				fmt.Println("1")
+				err := ctr.ClockService.ClockFromTelegram(&update.Message.From.ID, types.ClockIn)
+				if err != nil {
+					logger.Trace(err)
+					msg := tgbotapi.NewMessage(update.Message.Chat.ID, "There is an error please contact the HR management.")
+					Instance.bot.Send(msg)
+					return
+				}
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Clocked In.")
+				Instance.bot.Send(msg)
 			}
 			if update.Message.Text == "ClockOut" {
-				fmt.Println("Hello")
+				fmt.Println("2")
+				err := ctr.ClockService.ClockFromTelegram(&update.Message.From.ID, types.ClockOut)
+				if err != nil {
+					logger.Trace(err)
+					msg := tgbotapi.NewMessage(update.Message.Chat.ID, "There is an error please contact the HR management.")
+					Instance.bot.Send(msg)
+					return
+				}
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Clocked Out.")
+				Instance.bot.Send(msg)
 			}
 			if update.Message.Text == "1" {
 				SendEmployeeAddedMessage(update.Message.From.ID)
@@ -77,6 +98,11 @@ func SendEmployeeAddedMessage(telegramID int64) {
 		Text: "ClockOut",
 	}
 	msg.ReplyMarkup = tgbotapi.NewReplyKeyboard([]tgbotapi.KeyboardButton{btn, btn2})
+	Instance.bot.Send(msg)
+}
+
+func SendEmployeeRejectedMessage(telegramID int64) {
+	msg := tgbotapi.NewMessage(telegramID, "Your register have been rejected.")
 	Instance.bot.Send(msg)
 }
 
@@ -113,7 +139,7 @@ func (ctr *Bot) AddToPending(update tgbotapi.Update) {
 		return
 	}
 	if !ok {
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Your account has already added to the pending list")
+		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Your account has already registered")
 		Instance.bot.Send(msg)
 		return
 	}
@@ -130,5 +156,4 @@ func (ctr *Bot) AddToPending(update tgbotapi.Update) {
 	}
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Your name has been added to the pending list")
 	Instance.bot.Send(msg)
-	return
 }

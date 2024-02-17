@@ -43,12 +43,18 @@ func (ctrl *EmployeeRequestController) Confirmation(w http.ResponseWriter, r *ht
 		helper.UnexpectedError(w, r, err)
 		return
 	}
-	err = ctrl.service.Confirmation(body)
+	err, ok := ctrl.service.Confirmation(body)
 	if err != nil {
 		logger.Trace(err)
 		helper.UnexpectedError(w, r, err)
 		return
 	}
-	https.ResponseMsg(w, r, http.StatusOK, "New Employee Added")
+	if !ok {
+		https.ResponseMsg(w, r, http.StatusOK, "Request Rejected")
+		telegrambot.SendEmployeeRejectedMessage(*body.TelegramID)
+		return
+	}
+	https.ResponseMsg(w, r, http.StatusUnauthorized, "New Employee Added")
 	telegrambot.SendEmployeeAddedMessage(*body.TelegramID)
+	return
 }

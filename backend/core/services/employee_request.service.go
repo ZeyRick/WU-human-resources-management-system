@@ -61,24 +61,21 @@ func (srv *EmployeeRequestService) List(pageOpt *dtos.PageOpt, dto *dtos.Employe
 	return srv.repo.List(pageOpt, dto)
 }
 
-func (srv *EmployeeRequestService) Confirmation(dto dtos.Confirmation) error {
+func (srv *EmployeeRequestService) Confirmation(dto dtos.Confirmation) (error, bool) {
 	if dto.Confirmation == types.Rejected {
-		return srv.repo.Delete(dto.TelegramID)
+		srv.repo.Delete(dto.TelegramID)
+		return srv.repo.Delete(dto.TelegramID), false
 	}
 	request, err := srv.repo.FindbyTelegramId(dto.TelegramID)
 	if err != nil {
-		return err
+		return err, false
 	}
 	_, err = srv.emp.UpdateById(&employee.Employee{
 		BaseModel:  models.BaseModel{ID: request.EmployeeID},
 		TelegramID: *dto.TelegramID,
 	})
 	if err != nil {
-		return err
+		return err, false
 	}
-	return srv.repo.Delete(dto.TelegramID)
-}
-
-func (srv *EmployeeRequestService) Test() string {
-	return "Hello"
+	return srv.repo.Delete(dto.TelegramID), true
 }

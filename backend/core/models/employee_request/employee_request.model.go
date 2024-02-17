@@ -55,7 +55,7 @@ func (repo *EmployeeRequestRepo) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeR
 }
 
 func (repo *EmployeeRequestRepo) Delete(telegramId *int64) error {
-	result := db.Database.Delete(&EmployeeRequest{}, *telegramId)
+	result := db.Database.Model(&EmployeeRequest{}).Where("telegram_id = ?", telegramId).Delete(&EmployeeRequest{})
 	if result.Error != nil {
 		return result.Error
 	}
