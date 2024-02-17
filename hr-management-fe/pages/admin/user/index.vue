@@ -31,48 +31,6 @@
         <n-data-table :loading="loading" size="large" style="margin-top: 20px" :columns="columns" :data="userData" />
 
         <n-modal
-            :show="showCreateModal"
-            :mask-closable="false"
-            @negative-click="closeCreateModal"
-            @positive-click="onSubmitCreate"
-        >
-            <n-card
-                style="width: 600px"
-                title="Create New User"
-                :bordered="false"
-                size="huge"
-                role="dialog"
-                aria-modal="true"
-            >
-                <n-form ref="createFormRef" :rules="CommonFormRules" :model="createFormData">
-                    <n-form-item path="userName" label="UserName">
-                        <n-input
-                            :loading="loading"
-                            :input-props="{ 'auto-complete': 'off' }"
-                            v-model:value="createFormData.userName"
-                            @keydown.enter.prevent
-                        />
-                    </n-form-item>
-                    <n-form-item path="name" label="Name">
-                        <n-input :loading="loading" v-model:value="createFormData.name" @keydown.enter.prevent />
-                    </n-form-item>
-                    <n-form-item path="password" label="Password">
-                        <n-input
-                            :loading="loading"
-                            type="password"
-                            v-model:value="createFormData.password"
-                            @keydown.enter.prevent
-                        />
-                    </n-form-item>
-                </n-form>
-                <div style="display: flex; gap: 10px; justify-content: flex-end">
-                    <n-button :loading="loading" round @click="closeCreateModal"> Cancel </n-button>
-                    <n-button :loading="loading" round @click="onSubmitCreate"> Create </n-button>
-                </div>
-            </n-card>
-        </n-modal>
-
-        <n-modal
             :show="showResetPwModal"
             :mask-closable="false"
             @negative-click="closeCreateModal"
@@ -80,7 +38,7 @@
         >
             <n-card
                 style="width: 600px"
-                title="Create New User"
+                title="Reset Password"
                 :bordered="false"
                 size="huge"
                 role="dialog"
@@ -174,7 +132,6 @@ const onSubmitResetPW = () => {
     createFormRef.value?.validate(async (errors: Array<FormValidationError> | undefined) => {
         if (!errors) {
             try {
-                console.log(selectedUser.value)
                 loading.value = true
                 await apiUserResetPW(selectedUser?.value?.id, resetPwForm.value.password)
                 resetPwForm.value.password = ''
@@ -207,7 +164,7 @@ const onSubmitCreate = () => {
             try {
                 loading.value = true
                 await apiCreateUser(createFormData.value)
-                clearModalValue()
+                createFormData.value = defaultCreateData
                 closeCreateModal()
                 await fetchData()
             } catch (error) {
@@ -224,8 +181,6 @@ const onSubmitCreate = () => {
 onMounted(() => {
     fetchData()
 })
-
-const clearModalValue = () => (createFormData.value = defaultCreateData)
 
 const closeCreateModal = () => (showCreateModal.value = false)
 

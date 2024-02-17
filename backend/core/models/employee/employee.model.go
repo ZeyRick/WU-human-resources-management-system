@@ -33,6 +33,14 @@ func (repo *EmployeeRepo) FindId(employeeId *int) (Employee, error) {
 	return data, nil
 }
 
+func (repo *EmployeeRepo) UpdateById(employee *Employee) (int64, error) {
+	result := db.Database.Model(&Employee{}).Where("id = ?", employee.ID).Updates(*employee)
+	if result.Error != nil {
+		return 0, result.Error
+	}
+	return result.RowsAffected, nil
+}
+
 func (repo *EmployeeRepo) Create(newEmployee *Employee) error {
 	result := db.Database.Create(newEmployee)
 	if result.Error != nil {
@@ -52,6 +60,15 @@ func (repo *EmployeeRepo) Delete(employeeId *int) error {
 func (repo *EmployeeRepo) GetOneById(employeeId *int) (*Employee, error) {
 	var data Employee
 	result := db.Database.Limit(1).Find(&data, *employeeId)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &data, nil
+}
+
+func (repo *EmployeeRepo) GetOneByName(name string) (*Employee, error) {
+	var data Employee
+	result := db.Database.Where("name = ?", name).Limit(1).Find(&data)
 	if result.Error != nil {
 		return nil, result.Error
 	}

@@ -20,7 +20,13 @@ export const menuOptions: MenuOption[] = [
     },
     {
         label: renderRoute('/admin/employee', i18n.global.t('employee_list')),
+        icon: renderIcon(Calendar),
         key: 'employee',
+    },
+    {
+        label: renderRoute('/admin/employee-request', i18n.global.t('employee_request')),
+        icon: renderIcon(Calendar),
+        key: 'employee_request',
     },
     {
         label: renderRoute('/admin/report', i18n.global.t('employee_report')),

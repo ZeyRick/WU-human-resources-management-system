@@ -2,8 +2,12 @@ package services
 
 import (
 	"backend/adapters/dtos"
+	"backend/core/models"
 	"backend/core/models/employee"
 	"backend/core/types"
+	"backend/pkg/helper"
+	"backend/pkg/https"
+	"net/http"
 )
 
 type EmployeeService struct {
@@ -16,11 +20,48 @@ func NewEmployeeService() *EmployeeService {
 	}
 }
 
-func (srv *EmployeeService) Add(payload *dtos.AddEmployee) error {
-	return srv.repo.Create(&employee.Employee{
-		Name:       payload.Name,
-		ProfilePic: payload.ProfilePic,
+func (srv *EmployeeService) Edit(w http.ResponseWriter, r *http.Request, employeeId *int, payload *dtos.AddEmployee) {
+	curEmployee, err := srv.repo.FindId(employeeId)
+	if err != nil {
+		helper.UnexpectedError(w, r, err)
+		return
+	}
+	if curEmployee.ID == 0 {
+		https.ResponseError(w, r, http.StatusBadRequest, "User not found")
+		return
+	}
+	_, err = srv.repo.UpdateById(&employee.Employee{
+		BaseModel:    models.BaseModel{ID: curEmployee.ID},
+		Name:         payload.Name,
+		DepartmentId: &payload.DepartmentId,
 	})
+	if err != nil {
+		helper.UnexpectedError(w, r, err)
+		return
+	}
+	https.ResponseMsg(w, r, http.StatusCreated, "Employee updated")
+}
+
+func (srv *EmployeeService) Add(w http.ResponseWriter, r *http.Request, payload *dtos.AddEmployee) {
+	existEmployee, err := srv.repo.GetOneByName(payload.Name)
+	if err != nil {
+		helper.UnexpectedError(w, r, err)
+		return
+	}
+	if existEmployee.ID != 0 {
+		https.ResponseError(w, r, http.StatusBadRequest, "Employee already exists")
+		return
+	}
+	err = srv.repo.Create(&employee.Employee{
+		Name:         payload.Name,
+		ProfilePic:   payload.ProfilePic,
+		DepartmentId: &payload.DepartmentId,
+	})
+	if err != nil {
+		helper.UnexpectedError(w, r, err)
+		return
+	}
+	https.ResponseMsg(w, r, http.StatusCreated, "Employee created")
 }
 
 func (srv *EmployeeService) Delete(employeeId *int) error {
@@ -37,8 +78,4 @@ func (srv *EmployeeService) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter
 
 func (srv *EmployeeService) All(dto *dtos.EmployeeFilter) (*[]employee.Employee, error) {
 	return srv.repo.All(dto)
-}
-
-func (srv *EmployeeService) PendingList(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter) (*types.ListData[employee.Employee], error) {
-	return srv.repo.PendingList(pageOpt, dto)
 }
