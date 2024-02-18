@@ -6,7 +6,7 @@
     v-model:value="selectedDateRange"
     type="daterange"
     placeholder="Select a date"
-
+    @update:value = "getReportByDate"
   />
         <div style="font-size: 16px; display: flex; align-items: center;white-space: nowrap;">
           Department:
@@ -33,11 +33,11 @@
     Click Me
   </n-button>
       </div>
-      <n-data-table :columns="Columns"  :bordered="false"/>
+      <n-data-table :columns="columns" :loading="loading" :data="reportType" :bordered="false"/>
     </n-card>
-    <n-data-table :columns="Columns" :data="dataSeed" :bordered="false"/>
   </n-layout>
 </template>
+
 
 <script setup lang="ts">
 import type { RowData } from 'naive-ui/es/data-table/src/interface'
@@ -45,20 +45,27 @@ import { NLayout,NInput,NSelect, NCard, NText, type DataTableColumns } from 'nai
 import type { Employee, EmployeeParams, CreateEmployeeType } from '~/types/employee'
 import type { Department } from '~/types/department'
 import { apiAllDepartment } from '~/apis/department'
+import { apiGetReport ,apiGetReportByDate, apiGetReportByDepartment,apiGetReportByEmployee} from '~/apis/report'
 import './index.css';
-import moment from 'moment'; 
+import moment from 'moment'
+import {reportTableColumns} from './report-table-columns'
+import type {report,reportParamFilterByDate,reprtParamFilterByEmpolyee} from '~/types/report'
 const searchTerm = ref('')
-import { DATE_TIME_FORMAT } from '~/constants/time'
 
+import { DATE_TIME_FORMAT } from '~/constants/time'
 const loading = ref<boolean>(true)
+  const pageOption = ref<Pagination>({ page: 1, size: 10 })
 const departmentOptions = ref<{ label: string; value: string }[]>([])
 const filterForm = reactive<EmployeeParams>({
     employeeName: '',
     departmentId: '',
 })
+const reportType = ref<report[]>([])
 
-
-
+const columns: DataTableColumns<RowData> = [
+    ...reportTableColumns,
+    
+]
 const onDepartmentChange = (value: any) => {
     filterForm.departmentId = value
 }
@@ -79,8 +86,59 @@ const getDepartment = async () => {
         loading.value = false
     }
 }
-
 const selectedDateRange = ref<Date[]>([new Date(), new Date()])
+const startDate = selectedDateRange.value[0];
+const endDate = selectedDateRange.value[1];
+const filterFormDate =reactive<reportParamFilterByDate> ({
+    startDate: startDate.toISOString(),
+    endDate: endDate.toISOString()
+})
+const getReportByDate = async () => {
+    try {
+        reportType.value = []
+        loading.value = true
+        const res: any = await apiGetReportByDate(pageOption.value,filterFormDate)
+        const report = res as report[]
+        report.map((e) => {
+            reportType.value.push({
+                employeeId: e.employeeId,
+                employeeName: e.employeeName,
+                departmentAlias: e.departmentAlias,
+                totalWorkMinute: e.totalWorkMinute,
+                attandance: e.attandance
+            })
+            console.log()
+        })
+    } catch (error) {
+    } finally {
+        loading.value = false
+    }
+  
+}
+
+const getReport= async () => {
+    try {
+        loading.value = true
+        const res: any = await apiGetReport()
+        const report = res as report[]
+        report.map((e) => {
+            reportType.value.push({
+                employeeId: e.employeeId,
+                employeeName: e.employeeName,
+                departmentAlias: e.departmentAlias,
+                totalWorkMinute: e.totalWorkMinute,
+                attandance: e.attandance
+            })
+            console.log()
+        })
+    } catch (error) {
+    } finally {
+        loading.value = false
+    }
+  
+}
+
+
 
 const convertToUTC = (value: Date[]) => {
   const startDate = selectedDateRange.value[0];
@@ -93,7 +151,6 @@ const endDate = selectedDateRange.value[1];
 }
 
 
-console .log("Start Date in UTC: " + startDate); 
 
 const  handleDateRangeChange =(newDateRange : any)=>{
   const [startDateString, endDateString] = newDateRange.split();
@@ -116,20 +173,8 @@ const Columns: DataTableColumns<RowData> = [
     key: 'name'
   }, 
   {
-    title: 'Position',
-    key: 'position'
-  },
-  {
-    title: 'Salary',
-    key: 'salary'
-  },
-  {
-    title: 'Start Date',
-    key: 'start_date'
-  },
-  {
-    title: 'Status',
-    key: 'status'
+    title: 'Department',
+    key: 'department'
   },
   {
     title: 'Working Hour',
@@ -141,7 +186,7 @@ const Columns: DataTableColumns<RowData> = [
   }
 ]
 
-type Employee = {
+type EmployeeSeed = {
   id: number,
   name: string,
   position: string,
@@ -167,8 +212,10 @@ function getRandomDate() {
 
 onMounted(async () => {
     await getDepartment()
+    await getReport()
+    
 }),
-
+console.log(reportType.value)
 
 definePageMeta({
     layout:"main"
