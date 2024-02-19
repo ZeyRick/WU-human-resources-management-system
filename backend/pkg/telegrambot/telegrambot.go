@@ -4,7 +4,6 @@ import (
 	"backend/core/services"
 	"backend/core/types"
 	"backend/pkg/logger"
-	"fmt"
 	"log"
 	"strings"
 
@@ -57,7 +56,6 @@ func (ctr *Bot) HandleUpdate(updates tgbotapi.UpdatesChannel) {
 				ctr.AddToPending(update)
 			}
 			if update.Message.Location != nil && update.Message.ReplyToMessage.Text == "Please send clock in location." {
-				fmt.Println("1")
 				err := ctr.ClockService.ClockFromTelegram(&update.Message.From.ID, types.ClockIn)
 				if err != nil {
 					logger.Trace(err)
@@ -76,7 +74,6 @@ func (ctr *Bot) HandleUpdate(updates tgbotapi.UpdatesChannel) {
 				Instance.bot.Send(msg)
 			}
 			if update.Message.Location != nil && update.Message.ReplyToMessage.Text == "Please send clock out location." {
-				fmt.Println("2")
 				err := ctr.ClockService.ClockFromTelegram(&update.Message.From.ID, types.ClockOut)
 				if err != nil {
 					logger.Trace(err)
