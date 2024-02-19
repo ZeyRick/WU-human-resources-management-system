@@ -56,7 +56,7 @@ func (ctr *Bot) HandleUpdate(updates tgbotapi.UpdatesChannel) {
 			if strings.Contains(update.Message.Text, "/register ") {
 				ctr.AddToPending(update)
 			}
-			if update.Message.Location != nil {
+			if update.Message.Location != nil && update.Message.ReplyToMessage.Text == "Please send clock in location." {
 				fmt.Println("1")
 				err := ctr.ClockService.ClockFromTelegram(&update.Message.From.ID, types.ClockIn)
 				if err != nil {
@@ -66,9 +66,16 @@ func (ctr *Bot) HandleUpdate(updates tgbotapi.UpdatesChannel) {
 					return
 				}
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Clocked In.")
+				btn := tgbotapi.KeyboardButton{
+					Text: "ClockIn",
+				}
+				btn2 := tgbotapi.KeyboardButton{
+					Text: "ClockOut",
+				}
+				msg.ReplyMarkup = tgbotapi.NewReplyKeyboard([]tgbotapi.KeyboardButton{btn, btn2})
 				Instance.bot.Send(msg)
 			}
-			if update.Message.Text == "ClockOut" {
+			if update.Message.Location != nil && update.Message.ReplyToMessage.Text == "Please send clock out location." {
 				fmt.Println("2")
 				err := ctr.ClockService.ClockFromTelegram(&update.Message.From.ID, types.ClockOut)
 				if err != nil {
@@ -78,6 +85,31 @@ func (ctr *Bot) HandleUpdate(updates tgbotapi.UpdatesChannel) {
 					return
 				}
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Clocked Out.")
+				btn := tgbotapi.KeyboardButton{
+					Text: "ClockIn",
+				}
+				btn2 := tgbotapi.KeyboardButton{
+					Text: "ClockOut",
+				}
+				msg.ReplyMarkup = tgbotapi.NewReplyKeyboard([]tgbotapi.KeyboardButton{btn, btn2})
+				Instance.bot.Send(msg)
+			}
+			if update.Message.Text == "ClockIn" {
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Please send clock in location.")
+				btn := tgbotapi.KeyboardButton{
+					RequestLocation: true,
+					Text:            "Send Location",
+				}
+				msg.ReplyMarkup = tgbotapi.NewReplyKeyboard([]tgbotapi.KeyboardButton{btn})
+				Instance.bot.Send(msg)
+			}
+			if update.Message.Text == "ClockOut" {
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Please send clock out location.")
+				btn := tgbotapi.KeyboardButton{
+					RequestLocation: true,
+					Text:            "Send Location",
+				}
+				msg.ReplyMarkup = tgbotapi.NewReplyKeyboard([]tgbotapi.KeyboardButton{btn})
 				Instance.bot.Send(msg)
 			}
 			if update.Message.Text == "1" {
@@ -91,8 +123,7 @@ func (ctr *Bot) HandleUpdate(updates tgbotapi.UpdatesChannel) {
 func SendEmployeeAddedMessage(telegramID int64) {
 	msg := tgbotapi.NewMessage(telegramID, "Hello you can call clock in and out from the button below.")
 	btn := tgbotapi.KeyboardButton{
-		RequestLocation: true,
-		Text:            "ClockIn",
+		Text: "ClockIn",
 	}
 	btn2 := tgbotapi.KeyboardButton{
 		Text: "ClockOut",

@@ -35,6 +35,15 @@ func (repo *EmployeeRequestRepo) FindbyTelegramId(telegramID *int64) (EmployeeRe
 	return data, nil
 }
 
+func (repo *EmployeeRequestRepo) FindId(telegramId *int) (EmployeeRequest, error) {
+	var data EmployeeRequest
+	result := db.Database.Limit(1).Find(&data, *telegramId)
+	if result.Error != nil {
+		return EmployeeRequest{}, result.Error
+	}
+	return data, nil
+}
+
 func (repo *EmployeeRequestRepo) UpdateByTelegramId(newEmployeeRequest *EmployeeRequest) error {
 	result := db.Database.Model(&EmployeeRequest{}).Where("telegram_id = ?", newEmployeeRequest.TelegramID).Updates(*newEmployeeRequest)
 	if result.Error != nil {
