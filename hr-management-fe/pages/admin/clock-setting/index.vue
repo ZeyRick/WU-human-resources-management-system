@@ -5,7 +5,8 @@
                 <n-input
                     size="large"
                     :loading="loading"
-                    v-model:value="clockSettingForm.coordinate"
+                    v-model:value="coordinate"
+                    :on-change="onCoordinateChange"
                     @keydown.enter.prevent
                 />
             </n-form-item>
@@ -49,6 +50,9 @@
             <n-form-item>
                 <n-button :loading="loading" size="large" @click="onSaveSettingClick"> Save </n-button>
             </n-form-item>
+            <n-form-item>
+                <n-button :loading="loading" size="large" @click="onResetSettingClick"> Reset </n-button>
+            </n-form-item>
         </n-form>
         <div style="position: relative; height: 550px; overflow: hidden">
             <iframe
@@ -74,9 +78,12 @@
 import type { FormInst } from 'naive-ui'
 import { apiGetClockSetting, apiSaveClockSetting } from '~/apis/clockSetting'
 import type { CreateClockSetting } from '~/types/clockSetting'
+import { isValidGoogleCoordinate } from '~/utils/validate'
+
 const createFormRef = ref<FormInst>()
 const loading = ref<boolean>(true)
 const allowTime = ref<number>(1)
+const coordinate = ref<string>('')
 const breakTimeOptions = [
     {
         label: 'minutes',
@@ -108,10 +115,19 @@ const handleAllowTimeOptionsSelect = (key: string) => {
     selectedBreakTimeOption.value = key
 }
 
+const onCoordinateChange = (value: string) => {
+    if (!isValidGoogleCoordinate(value)) {
+        coordinate.value = clockSettingForm.value.coordinate
+        return
+    }
+    clockSettingForm.value.coordinate = coordinate.value
+}
+
 const onSaveSettingClick = async () => {
     if (!loading.value) {
         loading.value = true
         try {
+            clockSettingForm.value.coordinate = coordinate.value
             clockSettingForm.value.allowTime =
                 selectedBreakTimeOption.value == 'hours' ? allowTime.value * 60 : allowTime.value
             const res: any = await apiSaveClockSetting(clockSettingForm.value)
@@ -123,14 +139,34 @@ const onSaveSettingClick = async () => {
     }
 }
 
+const onResetSettingClick = async () => {
+    if (!loading.value) {
+        loading.value = true
+        try {
+            const res: CreateClockSetting = (await apiGetClockSetting()) as CreateClockSetting
+            clockSettingForm.value = res
+            selectedBreakTimeOption.value = 'minutes'
+            coordinate.value = res.coordinate
+            allowTime.value = res.allowTime
+        } catch (error) {
+            console.error(error)
+        } finally {
+            loading.value = false
+        }
+    }
+}
+
 onMounted(async () => {
     const res: CreateClockSetting = (await apiGetClockSetting()) as CreateClockSetting
     clockSettingForm.value = res
+    coordinate.value = res.coordinate
+    allowTime.value = res.allowTime
     loading.value = false
 })
 
 definePageMeta({
     layout: 'main',
+    middleware: ['permission'],
 })
 </script>
 

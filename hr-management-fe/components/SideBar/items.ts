@@ -49,6 +49,7 @@ export const getMenuOptions = (): MenuOption[] => {
             label: renderRoute('/admin/clock-setting', i18n.global.t('clock_setting')),
             icon: renderIcon(SettingsOutline),
             key: 'clock_setting',
+            show: hasSuperAdminPermission(),
         },
 
         {

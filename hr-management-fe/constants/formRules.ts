@@ -1,4 +1,6 @@
-export const CommonFormRules = {
+import type { FormRules } from 'naive-ui'
+
+export const CommonFormRules: FormRules = {
     userName: {
         required: true,
         message: 'Must Input',
