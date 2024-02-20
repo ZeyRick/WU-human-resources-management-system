@@ -5,7 +5,6 @@ import (
 	"backend/core/types"
 	"backend/pkg/logger"
 	"log"
-	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -49,11 +48,8 @@ func (ctr *Bot) HandleUpdate(updates tgbotapi.UpdatesChannel) {
 		if update.Message != nil {
 			//log.Printf("[%s] \n %s", update.Message.Chat.ID, &update.Message.Text)
 			if update.Message.Text == "/start" {
-				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Welcome if you have not registered please register by using /register [name].")
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Welcome if you have not registered please register by chatting your name.")
 				Instance.bot.Send(msg)
-			}
-			if strings.Contains(update.Message.Text, "/register ") {
-				ctr.AddToPending(update)
 			}
 			if update.Message.Location != nil && update.Message.ReplyToMessage.Text == "Please send clock in location." {
 				err := ctr.ClockService.ClockFromTelegram(&update.Message.From.ID, types.ClockIn)
@@ -72,6 +68,7 @@ func (ctr *Bot) HandleUpdate(updates tgbotapi.UpdatesChannel) {
 				}
 				msg.ReplyMarkup = tgbotapi.NewReplyKeyboard([]tgbotapi.KeyboardButton{btn, btn2})
 				Instance.bot.Send(msg)
+				return
 			}
 			if update.Message.Location != nil && update.Message.ReplyToMessage.Text == "Please send clock out location." {
 				err := ctr.ClockService.ClockFromTelegram(&update.Message.From.ID, types.ClockOut)
@@ -90,6 +87,7 @@ func (ctr *Bot) HandleUpdate(updates tgbotapi.UpdatesChannel) {
 				}
 				msg.ReplyMarkup = tgbotapi.NewReplyKeyboard([]tgbotapi.KeyboardButton{btn, btn2})
 				Instance.bot.Send(msg)
+				return
 			}
 			if update.Message.Text == "ClockIn" {
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Please send clock in location.")
@@ -99,6 +97,7 @@ func (ctr *Bot) HandleUpdate(updates tgbotapi.UpdatesChannel) {
 				}
 				msg.ReplyMarkup = tgbotapi.NewReplyKeyboard([]tgbotapi.KeyboardButton{btn})
 				Instance.bot.Send(msg)
+				return
 			}
 			if update.Message.Text == "ClockOut" {
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Please send clock out location.")
@@ -108,10 +107,12 @@ func (ctr *Bot) HandleUpdate(updates tgbotapi.UpdatesChannel) {
 				}
 				msg.ReplyMarkup = tgbotapi.NewReplyKeyboard([]tgbotapi.KeyboardButton{btn})
 				Instance.bot.Send(msg)
+				return
 			}
 			if update.Message.Text == "1" {
 				SendEmployeeAddedMessage(update.Message.From.ID)
 			}
+			ctr.AddToPending(update)
 		}
 	}
 
@@ -171,7 +172,7 @@ func (ctr *Bot) AddToPending(update tgbotapi.Update) {
 		Instance.bot.Send(msg)
 		return
 	}
-	ok, err = ctr.EmployeeRequestService.Pend(strings.Replace(update.Message.Text, "/register ", "", -1), &update.Message.From.ID, update.Message.From.UserName)
+	ok, err = ctr.EmployeeRequestService.Pend(update.Message.Text, &update.Message.From.ID, update.Message.From.UserName)
 	if err != nil {
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "There is an error please contact the HR management")
 		Instance.bot.Send(msg)

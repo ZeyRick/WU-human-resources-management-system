@@ -59,7 +59,7 @@ func (srv *EmployeeRequestService) CheckPending(id *int64) (bool, error) {
 		logger.Trace(err)
 		return false, err
 	}
-	if employee.TelegramID == 0 {
+	if employee.TelegramID != 0 {
 		return false, nil
 	}
 	return true, nil
@@ -75,8 +75,7 @@ func (srv *EmployeeRequestService) Confirmation(dto dtos.Confirmation) (bool, in
 		return false, 0, err
 	}
 	if dto.Confirmation == types.Rejected {
-		srv.repo.Delete(&request.TelegramID)
-		return false, request.TelegramID, srv.repo.Delete(&request.TelegramID)
+		return false, request.TelegramID, srv.repo.Delete(dto.RequestID)
 	}
 	_, err = srv.emp.UpdateById(&employee.Employee{
 		BaseModel:        models.BaseModel{ID: request.EmployeeID},
@@ -86,5 +85,5 @@ func (srv *EmployeeRequestService) Confirmation(dto dtos.Confirmation) (bool, in
 	if err != nil {
 		return false, 0, err
 	}
-	return true, request.TelegramID, srv.repo.Delete(&request.TelegramID)
+	return true, request.TelegramID, srv.repo.Delete(dto.RequestID)
 }
