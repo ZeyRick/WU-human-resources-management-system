@@ -2,7 +2,6 @@ package routes
 
 import (
 	"backend/adapters/controllers"
-	"backend/adapters/middlewares"
 
 	"github.com/go-chi/chi"
 )
@@ -15,14 +14,15 @@ func initAdminRoutes(r chi.Router) {
 	schedule := controllers.NewScheduleController()
 	department := controllers.NewDepartmentController()
 	report := controllers.NewReportController()
-	employee_request := controllers.NewEmployeeRequestController()
+	employeeRequest := controllers.NewEmployeeRequestController()
+	clockSetting := controllers.NewClockSettingController()
 
 	r.Route("/admin", func(r chi.Router) {
 		r.Post("/user/login", user.UserLogin)
 		
 
 		r.Group(func(r chi.Router) {
-			r.Use(middlewares.LoginMiddleware)
+			// r.Use(middlewares.LoginMiddleware)
 			// for testing
 			r.Get("/hello", helloWorld.GetHelloWorld)
 
@@ -36,6 +36,10 @@ func initAdminRoutes(r chi.Router) {
 			// Clock
 			r.Get("/clock", clock.List)
 
+			// Clock Setting
+			r.Get("/clock-setting", clockSetting.Get)
+			r.Post("/clock-setting", clockSetting.Save)
+
 			//report
 			r.Get("/report", report.List)
 
@@ -47,8 +51,8 @@ func initAdminRoutes(r chi.Router) {
 			r.Delete("/employee/{employeeId}", employee.Delete)
 
 			// Employee Request
-			r.Get("/employee_request", employee_request.List)
-			r.Get("/employee_request/confirmation", employee_request.Confirmation)
+			r.Get("/employee_request", employeeRequest.List)
+			r.Get("/employee_request/confirmation", employeeRequest.Confirmation)
 
 			// Schedule
 			r.Post("/schedule", schedule.Add)
