@@ -110,12 +110,15 @@ const handleAllowTimeOptionsSelect = (key: string) => {
 
 const onSaveSettingClick = async () => {
     if (!loading.value) {
+        loading.value = true
         try {
             clockSettingForm.value.allowTime =
                 selectedBreakTimeOption.value == 'hours' ? allowTime.value * 60 : allowTime.value
             const res: any = await apiSaveClockSetting(clockSettingForm.value)
         } catch (error) {
             console.error(error)
+        } finally {
+            loading.value = false
         }
     }
 }

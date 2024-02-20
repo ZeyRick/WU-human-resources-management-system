@@ -6,6 +6,7 @@ import {
     PersonAddOutline,
     TimerOutline,
     GridOutline,
+    SettingsOutline,
 } from '@vicons/ionicons5'
 import { useUserInfoStore } from '~/store/userInfo'
 
@@ -43,6 +44,11 @@ export const getMenuOptions = (): MenuOption[] => {
             label: renderRoute('/admin/employee-request', i18n.global.t('telegram_requests')),
             icon: renderIcon(PersonAddOutline),
             key: 'telegram_request',
+        },
+        {
+            label: renderRoute('/admin/clock-setting', i18n.global.t('clock_setting')),
+            icon: renderIcon(SettingsOutline),
+            key: 'clock_setting',
         },
 
         {

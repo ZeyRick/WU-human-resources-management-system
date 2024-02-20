@@ -21,7 +21,6 @@ func NewUserController() *UserController {
 }
 
 func (ctrl *UserController) GetUserInfo(w http.ResponseWriter, r *http.Request) {
-	logger.Console("333")
 	userId := r.Context().Value("userId").(uint)
 	if userId == 0 {
 		https.ResponseError(w, r, http.StatusUnauthorized, "Invalid user id")
