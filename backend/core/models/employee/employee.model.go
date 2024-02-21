@@ -10,8 +10,8 @@ import (
 
 type Employee struct {
 	models.BaseModel
-	Name         string                `gorm:"type:string;not null"`
-	TelegramID   int64                 `gorm:"type:int;not null"`
+	Name         string                `json:"name" gorm:"type:string;not null"`
+	TelegramID   int64                 `json:"telegramId" gorm:"type:int;not null"`
 	DepartmentId *int                  `json:"departmentId" gorm:"type:number;not null"`
 	Department   department.Department `json:"department"`
 }
