@@ -5,6 +5,7 @@ import (
 	"backend/core/types"
 	"backend/pkg/logger"
 	"log"
+	"os"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -28,7 +29,8 @@ type BotInstance struct {
 var Instance *BotInstance
 
 func (ctr *Bot) TelegramBot() {
-	bot, err := tgbotapi.NewBotAPI("6727294709:AAEi4reWROwsc5SkjY-DfurFR2pBB_I6eBM")
+	bottokken := os.Getenv("Telegram_Bot_token")
+	bot, err := tgbotapi.NewBotAPI(bottokken)
 	if err != nil {
 		logger.Trace(err)
 		log.Panic(err)
