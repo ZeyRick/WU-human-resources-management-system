@@ -2,7 +2,6 @@ package routes
 
 import (
 	"backend/adapters/controllers"
-	"backend/adapters/middlewares"
 
 	"github.com/go-chi/chi"
 )
@@ -20,10 +19,9 @@ func initAdminRoutes(r chi.Router) {
 
 	r.Route("/admin", func(r chi.Router) {
 		r.Post("/user/login", user.UserLogin)
-		
 
 		r.Group(func(r chi.Router) {
-			r.Use(middlewares.LoginMiddleware)
+			//r.Use(middlewares.LoginMiddleware)
 			// for testing
 			r.Get("/hello", helloWorld.GetHelloWorld)
 

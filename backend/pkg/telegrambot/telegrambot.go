@@ -4,9 +4,8 @@ import (
 	"backend/core/services"
 	"backend/core/types"
 	"backend/pkg/logger"
-	"fmt"
 	"log"
-	"strings"
+	"os"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -30,7 +29,8 @@ type BotInstance struct {
 var Instance *BotInstance
 
 func (ctr *Bot) TelegramBot() {
-	bot, err := tgbotapi.NewBotAPI("6727294709:AAEi4reWROwsc5SkjY-DfurFR2pBB_I6eBM")
+	bottokken := os.Getenv("Telegram_Bot_token")
+	bot, err := tgbotapi.NewBotAPI(bottokken)
 	if err != nil {
 		logger.Trace(err)
 		log.Panic(err)
@@ -50,14 +50,10 @@ func (ctr *Bot) HandleUpdate(updates tgbotapi.UpdatesChannel) {
 		if update.Message != nil {
 			//log.Printf("[%s] \n %s", update.Message.Chat.ID, &update.Message.Text)
 			if update.Message.Text == "/start" {
-				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Welcome if you have not registered please register by using /register [name].")
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Welcome if you have not registered please register by chatting your name.")
 				Instance.bot.Send(msg)
 			}
-			if strings.Contains(update.Message.Text, "/register ") {
-				ctr.AddToPending(update)
-			}
-			if update.Message.Location != nil {
-				fmt.Println("1")
+			if update.Message.Location != nil && update.Message.ReplyToMessage.Text == "Please send clock in location." {
 				err := ctr.ClockService.ClockFromTelegram(&update.Message.From.ID, types.ClockIn)
 				if err != nil {
 					logger.Trace(err)
@@ -66,10 +62,17 @@ func (ctr *Bot) HandleUpdate(updates tgbotapi.UpdatesChannel) {
 					return
 				}
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Clocked In.")
+				btn := tgbotapi.KeyboardButton{
+					Text: "ClockIn",
+				}
+				btn2 := tgbotapi.KeyboardButton{
+					Text: "ClockOut",
+				}
+				msg.ReplyMarkup = tgbotapi.NewReplyKeyboard([]tgbotapi.KeyboardButton{btn, btn2})
 				Instance.bot.Send(msg)
+				return
 			}
-			if update.Message.Text == "ClockOut" {
-				fmt.Println("2")
+			if update.Message.Location != nil && update.Message.ReplyToMessage.Text == "Please send clock out location." {
 				err := ctr.ClockService.ClockFromTelegram(&update.Message.From.ID, types.ClockOut)
 				if err != nil {
 					logger.Trace(err)
@@ -78,11 +81,40 @@ func (ctr *Bot) HandleUpdate(updates tgbotapi.UpdatesChannel) {
 					return
 				}
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Clocked Out.")
+				btn := tgbotapi.KeyboardButton{
+					Text: "ClockIn",
+				}
+				btn2 := tgbotapi.KeyboardButton{
+					Text: "ClockOut",
+				}
+				msg.ReplyMarkup = tgbotapi.NewReplyKeyboard([]tgbotapi.KeyboardButton{btn, btn2})
 				Instance.bot.Send(msg)
+				return
+			}
+			if update.Message.Text == "ClockIn" {
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Please send clock in location.")
+				btn := tgbotapi.KeyboardButton{
+					RequestLocation: true,
+					Text:            "Send Location",
+				}
+				msg.ReplyMarkup = tgbotapi.NewReplyKeyboard([]tgbotapi.KeyboardButton{btn})
+				Instance.bot.Send(msg)
+				return
+			}
+			if update.Message.Text == "ClockOut" {
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Please send clock out location.")
+				btn := tgbotapi.KeyboardButton{
+					RequestLocation: true,
+					Text:            "Send Location",
+				}
+				msg.ReplyMarkup = tgbotapi.NewReplyKeyboard([]tgbotapi.KeyboardButton{btn})
+				Instance.bot.Send(msg)
+				return
 			}
 			if update.Message.Text == "1" {
 				SendEmployeeAddedMessage(update.Message.From.ID)
 			}
+			ctr.AddToPending(update)
 		}
 	}
 
@@ -91,8 +123,7 @@ func (ctr *Bot) HandleUpdate(updates tgbotapi.UpdatesChannel) {
 func SendEmployeeAddedMessage(telegramID int64) {
 	msg := tgbotapi.NewMessage(telegramID, "Hello you can call clock in and out from the button below.")
 	btn := tgbotapi.KeyboardButton{
-		RequestLocation: true,
-		Text:            "ClockIn",
+		Text: "ClockIn",
 	}
 	btn2 := tgbotapi.KeyboardButton{
 		Text: "ClockOut",
@@ -143,7 +174,7 @@ func (ctr *Bot) AddToPending(update tgbotapi.Update) {
 		Instance.bot.Send(msg)
 		return
 	}
-	ok, err = ctr.EmployeeRequestService.Pend(strings.Replace(update.Message.Text, "/register ", "", -1), &update.Message.From.ID, update.Message.From.UserName)
+	ok, err = ctr.EmployeeRequestService.Pend(update.Message.Text, &update.Message.From.ID, update.Message.From.UserName)
 	if err != nil {
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "There is an error please contact the HR management")
 		Instance.bot.Send(msg)
