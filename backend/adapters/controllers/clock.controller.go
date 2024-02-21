@@ -56,3 +56,20 @@ func (ctrl *ClockController) List(w http.ResponseWriter, r *http.Request) {
 	}
 	https.ResponseJSON(w, r, http.StatusOK, result)
 }
+
+
+func (ctrl *ClockController) Attendence(w http.ResponseWriter, r *http.Request) {
+	pageOpt, dto, err := https.GetPaginationWithType[dtos.AttendenceFilter](r)
+	if err != nil {
+		logger.Trace(err)
+		helper.UnexpectedError(w, r, err)
+		return
+	}
+	result, err := ctrl.clockService.Attendence(&pageOpt, &dto)
+	if err != nil {
+		logger.Trace(err)
+		helper.UnexpectedError(w, r, err)
+		return
+	}
+	https.ResponseJSON(w, r, http.StatusOK, result)
+}

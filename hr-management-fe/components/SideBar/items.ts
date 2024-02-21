@@ -7,6 +7,7 @@ import {
     TimerOutline,
     GridOutline,
     SettingsOutline,
+    TodayOutline,
 } from '@vicons/ionicons5'
 import { useUserInfoStore } from '~/store/userInfo'
 
@@ -50,6 +51,11 @@ export const getMenuOptions = (): MenuOption[] => {
             icon: renderIcon(SettingsOutline),
             key: 'clock_setting',
             show: hasSuperAdminPermission(),
+        },
+        {
+            label: renderRoute('/admin/attendence', i18n.global.t('attendence')),
+            icon: renderIcon(TodayOutline),
+            key: 'attendence',
         },
 
         {

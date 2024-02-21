@@ -19,6 +19,7 @@ func initAdminRoutes(r chi.Router) {
 
 	r.Route("/admin", func(r chi.Router) {
 		r.Post("/user/login", user.UserLogin)
+		
 
 		r.Group(func(r chi.Router) {
 			//r.Use(middlewares.LoginMiddleware)
@@ -34,6 +35,7 @@ func initAdminRoutes(r chi.Router) {
 
 			// Clock
 			r.Get("/clock", clock.List)
+			r.Get("/clock/attendence", clock.Attendence)
 
 			// Clock Setting
 			r.Get("/clock-setting", clockSetting.Get)

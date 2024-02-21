@@ -33,5 +33,10 @@
     "break_time_minute": "Break Time",
     "minutes": "Minutes",
     "hours": "Hours",
-    "clock_setting": "Clock Setting"
+    "clock_setting": "Clock Setting",
+    "clock_in_time": "Clock In Time",
+    "clock_out_time": "Clock Out Time",
+    "total_work_minute": "Total Work Minute",
+    "work_time": "Work Time",
+    "attendence": "Attendence"
 }
