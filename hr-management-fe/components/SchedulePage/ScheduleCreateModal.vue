@@ -270,10 +270,10 @@ const employeeSchedule = ref<Schedule>()
 const handleBreakTimeOptionsSelect = (key: string) => {
     if (selectedBreakTimeOption.value != key) {
         switch (key) {
-            case 'minute':
+            case 'minutes':
                 breakTime.value = Math.ceil(breakTime.value * 60)
                 break
-            case 'hour':
+            case 'hours':
                 breakTime.value = Math.ceil(breakTime.value / 60)
                 break
         }

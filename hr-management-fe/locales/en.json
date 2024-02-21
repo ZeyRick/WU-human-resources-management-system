@@ -32,5 +32,6 @@
     "employee_work_days": "Employee Work Days",
     "break_time_minute": "Break Time",
     "minutes": "Minutes",
-    "hours": "Hours"
+    "hours": "Hours",
+    "clock_setting": "Clock Setting"
 }
