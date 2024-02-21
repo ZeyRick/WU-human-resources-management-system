@@ -10,10 +10,11 @@ import (
 
 type Employee struct {
 	models.BaseModel
-	Name         string                `json:"name" gorm:"type:string;not null"`
-	TelegramID   int64                 `json:"telegramId" gorm:"type:int;not null"`
-	DepartmentId *int                  `json:"departmentId" gorm:"type:number;not null"`
-	Department   department.Department `json:"department"`
+	Name             string                `json:"name" gorm:"type:string;not null"`
+	TelegramID       int64                 `json:"telegramId" gorm:"type:int;not null"`
+	DepartmentId     *int                  `json:"departmentId" gorm:"type:number;not null"`
+	Department       department.Department `json:"department"`
+	TelegramUsername string                `json:"telegramUsername"gorm:"type:string"`
 }
 
 type EmployeeRepo struct{}

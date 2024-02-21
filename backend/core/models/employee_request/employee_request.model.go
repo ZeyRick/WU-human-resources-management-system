@@ -35,6 +35,15 @@ func (repo *EmployeeRequestRepo) FindbyTelegramId(telegramID *int64) (EmployeeRe
 	return data, nil
 }
 
+func (repo *EmployeeRequestRepo) FindId(Id *int) (EmployeeRequest, error) {
+	var data EmployeeRequest
+	result := db.Database.Limit(1).Find(&data, *Id)
+	if result.Error != nil {
+		return EmployeeRequest{}, result.Error
+	}
+	return data, nil
+}
+
 func (repo *EmployeeRequestRepo) UpdateByTelegramId(newEmployeeRequest *EmployeeRequest) error {
 	result := db.Database.Model(&EmployeeRequest{}).Where("telegram_id = ?", newEmployeeRequest.TelegramID).Updates(*newEmployeeRequest)
 	if result.Error != nil {
@@ -54,8 +63,8 @@ func (repo *EmployeeRequestRepo) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeR
 	return models.List[EmployeeRequest](pageOpt, query, "employee_requests")
 }
 
-func (repo *EmployeeRequestRepo) Delete(telegramId *int64) error {
-	result := db.Database.Model(&EmployeeRequest{}).Where("telegram_id = ?", telegramId).Delete(&EmployeeRequest{})
+func (repo *EmployeeRequestRepo) Delete(Id *int) error {
+	result := db.Database.Delete(&EmployeeRequest{}, *Id)
 	if result.Error != nil {
 		return result.Error
 	}

@@ -3,7 +3,7 @@ package dtos
 import "backend/core/types"
 
 type Confirmation struct {
-	TelegramID   *int64                 `json:"telegramID" validate:"required"`
+	RequestID    *int                   `json:"requestId" validate:"required"`
 	Confirmation types.ConfirmationType `json:"confirmation" validate:"required"`
 }
 

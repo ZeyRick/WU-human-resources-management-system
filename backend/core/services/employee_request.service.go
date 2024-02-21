@@ -54,6 +54,14 @@ func (srv *EmployeeRequestService) CheckPending(id *int64) (bool, error) {
 	if result.TelegramID != 0 {
 		return false, nil
 	}
+	employee, err := srv.emp.FindTelegramId(id)
+	if err != nil {
+		logger.Trace(err)
+		return false, err
+	}
+	if employee.TelegramID != 0 {
+		return false, nil
+	}
 	return true, nil
 }
 
@@ -61,21 +69,21 @@ func (srv *EmployeeRequestService) List(pageOpt *dtos.PageOpt, dto *dtos.Employe
 	return srv.repo.List(pageOpt, dto)
 }
 
-func (srv *EmployeeRequestService) Confirmation(dto dtos.Confirmation) (error, bool) {
-	if dto.Confirmation == types.Rejected {
-		srv.repo.Delete(dto.TelegramID)
-		return srv.repo.Delete(dto.TelegramID), false
-	}
-	request, err := srv.repo.FindbyTelegramId(dto.TelegramID)
+func (srv *EmployeeRequestService) Confirmation(dto dtos.Confirmation) (bool, int64, error) {
+	request, err := srv.repo.FindId(dto.RequestID)
 	if err != nil {
-		return err, false
+		return false, 0, err
+	}
+	if dto.Confirmation == types.Rejected {
+		return false, request.TelegramID, srv.repo.Delete(dto.RequestID)
 	}
 	_, err = srv.emp.UpdateById(&employee.Employee{
-		BaseModel:  models.BaseModel{ID: request.EmployeeID},
-		TelegramID: *dto.TelegramID,
+		BaseModel:        models.BaseModel{ID: request.EmployeeID},
+		TelegramID:       request.TelegramID,
+		TelegramUsername: request.TelegramUsername,
 	})
 	if err != nil {
-		return err, false
+		return false, 0, err
 	}
-	return srv.repo.Delete(dto.TelegramID), true
+	return true, request.TelegramID, srv.repo.Delete(dto.RequestID)
 }
