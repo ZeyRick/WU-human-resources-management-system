@@ -112,6 +112,7 @@ import { getNowLocal } from '~/utils/time'
 import { DATE_FORMAT } from '~/constants/time'
 import moment from 'moment'
 import type { Employee } from '~/types/employee'
+import type { ClockFilter } from '~/types/clock'
 import type { Department } from '~/types/department'
 import { apiAllDepartment } from '~/apis/department'
 
@@ -150,7 +151,6 @@ const getDepartment = async () => {
         })
     } catch (error) {
     } finally {
-        
         loading.value = false
     }
 }
@@ -170,7 +170,6 @@ const getEmployee = async () => {
         })
     } catch (error) {
     } finally {
-        
         loading.value = false
     }
 }
@@ -182,7 +181,6 @@ const onDepartmentChange = (value: any) => {
 
 const fetchData = async () => {
     try {
-        
         loading.value = true
         const res: any = await apiGetClock(pageOption.value, filterForm)
         const jsonRes = res
@@ -194,7 +192,6 @@ const fetchData = async () => {
         }
     } catch (error) {
     } finally {
-        
         loading.value = false
     }
 }

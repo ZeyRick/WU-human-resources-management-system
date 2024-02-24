@@ -68,6 +68,11 @@ func (srv *ClockService) List(pageOpt *dtos.PageOpt, dto *dtos.ClockFilter) (*ty
 	return result, err
 }
 
+func (srv *ClockService) Attendence(pageOpt *dtos.PageOpt, dto *dtos.AttendenceFilter) (*types.ListData[clock.Clock], error) {
+	result, err := srv.repo.Attendence(pageOpt, dto)
+	return result, err
+}
+
 func (srv *ClockService) ClockFromTelegram(telegramID *int64, clockType types.ClockType) error {
 	employee, err := srv.emp.FindTelegramId(telegramID)
 	empID := int(employee.ID)
