@@ -4,6 +4,7 @@ import (
 	"backend/adapters/dtos"
 	"backend/core/models"
 	"backend/core/models/clock"
+	clocksetting "backend/core/models/clock_setting"
 	"backend/core/models/employee"
 	"backend/core/types"
 	"backend/pkg/helper"
@@ -11,13 +12,15 @@ import (
 	"backend/pkg/variable"
 	"math"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
 
 type ClockService struct {
-	repo clock.ClockRepo
-	emp  *employee.EmployeeRepo
+	repo     clock.ClockRepo
+	emp      *employee.EmployeeRepo
+	clockset clocksetting.ClockSettingRepo
 }
 
 func NewClockService() *ClockService {
@@ -93,4 +96,25 @@ func (srv *ClockService) ClockFromTelegram(telegramID *int64, clockType types.Cl
 		return err
 	}
 	return nil
+}
+
+func (srv *ClockService) ClockLocation(longtitude float64, latitude float64) (bool, error) {
+	clockLocation, err := srv.clockset.Get()
+	if err != nil {
+		return false, err
+	}
+	clockcoordinate := strings.SplitN(clockLocation.Coordinate, ",", 2)
+	xCoordinate, err := strconv.ParseFloat(clockcoordinate[0], 64)
+	if err != nil {
+		return false, err
+	}
+	yCoordinate, err := strconv.ParseFloat(clockcoordinate[1], 64)
+	if err != nil {
+		return false, err
+	}
+	distance := math.Sqrt(math.Pow(latitude-xCoordinate, 2) + math.Pow(longtitude-yCoordinate, 2))
+	if distance > float64(*clockLocation.ClockRange) {
+		return false, nil
+	}
+	return true, nil
 }
