@@ -96,6 +96,17 @@ func (repo *ClockRepo) Attendence(pageOpt *dtos.PageOpt, dto *dtos.AttendenceFil
 		query = query.Where("employees.department_id = ?", dto.DepartmentId)
 	}
 
+	if dto.StartDate != "" && dto.EndDate != "" {
+		startDate, err := time.Parse("2006-01-02 15:04:05", dto.StartDate)
+		if err != nil {
+			return nil, err
+		}
+		endDate, err := time.Parse("2006-01-02 15:04:05", dto.EndDate)
+		if err != nil {
+			return nil, err
+		}
+		query = query.Where("clocks.created_at >= ? AND clocks.created_at <= ?", startDate, endDate)
+	}
 	// datetime BETWEEN '2024-01-14 00:00:00' AND '2024-01-14 23:59:59'
 	return models.List[Clock](pageOpt, query, "clocks")
 }
@@ -106,7 +117,7 @@ func (repo *ClockRepo) SumReport(pageOpt *dtos.PageOpt, dto *dtos.ReportFilter) 
 		Joins(`JOIN departments ON departments.id = employees.department_id`).Preload("Department").
 		Order("clocks.employee_id DESC")
 	query = query.Group("clocks.employee_id")
-	if dto.StartDate != "" {
+	if dto.StartDate != "" && dto.EndDate != "" {
 		startDate, err := time.Parse("2006-01-02 15:04:05", dto.StartDate)
 		if err != nil {
 			return nil, err

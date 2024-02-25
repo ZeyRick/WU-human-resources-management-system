@@ -12,59 +12,46 @@ export const attendenceColumns: DataTableColumns<RowData> = [
         key: 'Date',
         titleAlign: 'center',
         align: 'center',
-        render: (data, index) => {
-            console.log(data)
-            return aslocalTime(data.createdAt, DATE_FORMAT)
-        },
+        render: (data, index) => aslocalTime(data.createdAt, DATE_FORMAT),
     },
     {
         title: i18n.global.t('employee_name'),
         key: 'EmployeeName',
         titleAlign: 'center',
         align: 'center',
-        render: (data, index) => {
-            return data.employee.name || '-'
-        },
+        render: (data, index) => data.employee.name || '-',
     },
-
     {
         title: i18n.global.t('clock_in_time'),
         key: 'ClockInTime',
         titleAlign: 'center',
         align: 'center',
-        render: (data, index) => {
-            return aslocalTime(data.clockIn.createdAt, TIME_FORMAT)
-        },
+        render: (data, index) => aslocalTime(data.clockIn.createdAt, TIME_FORMAT),
     },
     {
         title: i18n.global.t('clock_out_time'),
         key: 'ClockOutTime',
         titleAlign: 'center',
         align: 'center',
-        render: (data, index) => {
-            return aslocalTime(data.createdAt, TIME_FORMAT)
-        },
+        render: (data, index) => aslocalTime(data.createdAt, TIME_FORMAT),
     },
     {
         title: i18n.global.t('total_work_minute'),
         key: 'WorkMinute',
         titleAlign: 'center',
         align: 'center',
-        render: (data, index) => {
-            return data.clockOutMinute || 0
-        },
+        render: (data, index) => data.clockOutMinute || 0,
     },
     {
         title: i18n.global.t('work_time'),
         key: 'WorkTime',
         titleAlign: 'center',
         align: 'center',
-        render: (data, index) => {
-            return `${aslocalTime(data.schedule.clockInTime, TIME_FORMAT)}-${aslocalTime(
+        render: (data, index) =>
+            `${aslocalTime(data.schedule.clockInTime, TIME_FORMAT)}-${aslocalTime(
                 data.schedule.clockOutTime,
                 TIME_FORMAT,
-            )}`
-        },
+            )}`,
     },
     {
         title: i18n.global.t('status'),
@@ -72,12 +59,28 @@ export const attendenceColumns: DataTableColumns<RowData> = [
         titleAlign: 'center',
         align: 'center',
         render: (data, index) => {
-            if (isTimeAfter(data.schedule.clockInTime, data.clockIn.createdAt)) {
-                return 'Late'
-            } else if (isTimeBefore(data.schedule.clockOutTime, data.createdAt)) {
-                return 'Early'
+            const isLate = isTimeAfter(data.schedule.clockInTime, data.clockIn.createdAt)
+            const isEarly = isTimeBefore(data.schedule.clockOutTime, data.createdAt)
+            if (isLate && isEarly) {
+                return h('div', {
+                    innerHTML: 'Late-Early',
+                    style: 'color: #730000',
+                })
+            } else if (isLate) {
+                return h('div', {
+                    innerHTML: 'Late',
+                    style: 'color: red',
+                }) 
+            } else if (isEarly) {
+                return h('div', {
+                    innerHTML: 'Early',
+                    style: 'color: blue',
+                }) 
             } else {
-                return 'On Time'
+                return h('div', {
+                    innerHTML: 'On Time',
+                    style: 'color: green',
+                }) 
             }
         },
     },

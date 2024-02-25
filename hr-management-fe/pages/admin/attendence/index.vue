@@ -24,6 +24,19 @@
                     :options="employeeOptions"
                 />
             </div>
+            <div style="font-size: 16px; display: flex; align-items: center; margin-left: 10px">
+                Range:
+                <n-date-picker
+                    v-model:value="range"
+                    style="margin-left: 10px"
+                    type="datetimerange"
+                    :is-date-disabled="(timeStamp: number) => timeStamp > moment().endOf('days').valueOf()"
+                    :default-time="['00:00:00', '23:59:59']"
+                />
+            </div>
+            <n-button size="large" round @click="">
+                Export
+            </n-button>
         </div>
         <n-data-table
             :loading="loading"
@@ -71,13 +84,18 @@ const diableUpdate = ref<boolean>(true)
 const attendenceData = ref<Clock[]>([])
 const pageOption = ref<Pagination>({ page: 1, size: 10 })
 const totalPage = ref(0)
-
+const range = ref<number[]>([moment().startOf('days').valueOf(), moment().endOf('days').valueOf()])
 const filterForm = reactive<AttendenceFilter>({
-    startDate: '',
-    endDate: '',
+    startDate: range.value[0].toString(),
+    endDate: range.value[1].toString(),
     employeeName: '',
     employeeId: '',
     departmentId: '',
+})
+
+watch(range, () => {
+    filterForm.startDate = range.value[0].toString()
+    filterForm.endDate = range.value[1].toString()
 })
 
 const getDepartment = async () => {
@@ -121,11 +139,13 @@ const fetchData = async () => {
     try {
         loading.value = true
         const res: any = await apiGetAttendence(pageOption.value, filterForm)
-        totalPage.value = res.pageOpt.totalPage
-        attendenceData.value = res.data as Clock[]
-        pageOption.value = {
-            size: res.pageOpt.pageSize,
-            page: res.pageOpt.curPage,
+        if (res) {
+            totalPage.value = res.pageOpt.totalPage
+            attendenceData.value = res.data as Clock[]
+            pageOption.value = {
+                size: res.pageOpt.pageSize,
+                page: res.pageOpt.curPage,
+            }
         }
     } catch (error) {
         console.error(error)

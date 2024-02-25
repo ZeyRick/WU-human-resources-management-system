@@ -26,11 +26,17 @@ export const apiGetClock = async (pageOpt: Pagination, filter: ClockFilter) => {
 }
 
 export const apiGetAttendence = async (pageOpt: Pagination, filter: AttendenceFilter) => {
+    console.log(filter.startDate)
     return privateRequest(
         '/admin/clock/attendence',
         {
             method: 'get',
-            query: { ...pageOpt, ...filter },
+            query: {
+                ...pageOpt,
+                ...filter,
+                startDate: moment(parseInt(filter.startDate)).utc().format(DATE_TIME_FORMAT),
+                endDate: moment(parseInt(filter.endDate)).utc().format(DATE_TIME_FORMAT),
+            },
         },
         'getClock',
     )

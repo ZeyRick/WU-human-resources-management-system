@@ -3,6 +3,9 @@ import { DATE_TIME_FORMAT } from '~/constants/time'
 import type { CreateScheduleParams, ScheduleFilterParams } from '~/types/schedule'
 
 export const apiCreateSchedule = async (params: CreateScheduleParams) => {
+    const clockInTime = moment('01 ' + params.clockInTime, 'DD HH:mm:ss')
+        .utc()
+        .format(DATE_TIME_FORMAT)
     try {
         const res = await privateRequest(
             '/admin/schedule',
@@ -10,8 +13,11 @@ export const apiCreateSchedule = async (params: CreateScheduleParams) => {
                 method: 'post',
                 body: {
                     ...params,
-                    clockInTime: moment(params.clockInTime, 'HH:mm:ss').utc().format(DATE_TIME_FORMAT),
-                    clockOutTime: moment(params.clockOutTime, 'HH:mm:ss').utc().format(DATE_TIME_FORMAT),
+                    clockInTime,
+                    clockOutTime: moment(params.clockOutTime, 'HH:mm:ss')
+                        .startOf('month')
+                        .utc()
+                        .format(DATE_TIME_FORMAT),
                 },
             },
             'apiCreateSchedule',
