@@ -1,6 +1,9 @@
 package times
 
-import "time"
+import (
+	"backend/pkg/logger"
+	"time"
+)
 
 func DaysInMonth(inputString string) (int, error) {
 	// Parse the input string to get the year and month
@@ -31,4 +34,42 @@ func ParseTime(dateTimeString string) (*time.Time, error) {
 		return nil, err
 	}
 	return &parsedTime, err
+}
+
+func IsTimeBefore(srcTime time.Time, ref time.Time) (bool, error) {
+	curTime := srcTime.UTC().Format("150405")
+	logger.Console(srcTime)
+	logger.Console(curTime)
+	curTimeObj, err := time.Parse("150405", curTime)
+	if err != nil {
+		return false, err
+	}
+	refTime := ref.UTC().Format("150405")
+
+	logger.Console(ref)
+	logger.Console(refTime)
+	refTimeObj, err := time.Parse("150405", refTime)
+	if err != nil {
+		return false, err
+	}
+	timeDifference := curTimeObj.Sub(refTimeObj)	
+	timeOnlyComparison := int(timeDifference.Minutes())
+	return timeOnlyComparison < 0, nil
+}
+
+func IsTimeAfter(srcTime time.Time, ref time.Time) (bool, error) {
+	curTime := srcTime.UTC().Format("150405")
+	curTimeObj, err := time.Parse("150405", curTime)
+	if err != nil {
+		return false, err
+	}
+	refTime := ref.UTC().Format("150405")
+
+	refTimeObj, err := time.Parse("150405", refTime)
+	if err != nil {
+		return false, err
+	}
+	timeDifference := curTimeObj.Sub(refTimeObj)	
+	timeOnlyComparison := int(timeDifference.Minutes())
+	return timeOnlyComparison > 0, nil
 }

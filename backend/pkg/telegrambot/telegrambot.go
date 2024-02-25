@@ -29,7 +29,7 @@ type BotInstance struct {
 var Instance *BotInstance
 
 func (ctr *Bot) TelegramBot() {
-	bottokken := os.Getenv("Telegram_Bot_token")
+	bottokken := os.Getenv("TELEGRAM_BOT_TOKEN")
 	bot, err := tgbotapi.NewBotAPI(bottokken)
 	if err != nil {
 		logger.Trace(err)

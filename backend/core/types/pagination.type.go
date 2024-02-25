@@ -6,8 +6,8 @@ type ListData[T any] struct {
 }
 
 type Pagination struct {
-	TotalCount *int64
-	CurPage    *int64
-	TotalPage  *int64
-	PageSize   *int64
+	TotalCount *int64 `json:"totalCount"`
+	CurPage    *int64 `json:"curPage"`
+	TotalPage  *int64 `json:"totalPage"`
+	PageSize   *int64 `json:"pageSize"`
 }
