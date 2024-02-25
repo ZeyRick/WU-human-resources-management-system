@@ -16,7 +16,7 @@ type Schedule struct {
 	Dates             string            `json:"dates" gorm:"tyope:string"`
 	ClockInTime       time.Time         `json:"clockInTime"`
 	ClockOutTime      time.Time         `json:"clockOutTime"`
-	MinuteWorkPerDay  *int           `json:"minuteWorkPerDay"`
+	MinuteWorkPerDay  *int              `json:"minuteWorkPerDay"`
 	MinuteBreakPerDay *int              `json:"minuteBreakPerDay"`
 	Employee          employee.Employee `json:"employee" gorm:"foreignkey:EmployeeId"`
 	CreatedAt         time.Time         `json:"createdAt"`

@@ -7,7 +7,6 @@ import (
 	"backend/core/types"
 	"backend/pkg/helper"
 	"backend/pkg/https"
-	"backend/pkg/logger"
 	"backend/pkg/times"
 	"encoding/json"
 	"fmt"
@@ -115,7 +114,6 @@ func (srv *ScheduleService) Add(w http.ResponseWriter, r *http.Request, dto *typ
 		// 	https.ResponseError(w, r, http.StatusInternalServerError, fmt.Sprintf(`"Employee ID: %d already has a schedule"`, curEmployeeId))
 		// 	return
 		// }
-		logger.Console(dto)
 		minuteWorkPerDay := int(math.Round(dto.ClockOutTime.Sub(*dto.ClockInTime).Minutes())) - *dto.MinuteBreakTime
 		converetedDates := "[" + string(datesJson)[1:len(string(datesJson))-1] + "]"
 		newSchedules = append(newSchedules, schedule.Schedule{

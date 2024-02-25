@@ -34,10 +34,18 @@
                     :default-time="['00:00:00', '23:59:59']"
                 />
             </div>
-            <n-button size="large" round @click="">
+        </div>
+        <n-button
+                :loading="loading"
+                size="large"
+                strong
+                style="background-color: #409eff; margin-top: 20px;"
+                color="#5cb85c"
+                text-color="#000000"
+                @click="onExportClick"
+            >
                 Export
             </n-button>
-        </div>
         <n-data-table
             :loading="loading"
             size="large"
@@ -65,15 +73,16 @@
 </template>
 
 <script setup lang="ts">
-import { apiGetAttendence } from '~/apis/clock'
+import { apiGetAttendence, apiExportAttendence } from '~/apis/clock'
 import { apiAllEmployee } from '~/apis/employee'
 import { apiAllDepartment } from '~/apis/department'
 import type { EmployeeWithSchedule } from '~/types/employee'
 import type { Department } from '~/types/department'
 import type { AttendenceFilter, Clock } from '~/types/clock'
-import type { ScheduleFilterParams, ScheduleInfo } from '~/types/schedule'
+import type { ScheduleInfo } from '~/types/schedule'
 import moment from 'moment'
 import { attendenceColumns } from './table-columns'
+import { DATE_TIME_FORMAT } from '~/constants/time'
 
 const currentDate = ref<Date>(new Date())
 const employeeOptions = ref<{ label: string; value: string }[]>([])
@@ -116,6 +125,27 @@ const getDepartment = async () => {
         loading.value = false
     }
 }
+
+const onExportClick = () => {
+    try {
+        loading.value = true
+        const config = useRuntimeConfig()
+        const params = {
+            ...filterForm,
+            startDate: moment(parseInt(filterForm.startDate)).utc().format(DATE_TIME_FORMAT),
+            endDate: moment(parseInt(filterForm.endDate)).utc().format(DATE_TIME_FORMAT),
+        }
+        const exportUrl = `${String(config.public.apiURL)}/admin/clock/attendence/export?${new URLSearchParams(
+            params,
+        ).toString()}`
+        window.open(exportUrl, '_self')
+    } catch (error) {
+        console.error(error)
+    } finally {
+        loading.value = false
+    }
+}
+
 const getEmployee = async () => {
     try {
         loading.value = true

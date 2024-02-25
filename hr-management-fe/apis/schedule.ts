@@ -3,9 +3,8 @@ import { DATE_TIME_FORMAT } from '~/constants/time'
 import type { CreateScheduleParams, ScheduleFilterParams } from '~/types/schedule'
 
 export const apiCreateSchedule = async (params: CreateScheduleParams) => {
-    const clockInTime = moment('01 ' + params.clockInTime, 'DD HH:mm:ss')
-        .utc()
-        .format(DATE_TIME_FORMAT)
+    const clockInTime = `${params.scope}-01 ${params.clockInTime}`
+    const clockOutTime = `${params.scope}-01 ${params.clockOutTime}`
     try {
         const res = await privateRequest(
             '/admin/schedule',
@@ -13,11 +12,8 @@ export const apiCreateSchedule = async (params: CreateScheduleParams) => {
                 method: 'post',
                 body: {
                     ...params,
-                    clockInTime,
-                    clockOutTime: moment(params.clockOutTime, 'HH:mm:ss')
-                        .startOf('month')
-                        .utc()
-                        .format(DATE_TIME_FORMAT),
+                    clockInTime: moment(clockInTime, 'YYYY-MM-DD HH:mm:ss').utc().format(DATE_TIME_FORMAT),
+                    clockOutTime: moment(clockOutTime, 'YYYY-MM-DD HH:mm:ss').utc().format(DATE_TIME_FORMAT),
                 },
             },
             'apiCreateSchedule',
@@ -30,14 +26,16 @@ export const apiCreateSchedule = async (params: CreateScheduleParams) => {
 
 export const apiUpdateSchedule = async (params: CreateScheduleParams) => {
     try {
+        const clockInTime = `${params.scope}-01 ${params.clockInTime}`
+        const clockOutTime = `${params.scope}-01 ${params.clockOutTime}`
         const res = await privateRequest(
             '/admin/schedule',
             {
                 method: 'patch',
                 body: {
                     ...params,
-                    clockInTime: moment(params.clockInTime, 'HH:mm:ss').utc().format(DATE_TIME_FORMAT),
-                    clockOutTime: moment(params.clockOutTime, 'HH:mm:ss').utc().format(DATE_TIME_FORMAT),
+                    clockInTime: moment(clockInTime, 'YYYY-MM-DD HH:mm:ss').utc().format(DATE_TIME_FORMAT),
+                    clockOutTime: moment(clockOutTime, 'YYYY-MM-DD HH:mm:ss').utc().format(DATE_TIME_FORMAT),
                 },
             },
             'updateSchedule',

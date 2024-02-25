@@ -25,8 +25,22 @@ export const apiGetClock = async (pageOpt: Pagination, filter: ClockFilter) => {
     )
 }
 
+export const apiExportAttendence = async (filter: AttendenceFilter) => {
+    return privateRequest(
+        '/admin/clock/attendence/export',
+        {
+            method: 'get',
+            query: {
+                ...filter,
+                startDate: moment(parseInt(filter.startDate)).utc().format(DATE_TIME_FORMAT),
+                endDate: moment(parseInt(filter.endDate)).utc().format(DATE_TIME_FORMAT),
+            },
+        },
+        'apiExportAttendence',
+    )
+}
+
 export const apiGetAttendence = async (pageOpt: Pagination, filter: AttendenceFilter) => {
-    console.log(filter.startDate)
     return privateRequest(
         '/admin/clock/attendence',
         {
@@ -38,6 +52,6 @@ export const apiGetAttendence = async (pageOpt: Pagination, filter: AttendenceFi
                 endDate: moment(parseInt(filter.endDate)).utc().format(DATE_TIME_FORMAT),
             },
         },
-        'getClock',
+        'apiGetAttendence',
     )
 }

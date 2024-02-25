@@ -1,9 +1,10 @@
 package telegrambot
 
 import (
+	"backend/core/models/employee"
 	"backend/core/services"
-	"backend/core/types"
 	"backend/pkg/logger"
+	"backend/pkg/variable"
 	"log"
 	"os"
 
@@ -13,12 +14,14 @@ import (
 type Bot struct {
 	EmployeeRequestService *services.EmployeeRequestService
 	ClockService           *services.ClockService
+	EmployeeRepo           *employee.EmployeeRepo
 }
 
 func NewBot() *Bot {
 	return &Bot{
 		EmployeeRequestService: services.NewEmployeeRequestService(),
 		ClockService:           services.NewClockService(),
+		EmployeeRepo:           employee.NewEmployeeRepo(),
 	}
 }
 
@@ -48,111 +51,104 @@ func (ctr *Bot) TelegramBot() {
 func (ctr *Bot) HandleUpdate(updates tgbotapi.UpdatesChannel) {
 	for update := range updates {
 		if update.Message != nil {
-			//log.Printf("[%s] \n %s", update.Message.Chat.ID, &update.Message.Text)
-			if update.Message.Text == "/start" {
-				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Welcome if you have not registered please register by chatting your name.")
+			employee, err := ctr.EmployeeRepo.FindTelegramId(&update.Message.From.ID)
+			if err != nil {
+				logger.Trace(err)
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "There is an error please contact the HR management.")
 				Instance.bot.Send(msg)
+				continue
 			}
-			if update.Message.Location != nil && update.Message.ReplyToMessage.Text == "Please send clock in location." {
-				ok, err := ctr.ClockService.ClockLocation(update.Message.Location.Longitude, update.Message.Location.Latitude)
+			if employee == nil {
+				switch update.Message.Text {
+				case "/start":
+					msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Welcome please register by chatting your name.")
+					Instance.bot.Send(msg)
+					continue
+				default:
+					ctr.AddToPending(update)
+					continue
+				}
+			}
+
+			// clock in or out with location
+			if update.Message.Location != nil {
+				var errMsg string
+				var err error
+				switch update.Message.ReplyToMessage.Text {
+				case "Please send clock in location.":
+					errMsg, err = ctr.ClockService.ClockIn(variable.Create[int](int(employee.ID)), update.Message.Location.Longitude, update.Message.Location.Latitude)
+				case "Please send clock out location.":
+					errMsg, err = ctr.ClockService.ClockOut(variable.Create[int](int(employee.ID)), update.Message.Location.Longitude, update.Message.Location.Latitude)
+				default:
+					continue
+				}
 				if err != nil {
 					logger.Trace(err)
 					msg := tgbotapi.NewMessage(update.Message.Chat.ID, "There is an error please contact the HR management.")
 					Instance.bot.Send(msg)
+					continue
 				}
-				if !ok {
-					msg := tgbotapi.NewMessage(update.Message.Chat.ID, "You are not inside clock range.")
-					btn := tgbotapi.KeyboardButton{
-						Text: "ClockIn",
-					}
-					btn2 := tgbotapi.KeyboardButton{
-						Text: "ClockOut",
-					}
-					msg.ReplyMarkup = tgbotapi.NewReplyKeyboard([]tgbotapi.KeyboardButton{btn, btn2})
-					Instance.bot.Send(msg)
+				var msg tgbotapi.MessageConfig
+				if errMsg != "" {
+					msg = tgbotapi.NewMessage(update.Message.Chat.ID, errMsg)
 				} else {
-					err = ctr.ClockService.ClockFromTelegram(&update.Message.From.ID, types.ClockIn)
-					if err != nil {
-						logger.Trace(err)
-						msg := tgbotapi.NewMessage(update.Message.Chat.ID, "There is an error please contact the HR management.")
-						Instance.bot.Send(msg)
-
-					}
-					msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Clocked In.")
-					btn := tgbotapi.KeyboardButton{
-						Text: "ClockIn",
-					}
-					btn2 := tgbotapi.KeyboardButton{
-						Text: "ClockOut",
-					}
-					msg.ReplyMarkup = tgbotapi.NewReplyKeyboard([]tgbotapi.KeyboardButton{btn, btn2})
-					Instance.bot.Send(msg)
+					msg = tgbotapi.NewMessage(update.Message.Chat.ID, "Success.")
 				}
+				btn := tgbotapi.KeyboardButton{
+					Text: "ClockIn",
+				}
+				btn2 := tgbotapi.KeyboardButton{
+					Text: "ClockOut",
+				}
+				msg.ReplyMarkup = tgbotapi.NewReplyKeyboard([]tgbotapi.KeyboardButton{btn, btn2})
+				Instance.bot.Send(msg)
+				continue
 			}
-			if update.Message.Location != nil && update.Message.ReplyToMessage.Text == "Please send clock out location." {
-				ok, err := ctr.ClockService.ClockLocation(update.Message.Location.Longitude, update.Message.Location.Latitude)
+
+			// getting clock out and in
+			if update.Message.Text != "" {
+				var msg string
+				var errMsg string
+				var err error
+				switch update.Message.Text {
+				case "ClockIn":
+					errMsg, err = ctr.ClockService.CheckAvaiableClockIn(variable.Create[int](int(employee.ID)))
+					msg = "Please send clock in location."
+				case "ClockOut":
+					errMsg, err = ctr.ClockService.CheckAvaiableClockOut(variable.Create[int](int(employee.ID)))
+					msg = "Please send clock out location."
+				case "Cancel":
+					SendEmployeeAddedMessage(update.Message.From.ID)
+				default:
+					continue
+				}
 				if err != nil {
 					logger.Trace(err)
 					msg := tgbotapi.NewMessage(update.Message.Chat.ID, "There is an error please contact the HR management.")
 					Instance.bot.Send(msg)
+					continue
 				}
-				if !ok {
-					msg := tgbotapi.NewMessage(update.Message.Chat.ID, "You are not inside clock range.")
-					btn := tgbotapi.KeyboardButton{
-						Text: "ClockIn",
-					}
-					btn2 := tgbotapi.KeyboardButton{
-						Text: "ClockOut",
-					}
-					msg.ReplyMarkup = tgbotapi.NewReplyKeyboard([]tgbotapi.KeyboardButton{btn, btn2})
+				if errMsg != "" {
+					msg := tgbotapi.NewMessage(update.Message.Chat.ID, errMsg)
 					Instance.bot.Send(msg)
-
-				} else {
-					err = ctr.ClockService.ClockFromTelegram(&update.Message.From.ID, types.ClockOut)
-					if err != nil {
-						logger.Trace(err)
-						msg := tgbotapi.NewMessage(update.Message.Chat.ID, "There is an error please contact the HR management.")
-						Instance.bot.Send(msg)
-
-					}
-					msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Clocked Out.")
-					btn := tgbotapi.KeyboardButton{
-						Text: "ClockIn",
-					}
-					btn2 := tgbotapi.KeyboardButton{
-						Text: "ClockOut",
-					}
-					msg.ReplyMarkup = tgbotapi.NewReplyKeyboard([]tgbotapi.KeyboardButton{btn, btn2})
-					Instance.bot.Send(msg)
+					continue
 				}
-			}
-			if update.Message.Text == "ClockIn" {
-				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Please send clock in location.")
+				msgConig := tgbotapi.NewMessage(update.Message.Chat.ID, msg)
 				btn := tgbotapi.KeyboardButton{
 					RequestLocation: true,
 					Text:            "Send Location",
 				}
-				msg.ReplyMarkup = tgbotapi.NewReplyKeyboard([]tgbotapi.KeyboardButton{btn})
-				Instance.bot.Send(msg)
-
-			}
-			if update.Message.Text == "ClockOut" {
-				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Please send clock out location.")
-				btn := tgbotapi.KeyboardButton{
-					RequestLocation: true,
-					Text:            "Send Location",
+				btn2 := tgbotapi.KeyboardButton{
+					Text: "Cancel",
 				}
-				msg.ReplyMarkup = tgbotapi.NewReplyKeyboard([]tgbotapi.KeyboardButton{btn})
-				Instance.bot.Send(msg)
+				msgConig.ReplyMarkup = tgbotapi.NewReplyKeyboard([]tgbotapi.KeyboardButton{btn, btn2})
+				Instance.bot.Send(msgConig)
+				continue
+			}
+			// if update.Message.Text == "1" {
+			// 	SendEmployeeAddedMessage(update.Message.From.ID)
 
-			}
-			if update.Message.Text == "1" {
-				SendEmployeeAddedMessage(update.Message.From.ID)
-
-			}
-			if update.Message.Location == nil && update.Message.Text != "ClockOut" && update.Message.Text != "ClockIn" && update.Message.Text != "/start" {
-				ctr.AddToPending(update)
-			}
+			// }
 		}
 	}
 

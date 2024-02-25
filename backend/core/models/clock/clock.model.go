@@ -20,6 +20,7 @@ type Clock struct {
 	Employee       employee.Employee `json:"employee"`
 	ScheduleId     *int              `json:"scheduleId"`
 	Schedule       schedule.Schedule `json:"schedule"`
+	Status         string            `json:"status"`
 }
 
 type ClockRepo struct{}
@@ -35,10 +36,19 @@ func (repo *ClockRepo) Create(newClock *Clock) error {
 	}
 	return nil
 }
-
 func (repo *ClockRepo) LatestClockIn(employeeId *int) (*Clock, error) {
 	var data Clock
 	result := db.Database.Last(&data, "employee_id = ? AND clock_type = ?", *employeeId, types.ClockIn)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &data, nil
+}
+
+
+func (repo *ClockRepo) LatestClock(employeeId *int) (*Clock, error) {
+	var data Clock
+	result := db.Database.Last(&data, "employee_id = ?", *employeeId)
 	if result.Error != nil {
 		return nil, result.Error
 	}

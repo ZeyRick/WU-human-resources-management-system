@@ -39,23 +39,26 @@ export const privateRequest = async (path: string, object: Object, key: string) 
                 }
                 return
             }
-            response._data = JSON.parse(response._data)
-            if (response._data?.code === -1) {
-                if (loadingBar) {
-                    loadingBar.error()
+            try {
+                response._data = JSON.parse(response._data)
+                if (response._data?.code === -1) {
+                    if (loadingBar) {
+                        loadingBar.error()
+                    }
+                    message.error(response._data?.msg || 'Someting Went Wrong')
+                    throw new Error(response._data?.msg || 'Someting Went Wrong')
                 }
-                message.error(response._data?.msg || 'Someting Went Wrong')
-                throw new Error(response._data?.msg || 'Someting Went Wrong')
-            }
-            if (response._data?.msg) {
-                message.success(response._data?.msg)
-            }
-            if (response._data?.res) {
-                response._data = response._data.res
-            }
-            if (loadingBar) {
-                loadingBar.finish()
-            }
+                if (response._data?.msg) {
+                    message.success(response._data?.msg)
+                }
+                if (response._data?.res) {
+                    response._data = response._data.res
+                }
+                if (loadingBar) {
+                    loadingBar.finish()
+                }
+            } catch (error) {}
+            
         },
         ...object,
     })

@@ -59,8 +59,8 @@ export const attendenceColumns: DataTableColumns<RowData> = [
         titleAlign: 'center',
         align: 'center',
         render: (data, index) => {
-            const isLate = isTimeAfter(data.schedule.clockInTime, data.clockIn.createdAt)
-            const isEarly = isTimeBefore(data.schedule.clockOutTime, data.createdAt)
+            const isLate = data.clockIn.status != ''
+            const isEarly = data.status != ''
             if (isLate && isEarly) {
                 return h('div', {
                     innerHTML: 'Late-Early',

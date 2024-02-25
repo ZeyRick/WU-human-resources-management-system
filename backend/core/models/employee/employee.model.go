@@ -123,8 +123,5 @@ func (repo *EmployeeRepo) All(dto *dtos.EmployeeFilter) (*[]types.EmployeeWithSc
 func (repo *EmployeeRepo) FindTelegramId(telegramId *int64) (*Employee, error) {
 	var data Employee
 	result := db.Database.Where("telegram_id = ?", telegramId).Limit(1).Find(&data)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return &data, nil
+	return &data, result.Error
 }
