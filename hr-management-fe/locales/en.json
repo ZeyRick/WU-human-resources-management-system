@@ -38,5 +38,6 @@
     "clock_out_time": "Clock Out Time",
     "total_work_minute": "Total Work Minute",
     "work_time": "Work Time",
+    "employee_id": "Employee ID",
     "attendence": "Attendence"
 }

@@ -54,6 +54,6 @@ func (ctrl *EmployeeRequestController) Confirmation(w http.ResponseWriter, r *ht
 		telegrambot.SendEmployeeRejectedMessage(id)
 		return
 	}
-	https.ResponseMsg(w, r, http.StatusUnauthorized, "New Employee Added")
+	https.ResponseMsg(w, r, http.StatusOK, "New Employee Added")
 	telegrambot.SendEmployeeAddedMessage(id)
 }

@@ -56,7 +56,7 @@ func initAdminRoutes(r chi.Router) {
 
 			// Employee Request
 			r.Get("/employee_request", employeeRequest.List)
-			r.Get("/employee_request/confirmation", employeeRequest.Confirmation)
+			r.Post("/employee_request/confirmation", employeeRequest.Confirmation)
 
 			// Schedule
 			r.Post("/schedule", schedule.Add)

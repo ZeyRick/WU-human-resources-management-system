@@ -33,6 +33,7 @@ func (srv *EmployeeRequestService) Pend(name string, id *int64, telegramName str
 	if employees.ID == 0 {
 		return false, nil
 	}
+	logger.Console(int64(*id))
 	err = srv.repo.Create(&employee_request.EmployeeRequest{
 		EmployeeID:       employees.ID,
 		TelegramID:       int64(*id),

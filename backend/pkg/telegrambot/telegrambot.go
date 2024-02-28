@@ -36,7 +36,6 @@ func (ctr *Bot) TelegramBot() {
 	bot, err := tgbotapi.NewBotAPI(bottokken)
 	if err != nil {
 		logger.Trace(err)
-		log.Panic(err)
 		return
 	}
 	Instance = &BotInstance{bot: bot}
@@ -58,7 +57,7 @@ func (ctr *Bot) HandleUpdate(updates tgbotapi.UpdatesChannel) {
 				Instance.bot.Send(msg)
 				continue
 			}
-			if employee == nil {
+			if employee.ID == 0 {
 				switch update.Message.Text {
 				case "/start":
 					msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Welcome please register by chatting your name.")

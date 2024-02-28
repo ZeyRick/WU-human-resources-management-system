@@ -43,22 +43,6 @@
                     />
                 </div>
             </div>
-            <n-button
-                :loading="loading"
-                size="large"
-                strong
-                style="background-color: #409eff"
-                color="#5cb85c"
-                text-color="#000000"
-                @click="showCreateModal"
-            >
-                <template #icon>
-                    <n-icon color="#000000">
-                        <AddCircleOutline />
-                    </n-icon>
-                </template>
-                Create
-            </n-button>
         </div>
         <n-data-table size="large" :bordered="false" :loading="loading" :columns="columns" :data="employeeData" />
         <n-card
@@ -77,58 +61,13 @@
                 :on-update:page="onPageChange"
             />
         </n-card>
-        <n-modal
-            :show="showModal"
-            :mask-closable="false"
-            :on-after-leave="
-                () =>
-                    (createFormData = {
-                        name: '',
-                        departmentId: '',
-                    })
-            "
-        >
-            <n-card
-                style="width: 600px"
-                :title="isEdit ? 'Edit Employee'  : 'Create New Employee'"
-                :bordered="false"
-                size="huge"
-                role="dialog"
-                aria-modal="true"
-            >
-                <n-form ref="createFormRef" :rules="CommonFormRules" :model="createFormData">
-                    <n-form-item path="name" label="Full Name">
-                        <n-input
-                            :loading="loading"
-                            :input-props="{ 'auto-complete': 'off' }"
-                            v-model:value="createFormData.name"
-                            @keydown.enter.prevent
-                        />
-                    </n-form-item>
-                    <n-form-item path="departmentId" label="Department">
-                        <n-select
-                            :disable="loading"
-                            v-model:value="createFormData.departmentId"
-                            filterable
-                            :placeholder="i18n.global.t('department')"
-                            :options="departmentOptions"
-                        />
-                    </n-form-item>
-                </n-form>
-                <div style="display: flex; gap: 10px; justify-content: flex-end">
-                    <n-button :loading="loading" round @click="() => (showModal = false)"> Cancel </n-button>
-                    <n-button :loading="loading" round @click="() => (isEdit ? onSubmitEdit() : onSubmitCreate())">
-                       {{ isEdit ? 'Edit' : 'Create' }}
-                    </n-button>
-                </div>
-            </n-card>
-        </n-modal>
     </n-layout>
 </template>
 
 <script setup lang="ts">
 import { clockColumns } from './table-columns'
-import { apiListEmployee, apiDeleteEmployee, apiCreateEmployee, apiEditEmployee } from '~/apis/employee'
+import { apiDeleteEmployee, apiEditEmployee } from '~/apis/employee'
+import { apiListEmployeeRequest, apiDenyEmployeeRequest, apiApproveEmployeeRequest } from '~/apis/employeeRequest'
 import type { Employee, EmployeeParams, CreateEmployeeType } from '~/types/employee'
 import type { Department } from '~/types/department'
 import { apiAllDepartment } from '~/apis/department'
@@ -163,18 +102,19 @@ const columns: DataTableColumns<RowData> = [
         render: (data: any, index: any) => {
             return [
                 h(OperateButton, {
-                    text: 'Remove',
+                    text: 'Approve',
                     loading: loading.value,
-                    positiveClick: () => handleDelete(data.id),
+                    positiveClick: async () => {
+                        await apiApproveEmployeeRequest(data.id)
+                        await fetchData()
+                    },
                 }),
                 h(NormalButton, {
-                    text: 'Edit',
+                    text: 'Deny',
                     loading: loading.value,
                     style: 'margin-left: 10px;',
                     onClick: () => {
-                        createFormData.value = {name: data?.name, departmentId: data?.departmentId}
-                        selectedEmployee.value = data
-                        showEditModal()
+                        onDenyClick(data.id)
                     },
                 }),
             ]
@@ -220,24 +160,13 @@ const onDepartmentChange = (value: any) => {
     filterForm.departmentId = value
 }
 
-const onSubmitCreate = () => {
-    createFormRef.value?.validate(async (errors: Array<FormValidationError> | undefined) => {
-        if (!errors) {
-            try {
-                loading.value = true
-                await apiCreateEmployee(createFormData.value)
-                createFormData.value = defaultCreateData
-                showModal.value = false
-                await fetchData()
-            } catch (error) {
-                console.error(error)
-            } finally {
-                loading.value = false
-            }
-        } else {
-            console.log(errors)
-        }
-    })
+const onDenyClick = async (requestId: string) => {
+    try {
+        await apiDenyEmployeeRequest(requestId)
+        await fetchData()
+    } catch (error) {
+        console.error(error)
+    }
 }
 
 const onSubmitEdit = () => {
@@ -276,7 +205,7 @@ const showEditModal = () => {
 const fetchData = async () => {
     try {
         loading.value = true
-        const res: any = await apiListEmployee(pageOption.value, filterForm)
+        const res: any = await apiListEmployeeRequest(pageOption.value, filterForm)
         totalPage.value = res.pageOpt.totalPage
         employeeData.value = res.data as Employee[]
         pageOption.value = {

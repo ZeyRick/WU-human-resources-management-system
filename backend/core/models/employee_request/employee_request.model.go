@@ -3,17 +3,19 @@ package employee_request
 import (
 	"backend/adapters/dtos"
 	"backend/core/models"
+	"backend/core/models/employee"
 	"backend/core/types"
 	"backend/pkg/db"
 	"time"
 )
 
 type EmployeeRequest struct {
-	ID               uint      `json:"id" gorm:"primaryKey;autoIncrement"`
-	EmployeeID       uint      `gorm:"type:string"`
-	TelegramID       int64     `gorm:"type:int;not null"`
-	TelegramUsername string    `gorm:"type:string"`
-	CreatedAt        time.Time `json:"createdAt"`
+	ID               uint              `json:"id" gorm:"primaryKey;autoIncrement"`
+	EmployeeID       uint              `json:"employeeId" gorm:"type:string"`
+	Employee         employee.Employee `json:"employee"`
+	TelegramID       int64             `json:"telegramId" gorm:"type:int;not null"`
+	TelegramUsername string            `json:"telegramUsername" gorm:"type:string"`
+	CreatedAt        time.Time         `json:"createdAt"`
 }
 
 type EmployeeRequestRepo struct{}
@@ -53,9 +55,15 @@ func (repo *EmployeeRequestRepo) UpdateByTelegramId(newEmployeeRequest *Employee
 }
 
 func (repo *EmployeeRequestRepo) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeRequestFilter) (*types.ListData[EmployeeRequest], error) {
-	query := db.Database
+	query := db.Database.Joins("JOIN employees ON employees.id = employee_requests.employee_id").Preload("Employee")
 	if dto.EmployeeID != 0 {
 		query = query.Where("employee_requests.employee_id = ?", dto.EmployeeID)
+	}
+	if dto.EmployeeName != "" {
+		query = query.Where(`employees.name LIKE ?`, "%"+dto.EmployeeName+"%")
+	}
+	if dto.DepartmentId != 0 {
+		query = query.Where("employees.department_id = ?", dto.EmployeeID)
 	}
 	if dto.TelegramUsername != "" {
 		query = query.Where(`telegram_username LIKE ?`, "%"+dto.TelegramUsername+"%")
