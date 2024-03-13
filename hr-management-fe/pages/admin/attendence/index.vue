@@ -36,16 +36,16 @@
             </div>
         </div>
         <n-button
-                :loading="loading"
-                size="large"
-                strong
-                style="background-color: #409eff; margin-top: 20px;"
-                color="#5cb85c"
-                text-color="#000000"
-                @click="onExportClick"
-            >
-                Export
-            </n-button>
+            :loading="loading"
+            size="large"
+            strong
+            style="background-color: #409eff; margin-top: 20px"
+            color="#5cb85c"
+            text-color="#000000"
+            @click="onExportClick"
+        >
+            Export
+        </n-button>
         <n-data-table
             :loading="loading"
             size="large"

@@ -21,6 +21,8 @@ type Clock struct {
 	ScheduleId     *int              `json:"scheduleId"`
 	Schedule       schedule.Schedule `json:"schedule"`
 	Status         string            `json:"status"`
+	EarlyMinutes   *int              `json:"earlyMinutes" gorm:"type:int;default 0"`
+	LateMinutes    *int              `json:"lateMinutes" gorm:"type:int;default 0"`
 }
 
 type ClockRepo struct{}
@@ -44,7 +46,6 @@ func (repo *ClockRepo) LatestClockIn(employeeId *int) (*Clock, error) {
 	}
 	return &data, nil
 }
-
 
 func (repo *ClockRepo) LatestClock(employeeId *int) (*Clock, error) {
 	var data Clock
@@ -121,7 +122,7 @@ func (repo *ClockRepo) Attendence(pageOpt *dtos.PageOpt, dto *dtos.AttendenceFil
 	return models.List[Clock](pageOpt, query, "clocks")
 }
 
-func (repo *ClockRepo) SumReport(pageOpt *dtos.PageOpt, dto *dtos.ReportFilter) (*[]types.ClockReports, error) {
+func (repo *ClockRepo) SumReport(pageOpt *dtos.PageOpt, dto *dtos.ReportFilter) (*types.ListData[types.ClockReports], error) {
 	query := db.Database.Table("clocks").
 		Joins(`JOIN employees ON employees.id = clocks.employee_id`).Preload("Employee").
 		Joins(`JOIN departments ON departments.id = employees.department_id`).Preload("Department").
@@ -147,13 +148,11 @@ func (repo *ClockRepo) SumReport(pageOpt *dtos.PageOpt, dto *dtos.ReportFilter) 
 		query = query.Where("employees.department_id = ?", dto.DepartmentId)
 	}
 
-	query = query.Select(`clocks.employee_id, employees.*, departments.*, SUM(clocks.clock_out_minute) as total_work_minute`)
-	var clockReports []types.ClockReports
-	result := query.Scan(&clockReports)
-	if result.Error != nil {
-		return &clockReports, result.Error
-	}
-	return &clockReports, nil
+	query = query.Select(`clocks.employee_id, employees.*, departments.*, 
+	SUM(clocks.clock_out_minute) as total_work_minute, 
+	SUM(clocks.early_minutes) as total_early_minute, 
+	SUM(clocks.late_minutes) as total_late_minute`)
+	return models.CustomList[types.ClockReports](pageOpt, query)
 }
 
 func (repo *ClockRepo) UpdateById(clock *Clock) (int64, error) {

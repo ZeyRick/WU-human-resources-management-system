@@ -3,13 +3,13 @@ import type { RowData } from 'naive-ui/es/data-table/src/interface'
 
 export const reportTableColumns: DataTableColumns<RowData> = [
     {
-        title: 'ID',
+        title: 'Employee ID',
         key: 'employeeId',
         titleAlign: 'center',
         align: 'center',
     },
     {
-        title: 'Name',
+        title: 'Employee Name',
         key: 'employeeName',
         titleAlign: 'center',
         align: 'center',
@@ -21,15 +21,21 @@ export const reportTableColumns: DataTableColumns<RowData> = [
         align: 'center',
     },
     {
-        title: 'Working Hours',
+        title: 'Working Minutes',
         key: 'totalWorkMinute',
         titleAlign: 'center',
         align: 'center',
     },
-    // You don't have an equivalent for 'Attandance' in the response
-    // {
-    //     title: 'Attandance',
-    //     key: 'attandance',
-    //     titleAlign: 'center',
-    //     align: 'center',
+    {
+        title: 'Total Late Minutes',
+        key: 'totalLateMinute',
+        titleAlign: 'center',
+        align: 'center',
+    },
+    {
+        title: 'Total Early Minutes',
+        key: 'totalEarlyMinute',
+        titleAlign: 'center',
+        align: 'center',
+    },
 ]

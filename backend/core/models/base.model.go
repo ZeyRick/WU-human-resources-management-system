@@ -10,9 +10,9 @@ import (
 )
 
 type BaseModel struct {
-	ID        uint       `json:"id" gorm:"primaryKey;autoIncrement"`
-	CreatedAt time.Time  `json:"createdAt"`
-	UpdatedAt time.Time  `json:"updatedAt"`
+	ID        uint           `json:"id" gorm:"primaryKey;autoIncrement"`
+	CreatedAt time.Time      `json:"createdAt"`
+	UpdatedAt time.Time      `json:"updatedAt"`
 	DeletedAt gorm.DeletedAt `json:"deletedAt" gorm:"index"`
 }
 
@@ -43,6 +43,27 @@ func List[T any](pageOpt *dtos.PageOpt, db *gorm.DB, tableName string) (*types.L
 	}
 	var count int64
 	countResult := db.Table(tableName).Count(&count)
+	if countResult.Error != nil {
+		return nil, countResult.Error
+	}
+	totalPage := int64(math.Ceil(float64(count) / float64(*pageOpt.Size)))
+	pageOptFinal := types.Pagination{
+		PageSize:   pageOpt.Size,
+		CurPage:    pageOpt.Page,
+		TotalPage:  &totalPage,
+		TotalCount: &count,
+	}
+	return &types.ListData[T]{PageOpt: &pageOptFinal, Data: &data}, nil
+}
+
+func CustomList[T any](pageOpt *dtos.PageOpt, db *gorm.DB) (*types.ListData[T], error) {
+	var data []T
+	selectResult := db.Scopes(paginate(pageOpt)).Scan(&data)
+	if selectResult.Error != nil {
+		return nil, selectResult.Error
+	}
+	var count int64
+	countResult := db.Count(&count)
 	if countResult.Error != nil {
 		return nil, countResult.Error
 	}

@@ -274,6 +274,8 @@ func (srv *ClockService) ClockIn(employeeId *int, longtitude float64, latitude f
 		clockInTime = clockInTime.Add(time.Duration(differentMinutes * int(time.Minute)))
 	} else if differentMinutes > *clockSetting.AllowTime {
 		status = "late"
+	} else {
+		differentMinutes = 0
 	}
 
 	// Check if today has already clock in
@@ -289,10 +291,11 @@ func (srv *ClockService) ClockIn(employeeId *int, longtitude float64, latitude f
 		BaseModel: models.BaseModel{
 			CreatedAt: clockInTime,
 		},
-		EmployeeId: employeeId,
-		ClockType:  types.ClockIn,
-		Status:     status,
-		ScheduleId: variable.Create[int](int(schedule.ID))})
+		LateMinutes: &differentMinutes,
+		EmployeeId:  employeeId,
+		ClockType:   types.ClockIn,
+		Status:      status,
+		ScheduleId:  variable.Create[int](int(schedule.ID))})
 	if err != nil {
 		return "", err
 	}
@@ -344,6 +347,8 @@ func (srv *ClockService) ClockOut(employeeId *int, longtitude float64, latitude 
 		curTime = curTime.Add(time.Duration(differentMinutes * int(time.Minute)))
 	} else if differentMinutes > *clockSetting.AllowTime {
 		status = "early"
+	} else {
+		differentMinutes = 0
 	}
 
 	// check previous clock in
@@ -360,6 +365,7 @@ func (srv *ClockService) ClockOut(employeeId *int, longtitude float64, latitude 
 	minuteWork := int(math.Round(math.Abs(curTime.Sub(prevClock.CreatedAt).Minutes())))
 	err = srv.repo.Create(
 		&clock.Clock{
+			EarlyMinutes:   &differentMinutes,
 			EmployeeId:     employeeId,
 			ClockType:      types.ClockOut,
 			BaseModel:      models.BaseModel{CreatedAt: curTime},

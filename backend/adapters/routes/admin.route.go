@@ -23,6 +23,7 @@ func initAdminRoutes(r chi.Router) {
 
 		// export
 		r.Get("/clock/attendence/export", clock.AttendenceExport)
+		r.Get("/clock/report/export", report.ExportList)
 
 		r.Group(func(r chi.Router) {
 			r.Use(middlewares.LoginMiddleware)

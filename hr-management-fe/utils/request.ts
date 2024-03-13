@@ -51,14 +51,11 @@ export const privateRequest = async (path: string, object: Object, key: string) 
                 if (response._data?.msg) {
                     message.success(response._data?.msg)
                 }
-                if (response._data?.res) {
-                    response._data = response._data.res
-                }
+                response._data = response._data.res
                 if (loadingBar) {
                     loadingBar.finish()
                 }
             } catch (error) {}
-            
         },
         ...object,
     })
