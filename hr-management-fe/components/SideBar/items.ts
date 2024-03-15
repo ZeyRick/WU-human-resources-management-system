@@ -8,6 +8,7 @@ import {
     GridOutline,
     SettingsOutline,
     TodayOutline,
+    DocumentOutline,
 } from '@vicons/ionicons5'
 import { useUserInfoStore } from '~/store/userInfo'
 
@@ -60,8 +61,8 @@ export const getMenuOptions = (): MenuOption[] => {
 
         {
             label: renderRoute('/admin/report', i18n.global.t('employee_report')),
-            key: 'hello',
-            href: 'https://en.wikipedia.org/wiki/Hear_the_Wind_Sing',
+            icon: renderIcon(DocumentOutline),
+            key: 'report',
         },
     ]
 }

@@ -133,11 +133,6 @@ const columns: DataTableColumns<RowData> = [
         align: 'center',
         render: (data: any, index: any) => {
             return [
-                h(OperateButton, {
-                    text: 'Remove',
-                    loading: loading.value,
-                    positiveClick: () => handleDelete(data.id),
-                }),
                 h(NormalButton, {
                     text: 'Edit',
                     loading: loading.value,
