@@ -40,10 +40,10 @@ func (srv *EmployeeService) Edit(w http.ResponseWriter, r *http.Request, employe
 
 func (srv *EmployeeService) Add(w http.ResponseWriter, r *http.Request, payload *dtos.AddEmployee) {
 	err := srv.repo.Create(&employee.Employee{
-		Name:           payload.Name,
-		DepartmentId:   &payload.DepartmentId,
-		EmployeeStatus: payload.EmployeeStatus,
-		Salary:         payload.Salary,
+		Name:         payload.Name,
+		DepartmentId: &payload.DepartmentId,
+		EmployeeType: payload.EmployeeType,
+		Salary:       payload.Salary,
 	})
 	if err != nil {
 		if strings.Contains(err.Error(), "Duplicate entry") {

@@ -40,9 +40,9 @@ const (
 	Accepted StatusType = "confirm"
 )
 
-type EmployeeStatusType string
+type EmployeeType string
 
 const (
-	Fulltime EmployeeStatusType = "fulltime"
-	Parttime EmployeeStatusType = "parttime"
+	Fulltime EmployeeType = "fulltime"
+	Parttime EmployeeType = "parttime"
 )

@@ -82,7 +82,6 @@ func (srv *EmployeeRequestService) Confirmation(dto dtos.Confirmation) (bool, in
 		BaseModel:        models.BaseModel{ID: request.EmployeeID},
 		TelegramID:       request.TelegramID,
 		TelegramUsername: request.TelegramUsername,
-		Status:           types.Accepted,
 	})
 	if err != nil {
 		return false, 0, err

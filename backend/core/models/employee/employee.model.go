@@ -15,9 +15,8 @@ type Employee struct {
 	DepartmentId     *int                  `json:"departmentId" gorm:"type:number;not null"`
 	Department       department.Department `json:"department"`
 	TelegramUsername string                `json:"telegramUsername"`
-	Status           types.StatusType
-	EmployeeStatus   types.EmployeeStatusType `json:"employeeStatus"`
-	Salary           float64                  `json:"salary"`
+	EmployeeType     types.EmployeeType    `json:"type"`
+	Salary           float64               `json:"salary"`
 }
 
 type EmployeeRepo struct{}
@@ -85,8 +84,8 @@ func (repo *EmployeeRepo) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter) 
 	if dto.EmployeeName != "" {
 		query = query.Where(`name LIKE ?`, "%"+dto.EmployeeName+"%")
 	}
-	if dto.EmployeeStatus != "" {
-		query = query.Where(`employees.employee_status = ?`, dto.EmployeeStatus)
+	if dto.EmployeeType != "" {
+		query = query.Where(`employees.employee_typex = ?`, dto.EmployeeType)
 	}
 	if dto.StartSalary != 0 || dto.EndSalary != 0 {
 		if dto.StartSalary != 0 && dto.EndSalary != 0 {
