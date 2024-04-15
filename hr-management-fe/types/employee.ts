@@ -3,6 +3,9 @@ export type EmployeeParams = {
     employeeName?: string
     departmentId?: string | null
     scope?: string
+    employeeType: EMPLOYEE_TYPE | ''
+    startSalary: number | null
+    endSalary: number | null
 }
 
 export type Employee = {
@@ -16,13 +19,19 @@ export type Employee = {
 export type CreateEmployeeType = {
     name: string
     departmentId: string
+    salary: number
+    employeeType: EMPLOYEE_TYPE
+}
+
+export enum EMPLOYEE_TYPE {
+    FULL_TIME = 'Fulltime',
+    PART_TIME = 'Parttime,',
 }
 
 export const BIND_STATUS_ENUM = {
     APPROVE: 'approved',
     PENDING: 'pending',
 }
-
 
 export type EmployeeWithSchedule = {
     id: string

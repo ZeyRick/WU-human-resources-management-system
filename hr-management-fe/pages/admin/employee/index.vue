@@ -17,9 +17,11 @@
                     align-items: center;
                     justify-content: start;
                     overflow: hidden;
+                    flex-wrap: wrap;
+                    row-gap: 15px;
                 "
             >
-                <div style="font-size: 16px; display: flex; align-items: center">
+                <div style="margin-right: 15px; font-size: 16px; display: flex; align-items: center">
                     Department:
                     <n-select
                         @update:value="onDepartmentChange"
@@ -31,8 +33,19 @@
                         :options="[{ label: 'All', value: '' }, ...departmentOptions]"
                     />
                 </div>
+                <div style="margin-right: 15px; font-size: 16px; display: flex; align-items: center">
+                    Employee Type:
+                    <n-select
+                        style="margin-left: 10px"
+                        :disable="loading"
+                        v-model:value="filterForm.employeeType"
+                        filterable
+                        :placeholder="i18n.global.t('employeeType')"
+                        :options="[{ label: 'All', value: '' }, ...employeeTypeOptions]"
+                    />
+                </div>
                 <div
-                    style="margin-left: 15px; font-size: 16px; display: flex; align-items: center; white-space: nowrap"
+                    style="margin-right: 15px; font-size: 16px; display: flex; align-items: center; white-space: nowrap"
                 >
                     <div>Employee Name:</div>
                     <n-input
@@ -42,23 +55,73 @@
                         :placeholder="i18n.global.t('employee_name')"
                     />
                 </div>
+
+                <div
+                    style="margin-right: 15px; font-size: 16px; display: flex; align-items: center; white-space: nowrap"
+                >
+                    <div>Salary:</div>
+                    <n-input-number
+                        style="margin-left: 10px"
+                        v-model:value="filterForm.startSalary"
+                        :loading="loading"
+                        placeholder="From"
+                        :min="0"
+                        :precision="2"
+                        :input-props="{ 'auto-complete': 'off' }"
+                        @keydown.enter.prevent
+                    >
+                        <template #suffix> USD </template>
+                    </n-input-number>
+                    <div style="margin: 0px 10px">-</div>
+                    <n-input-number
+                        v-model:value="filterForm.endSalary"
+                        :loading="loading"
+                        placeholder="To"
+                        :min="0"
+                        :precision="2"
+                        :input-props="{ 'auto-complete': 'off' }"
+                        @keydown.enter.prevent
+                    >
+                        <template #suffix> USD </template>
+                    </n-input-number>
+                </div>
             </div>
-            <n-button
-                :loading="loading"
-                size="large"
-                strong
-                style="background-color: #409eff"
-                color="#5cb85c"
-                text-color="#000000"
-                @click="showCreateModal"
-            >
-                <template #icon>
-                    <n-icon color="#000000">
-                        <AddCircleOutline />
-                    </n-icon>
-                </template>
-                Create
-            </n-button>
+            <div>
+                <n-button
+                    :loading="loading"
+                    size="large"
+                    strong
+                    style="background-color: #409eff; width: 100%"
+                    color="#5cb85c"
+                    text-color="#000000"
+                    @click="showCreateModal"
+                    clearable
+                >
+                    <template #icon>
+                        <n-icon color="#000000">
+                            <AddCircleOutline />
+                        </n-icon>
+                    </template>
+                    Create
+                </n-button>
+                <n-button
+                    :loading="loading"
+                    size="large"
+                    strong
+                    style="background-color: #ffa140; width: 100%; margin-top: 15px"
+                    color="#5cb85c"
+                    text-color="#000000"
+                    @click="resetFilter"
+                    clearable
+                >
+                    <template #icon>
+                        <n-icon color="#000000">
+                            <CloseCircleOutline />
+                        </n-icon>
+                    </template>
+                    Clear
+                </n-button>
+            </div>
         </div>
         <n-data-table size="large" :bordered="false" :loading="loading" :columns="columns" :data="employeeData" />
         <n-card
@@ -77,26 +140,25 @@
                 :on-update:page="onPageChange"
             />
         </n-card>
-        <n-modal
-            :show="showModal"
-            :mask-closable="false"
-            :on-after-leave="
-                () =>
-                    (createFormData = {
-                        name: '',
-                        departmentId: '',
-                    })
-            "
-        >
+        <n-modal :show="showModal" :mask-closable="false" :on-after-leave="() => (createFormData = defaultCreateData)">
             <n-card
                 style="width: 600px"
-                :title="isEdit ? 'Edit Employee'  : 'Create New Employee'"
+                :title="isEdit ? 'Edit Employee' : 'Create New Employee'"
                 :bordered="false"
                 size="huge"
                 role="dialog"
                 aria-modal="true"
             >
                 <n-form ref="createFormRef" :rules="CommonFormRules" :model="createFormData">
+                    <n-form-item path="employeeType" label="Employee Type">
+                        <n-select
+                            :disable="loading"
+                            v-model:value="createFormData.employeeType"
+                            filterable
+                            :placeholder="i18n.global.t('employeeType')"
+                            :options="employeeTypeOptions"
+                        />
+                    </n-form-item>
                     <n-form-item path="name" label="Full Name">
                         <n-input
                             :loading="loading"
@@ -104,6 +166,19 @@
                             v-model:value="createFormData.name"
                             @keydown.enter.prevent
                         />
+                    </n-form-item>
+                    <n-form-item path="salary" label="Salary">
+                        <n-input-number
+                            style="width: 100%"
+                            v-model:value="createFormData.salary"
+                            :loading="loading"
+                            :min="0"
+                            :precision="2"
+                            :input-props="{ 'auto-complete': 'off' }"
+                            @keydown.enter.prevent
+                        >
+                            <template #suffix> USD </template>
+                        </n-input-number>
                     </n-form-item>
                     <n-form-item path="departmentId" label="Department">
                         <n-select
@@ -118,7 +193,7 @@
                 <div style="display: flex; gap: 10px; justify-content: flex-end">
                     <n-button :loading="loading" round @click="() => (showModal = false)"> Cancel </n-button>
                     <n-button :loading="loading" round @click="() => (isEdit ? onSubmitEdit() : onSubmitCreate())">
-                       {{ isEdit ? 'Edit' : 'Create' }}
+                        {{ isEdit ? 'Edit' : 'Create' }}
                     </n-button>
                 </div>
             </n-card>
@@ -127,25 +202,38 @@
 </template>
 
 <script setup lang="ts">
-import { clockColumns } from './table-columns'
+import { employeeColumns } from './table-columns'
 import { apiListEmployee, apiDeleteEmployee, apiCreateEmployee, apiEditEmployee } from '~/apis/employee'
 import type { Employee, EmployeeParams, CreateEmployeeType } from '~/types/employee'
+import { EMPLOYEE_TYPE } from '~/types/employee'
 import type { Department } from '~/types/department'
 import { apiAllDepartment } from '~/apis/department'
 import OperateButton from '~/components/OperateButton/OperateButton.vue'
 import type { RowData } from 'naive-ui/es/data-table/src/interface'
 import type { DataTableColumns, FormInst, FormValidationError } from 'naive-ui'
 import { CommonFormRules } from '~/constants/formRules'
-import { AddCircleOutline } from '@vicons/ionicons5'
+import { AddCircleOutline, CloseCircleOutline } from '@vicons/ionicons5'
 import NormalButton from '~/components/OperateButton/NormalButton.vue'
 
 const departmentOptions = ref<{ label: string; value: string }[]>([])
+const employeeTypeOptions = ref<{ label: string; value: string }[]>([
+    {
+        label: `Full Time`,
+        value: EMPLOYEE_TYPE.FULL_TIME,
+    },
+    {
+        label: `Part Time`,
+        value: EMPLOYEE_TYPE.PART_TIME,
+    },
+])
 const pageOption = ref<Pagination>({ page: 1, size: 10 })
 const loading = ref<boolean>(true)
 const employeeData = ref<Employee[]>([])
 const defaultCreateData: CreateEmployeeType = {
     name: '',
     departmentId: '',
+    salary: 0,
+    employeeType: EMPLOYEE_TYPE.FULL_TIME,
 }
 const createFormData = ref<CreateEmployeeType>(defaultCreateData)
 const showModal = ref<boolean>(false)
@@ -154,7 +242,7 @@ const createFormRef = ref<FormInst>()
 const totalPage = ref(0)
 const selectedEmployee = ref<Employee | null>(null)
 const columns: DataTableColumns<RowData> = [
-    ...clockColumns,
+    ...employeeColumns,
     {
         title: 'Operate',
         key: 'operate',
@@ -172,7 +260,12 @@ const columns: DataTableColumns<RowData> = [
                     loading: loading.value,
                     style: 'margin-left: 10px;',
                     onClick: () => {
-                        createFormData.value = {name: data?.name, departmentId: data?.departmentId}
+                        createFormData.value = {
+                            name: data?.name,
+                            departmentId: data?.departmentId,
+                            salary: data?.salary,
+                            employeeType: data?.employeeType,
+                        }
                         selectedEmployee.value = data
                         showEditModal()
                     },
@@ -182,10 +275,16 @@ const columns: DataTableColumns<RowData> = [
     },
 ]
 
-const filterForm = reactive<EmployeeParams>({
+const defaultFilterForm: EmployeeParams = {
     employeeName: '',
     departmentId: '',
-})
+    employeeType: '',
+    startSalary: null,
+    endSalary: null,
+    scope: '',
+    id: undefined,
+}
+const filterForm = reactive<EmployeeParams>({ ...defaultFilterForm })
 
 const handleDelete = async (employeeId: string) => {
     try {
@@ -267,6 +366,9 @@ const showCreateModal = () => {
     showModal.value = true
     isEdit.value = false
 }
+
+const resetFilter = () => Object.assign(filterForm, defaultFilterForm)
+
 
 const showEditModal = () => {
     showModal.value = true

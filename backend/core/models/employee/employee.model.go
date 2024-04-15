@@ -15,7 +15,7 @@ type Employee struct {
 	DepartmentId     *int                  `json:"departmentId" gorm:"type:number;not null"`
 	Department       department.Department `json:"department"`
 	TelegramUsername string                `json:"telegramUsername"`
-	EmployeeType     types.EmployeeType    `json:"type"`
+	EmployeeType     types.EmployeeType    `json:"employeeType"`
 	Salary           float64               `json:"salary"`
 }
 
@@ -85,13 +85,13 @@ func (repo *EmployeeRepo) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter) 
 		query = query.Where(`name LIKE ?`, "%"+dto.EmployeeName+"%")
 	}
 	if dto.EmployeeType != "" {
-		query = query.Where(`employees.employee_typex = ?`, dto.EmployeeType)
+		query = query.Where(`employees.employee_type = ?`, dto.EmployeeType)
 	}
 	if dto.StartSalary != 0 || dto.EndSalary != 0 {
 		if dto.StartSalary != 0 && dto.EndSalary != 0 {
 			query = query.Where("employees.salary BETWEEN ? AND ?", dto.StartSalary, dto.EndSalary)
 		} else if dto.StartSalary != 0 {
-			query = query.Where("number > ?", dto.StartSalary)
+			query = query.Where("employees.salary > ?", dto.StartSalary)
 		} else {
 			query = query.Where("employees.salary BETWEEN 0 AND ?", dto.EndSalary)
 		}
@@ -120,7 +120,7 @@ func (repo *EmployeeRepo) All(dto *dtos.EmployeeFilter) (*[]types.EmployeeWithSc
 		COALESCE(schedules.clock_out_time, '0001-01-01 00:00:00') AS schedule_clock_out_time,
 		COALESCE(schedules.created_at, '0001-01-01 00:00:00') AS schedule_created_at,
 		COALESCE(schedules.updated_at, '0001-01-01 00:00:00') AS schedule_updated_at
-	`)
+	`).Where(`employee_type = 'Fulltime'`)
 	if dto.DepartmentId != nil && *dto.DepartmentId != 0 {
 		query = query.Where("department_id = ?", *dto.DepartmentId)
 	}

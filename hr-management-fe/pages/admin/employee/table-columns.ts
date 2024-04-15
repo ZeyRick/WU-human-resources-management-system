@@ -4,7 +4,7 @@ import type { RowData } from 'naive-ui/es/data-table/src/interface'
 import { BIND_STATUS_ENUM } from '~/types/employee'
 import i18n from '~/utils/i18n'
 
-export const clockColumns: DataTableColumns<RowData> = [
+export const employeeColumns: DataTableColumns<RowData> = [
     {
         title: i18n.global.t('id'),
         key: 'ID',
@@ -30,6 +30,24 @@ export const clockColumns: DataTableColumns<RowData> = [
         align: 'center',
         render: (data, index) => {
             return data?.department?.alias || '-'
+        },
+    },
+    {
+        title: i18n.global.t('salary'),
+        key: 'Salary',
+        titleAlign: 'center',
+        align: 'center',
+        render: (data, index) => {
+            return `${data?.salary} $` || '-'
+        },
+    },
+    {
+        title: i18n.global.t('employeeType'),
+        key: 'EmployeeType',
+        titleAlign: 'center',
+        align: 'center',
+        render: (data, index) => {
+            return data?.employeeType || '-'
         },
     },
 

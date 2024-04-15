@@ -27,6 +27,18 @@ export const CommonFormRules: FormRules = {
         message: 'Department ID Must Input',
         trigger: 'blur',
     },
+    employeeType: {
+        type: 'string',
+        required: true,
+        message: 'Employee Type Must Input',
+        trigger: 'blur',
+    },
+    salary: {
+        type: 'number',
+        required: true,
+        message: 'Salary Must Input',
+        trigger: 'blur',
+    },
     employeeId: {
         type: 'number',
         required: true,
