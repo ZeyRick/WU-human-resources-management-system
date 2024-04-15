@@ -2,10 +2,13 @@ package https
 
 import (
 	"backend/adapters/dtos"
+	"backend/pkg/encrypt"
+	"backend/pkg/logger"
 	"backend/pkg/variable"
 	"encoding/json"
 	"io"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/go-chi/chi"
@@ -40,9 +43,17 @@ func ResponseError(w http.ResponseWriter, r *http.Request, statusCode int, v str
 }
 
 func ResponseJSON(w http.ResponseWriter, r *http.Request, statusCode int, v interface{}) {
+	jsonStr, err := json.Marshal(v)
+	if err != nil {
+		logger.Trace(err)
+	}
+	encrypted, err := encrypt.AesCbcEncrypt(string(jsonStr), []byte(os.Getenv("AES_KEY")))
+	if err != nil {
+		logger.Trace(err)
+	}
 	byteBody := JsonBody{
 		Code: 0,
-		Res:  v,
+		Res:  encrypted,
 	}
 	w.WriteHeader(statusCode)
 	render.JSON(w, r, byteBody)
@@ -55,7 +66,6 @@ func ResponseMsg(w http.ResponseWriter, r *http.Request, statusCode int, v strin
 	}
 	w.WriteHeader(statusCode)
 	render.JSON(w, r, byteBody)
-
 }
 
 func GetBody[T any](r *http.Request) (T, error) {

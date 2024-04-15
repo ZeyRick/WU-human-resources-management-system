@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     runtimeConfig: {
         public: {
             apiURL: process.env.API_URL,
+            aesKey: process.env.AES_KEY,
         },
     },
     postcss: {

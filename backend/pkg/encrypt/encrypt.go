@@ -5,6 +5,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/md5"
+	"encoding/base64"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -14,36 +15,34 @@ import (
 	"strings"
 )
 
-func AesCbcEncrypt(src string, key []byte) ([]byte, error) {
-	initialVector := "1010101010101010"
+func AesCbcEncrypt(src string, key []byte) (string, error) {
+	initialVector := "03f6b349a565fcdc"
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return nil, err
-	}
-	if src == "" {
-		return nil, errors.New("plain content empty")
+		return "", err
 	}
 	ecb := cipher.NewCBCEncrypter(block, []byte(initialVector))
 	content := []byte(src)
 	content = PKCS5Padding(content, block.BlockSize())
 	crypted := make([]byte, len(content))
 	ecb.CryptBlocks(crypted, content)
-	return crypted, nil
+	return base64.StdEncoding.EncodeToString(crypted), nil
 }
 
-func AesCbcDecrypt(crypt []byte, key []byte) ([]byte, error) {
-	initialVector := "1010101010101010"
+
+func AesCbcDecrypt(crypt []byte, key []byte) (string, error) {
+	initialVector := "03f6b349a565fcdc"
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	if len(crypt) == 0 {
-		return nil, errors.New("plain content empty")
+		return "", errors.New("NO CONTENT")
 	}
 	ecb := cipher.NewCBCDecrypter(block, []byte(initialVector))
 	decrypted := make([]byte, len(crypt))
 	ecb.CryptBlocks(decrypted, crypt)
-	return PKCS5Trimming(decrypted), nil
+	return string(PKCS5Trimming(decrypted)), nil
 }
 func hashMd5(text string) string {
 	hasher := md5.New()
@@ -61,10 +60,10 @@ func GenerateSignature(payload map[string]interface{}, key string) string {
 
 	concatArray := []string{}
 	for _, k := range keys {
-		concatArray = append(concatArray, k+"="+ToString(payload[k]))
+		concatArray = append(concatArray, k+"md5Key="+ToString(payload[k]))
 	}
 
-	concatMd5String := strings.Join(concatArray[:], "&") + key
+	concatMd5String := strings.Join(concatArray[:], "-") + key
 	return hashMd5(concatMd5String)
 }
 

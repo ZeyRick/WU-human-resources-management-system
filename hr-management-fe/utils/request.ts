@@ -2,7 +2,7 @@ import { createDiscreteApi, darkTheme, useLoadingBar } from 'naive-ui'
 import { useAuthStore } from '~/store/auth'
 import { useRequestId } from '~/store/requestId'
 
-export const privateRequest = async (path: string, object: Object, key: string) => {
+export const privateRequest = async (path: string, object: any, key: string) => {
     const requestId = useRequestId()
     const { token } = useAuthStore()
     if (requestId.requests[key]) {
@@ -19,13 +19,16 @@ export const privateRequest = async (path: string, object: Object, key: string) 
             theme: darkTheme,
         },
     })
+    if (object?.method && object.method.toLowerCase() === 'post' && object.body) {
+        object.body = encrypteData(JSON.stringify(object.body))
+    }
     return $fetch(path, {
         headers: {
             Accept: '*/*',
             Authorization: token ? `Bearer ${token}` : '',
         },
         baseURL: String(config.public.apiURL),
-        onResponse({ response }) {
+        onResponse({ response }: any) {
             requestId.removeRequest(key)
             if (response.status === 401) {
                 const { storeToken } = useAuthStore()
@@ -51,7 +54,12 @@ export const privateRequest = async (path: string, object: Object, key: string) 
                 if (response._data?.msg) {
                     message.success(response._data?.msg)
                 }
-                response._data = response._data.res
+                const decypt = decrypteData(response._data.res)
+
+                if (decypt) {
+                    response._data = JSON.parse(decypt)
+                }
+
                 if (loadingBar) {
                     loadingBar.finish()
                 }

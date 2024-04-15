@@ -27,6 +27,7 @@ func initAdminRoutes(r chi.Router) {
 
 		r.Group(func(r chi.Router) {
 			r.Use(middlewares.LoginMiddleware)
+			r.Use(middlewares.DecryptMiddleware)
 			// for testing
 			r.Get("/hello", helloWorld.GetHelloWorld)
 

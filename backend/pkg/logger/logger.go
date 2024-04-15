@@ -30,7 +30,7 @@ func InitLogger() {
 		}
 		return fmt.Sprintf("%s", i)
 	}
-	log.Logger = zerolog.New(output).With().Timestamp().Caller().Logger()
+	log.Logger = zerolog.New(output).With().Timestamp().CallerWithSkipFrameCount(3).Logger()
 }
 
 // Print out in console
