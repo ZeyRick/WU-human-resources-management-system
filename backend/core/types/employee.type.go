@@ -32,3 +32,17 @@ type EmployeeWithSchedule struct {
 		UpdatedAt    time.Time `json:"updatedAt"`
 	} `json:"schedule" gorm:"embedded"`
 }
+
+type StatusType string
+
+const (
+	Pending  StatusType = "pending"
+	Accepted StatusType = "confirm"
+)
+
+type EmployeeStatusType string
+
+const (
+	Fulltime EmployeeStatusType = "fulltime"
+	Parttime EmployeeStatusType = "parttime"
+)

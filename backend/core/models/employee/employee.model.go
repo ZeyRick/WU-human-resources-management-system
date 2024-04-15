@@ -14,7 +14,10 @@ type Employee struct {
 	TelegramID       int64                 `json:"telegramId" gorm:"type:int;not null"`
 	DepartmentId     *int                  `json:"departmentId" gorm:"type:number;not null"`
 	Department       department.Department `json:"department"`
-	TelegramUsername string                `json:"telegramUsername"gorm:"type:string"`
+	TelegramUsername string                `json:"telegramUsername"`
+	Status           types.StatusType
+	EmployeeStatus   types.EmployeeStatusType `json:"employeeStatus"`
+	Salary           float64                  `json:"salary"`
 }
 
 type EmployeeRepo struct{}
@@ -81,6 +84,18 @@ func (repo *EmployeeRepo) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter) 
 	}
 	if dto.EmployeeName != "" {
 		query = query.Where(`name LIKE ?`, "%"+dto.EmployeeName+"%")
+	}
+	if dto.EmployeeStatus != "" {
+		query = query.Where(`employees.employee_status = ?`, dto.EmployeeStatus)
+	}
+	if dto.StartSalary != 0 || dto.EndSalary != 0 {
+		if dto.StartSalary != 0 && dto.EndSalary != 0 {
+			query = query.Where("employees.salary BETWEEN ? AND ?", dto.StartSalary, dto.EndSalary)
+		} else if dto.StartSalary != 0 {
+			query = query.Where("number > ?", dto.StartSalary)
+		} else {
+			query = query.Where("employees.salary BETWEEN 0 AND ?", dto.EndSalary)
+		}
 	}
 	return models.List[Employee](pageOpt, query, "employees")
 }

@@ -1,14 +1,21 @@
 package dtos
 
+import "backend/core/types"
+
 type AddEmployee struct {
-	Name         string `json:"name" validate:"required"`
-	ProfilePic   string `json:"profilePic" validate:"omitempty"`
-	DepartmentId int    `json:"departmentId" validate:"required"`
+	Name           string                   `json:"name" validate:"required"`
+	ProfilePic     string                   `json:"profilePic" validate:"omitempty"`
+	DepartmentId   int                      `json:"departmentId" validate:"required"`
+	EmployeeStatus types.EmployeeStatusType `json:"employeeStatus" validate:"required"`
+	Salary         float64                  `json:"salary" validate:"required"`
 }
 
 type EmployeeFilter struct {
-	EmployeeName string `json:"employeeName" validate:"omitempty"`
-	DepartmentId *int   `json:"departmentId" validate:"omitempty"`
-	EmployeeId   *int   `json:"employeeId" validate:"omitempty"`
-	Scope        string `json:"scope" validate:"omitempty"`
+	EmployeeName   string                   `json:"employeeName" validate:"omitempty"`
+	DepartmentId   *int                     `json:"departmentId" validate:"omitempty"`
+	EmployeeId     *int                     `json:"employeeId" validate:"omitempty"`
+	EmployeeStatus types.EmployeeStatusType `json:"employeeStatus" validate:"omitempty"`
+	StartSalary    float64                  `json:"startSalary" validate:"omitempty"`
+	EndSalary      float64                  `json:"endSalary" validate:"omitempty"`
+	Scope          string                   `json:"scope" validate:"omitempty"`
 }
