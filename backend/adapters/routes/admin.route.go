@@ -19,6 +19,7 @@ func initAdminRoutes(r chi.Router) {
 	clockSetting := controllers.NewClockSettingController()
 
 	r.Route("/admin", func(r chi.Router) {
+		r.Use(middlewares.DecryptMiddleware)
 		r.Post("/user/login", user.UserLogin)
 
 		// export
@@ -27,7 +28,7 @@ func initAdminRoutes(r chi.Router) {
 
 		r.Group(func(r chi.Router) {
 			r.Use(middlewares.LoginMiddleware)
-			r.Use(middlewares.DecryptMiddleware)
+			
 			// for testing
 			r.Get("/hello", helloWorld.GetHelloWorld)
 

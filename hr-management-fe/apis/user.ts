@@ -63,15 +63,16 @@ export const apiLogin = async (params: LoginParams) => {
         },
         credentials: 'include',
         baseURL: String(config.public.apiURL),
-        body: params,
+        body: encrypteData(JSON.stringify(params)),
         async onResponse({ response }) {
             const body = JSON.parse(response._data)
             if (response.status === 200 && body?.code === 0 && body?.res) {
                 const { storeToken } = useAuthStore()
-                storeToken(body.res)
+                const token = decrypteData(body.res)
+                storeToken(token)
                 if (params.rememberMe) {
                     const cookie = useCookie('lin')
-                    cookie.value = body.res
+                    cookie.value = token
                 }
                 const config = useRuntimeConfig()
                 const { storeUserInfo } = useUserInfoStore()
@@ -80,12 +81,12 @@ export const apiLogin = async (params: LoginParams) => {
                         return await $fetch('/admin/user/userInfo', {
                             headers: {
                                 Accept: '*/*',
-                                Authorization: `Bearer ${body.res}`,
+                                Authorization: `Bearer ${token}`,
                             },
                             baseURL: String(config.public.apiURL),
                         })
                     })
-                    const userInfo = JSON.parse(data.value as string)?.res
+                    const userInfo = JSON.parse(decrypteData(data.value as string) as string)?.res
                     storeUserInfo(userInfo as User)
                 } catch (error) {}
                 navigateTo('/admin/schedule')
