@@ -5,6 +5,11 @@ type UserLogin struct {
 	Password string `json:"password" validate:"required"`
 }
 
+type UserToken struct {
+	Token string `json:"token" validate:"required"`
+}
+
+
 type UserRegister struct {
 	Username   string `json:"username" validate:"required"`
 	Name       string `json:"name" validate:"required"`

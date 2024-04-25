@@ -71,7 +71,9 @@ func (srv *UserService) UserLogin(w http.ResponseWriter, r *http.Request, payloa
 		helper.UnexpectedError(w, r, err)
 		return
 	}
-	https.ResponseJSON(w, r, http.StatusOK, token)
+	https.ResponseJSON(w, r, http.StatusOK, dtos.UserToken{
+		Token: token,
+	})
 }
 
 func (srv *UserService) ResetPW(w http.ResponseWriter, r *http.Request, userId *int, payload *dtos.UserResetPwParams) {

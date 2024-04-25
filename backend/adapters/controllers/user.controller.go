@@ -37,7 +37,6 @@ func (ctrl *UserController) GetUserInfo(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	user.Password = ""
-	logger.Console(user)
 	https.ResponseJSON(w,r, http.StatusOK, user)
 }
 

@@ -27,6 +27,7 @@ export function decrypteData(data: string) {
             padding: CryptoJS.pad.Pkcs7,
         })
         const decryptedStr = CryptoJS.enc.Utf8.stringify(decrypted)
-        return decryptedStr.toString()
+        return decryptedStr
     }
+    return ''
 }
