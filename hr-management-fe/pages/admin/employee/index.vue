@@ -189,6 +189,44 @@
                             :options="departmentOptions"
                         />
                     </n-form-item>
+                    <n-form-item path="idNumber" label="ID Number">
+                        <n-input
+                            :loading="loading"
+                            :input-props="{ 'auto-complete': 'off' }"
+                            v-model:value="createFormData.idNumber"
+                            @keydown.enter.prevent
+                        />
+                    </n-form-item>
+                    <n-form-item>
+                        <n-form-item style="width: 50%" path="employeeIdFile" label="Employee ID Card">
+                            <n-upload
+                                :action="`${$config.public.apiURL}/admin/employee/uploadFiles`"
+                                :headers="{
+                                    Authorization: token ? `Bearer ${token}` : '',
+                                }"
+                                with-credentials
+                                :default-file-list="defaultIdFileList"
+                                list-type="image-card"
+                                :on-finish="(val: any) => onFinishUploadFile(val, 'idFileName')"
+                                :on-error="onErrorUploadFile"
+                                max="1"
+                            />
+                        </n-form-item>
+                        <n-form-item style="width: 50%" path="employeePhotoFile" label="Employee Photo">
+                            <n-upload
+                                :action="`${$config.public.apiURL}/admin/employee/uploadFiles`"
+                                :headers="{
+                                    Authorization: token ? `Bearer ${token}` : '',
+                                }"
+                                with-credentials
+                                :default-file-list="defaultPhotoFileList"
+                                list-type="image-card"
+                                :on-finish="(val: any) => onFinishUploadFile(val, 'photoFileName')"
+                                :on-error="onErrorUploadFile"
+                                max="1"
+                            />
+                        </n-form-item>
+                    </n-form-item>
                 </n-form>
                 <div style="display: flex; gap: 10px; justify-content: flex-end">
                     <n-button :loading="loading" round @click="() => (showModal = false)"> Cancel </n-button>
@@ -210,11 +248,24 @@ import type { Department } from '~/types/department'
 import { apiAllDepartment } from '~/apis/department'
 import OperateButton from '~/components/OperateButton/OperateButton.vue'
 import type { RowData } from 'naive-ui/es/data-table/src/interface'
-import type { DataTableColumns, FormInst, FormValidationError } from 'naive-ui'
+import {
+    createDiscreteApi,
+    darkTheme,
+    jaJP,
+    type DataTableColumns,
+    type FormInst,
+    type FormValidationError,
+    type UploadFileInfo,
+    type UploadInst,
+} from 'naive-ui'
 import { CommonFormRules } from '~/constants/formRules'
-import { AddCircleOutline, CloseCircleOutline } from '@vicons/ionicons5'
+import { AddCircleOutline, CloseCircleOutline, Options } from '@vicons/ionicons5'
 import NormalButton from '~/components/OperateButton/NormalButton.vue'
+import { useAuthStore } from '~/store/auth'
 
+const { token } = useAuthStore()
+const defaultIdFileList = ref<UploadFileInfo[]>([])
+const defaultPhotoFileList = ref<UploadFileInfo[]>([])
 const departmentOptions = ref<{ label: string; value: string }[]>([])
 const employeeTypeOptions = ref<{ label: string; value: string }[]>([
     {
@@ -234,8 +285,39 @@ const defaultCreateData: CreateEmployeeType = {
     departmentId: '',
     salary: 0,
     employeeType: EMPLOYEE_TYPE.FULL_TIME,
+    idNumber: '',
+    idFileName: '',
+    photoFileName: '',
 }
 const createFormData = ref<CreateEmployeeType>(defaultCreateData)
+
+const onErrorUploadFile = (options: { file: UploadFileInfo; event?: any }) => {
+    const { message } = createDiscreteApi(['message'], {
+        configProviderProps: {
+            theme: darkTheme,
+        },
+    })
+
+    const res: { code: number; msg: string } = JSON.parse(options.event?.target.response)
+    if (res?.code === -1) {
+        message.error(`Upload file failed: ${res.msg || 'Someting Went Wrong'}`)
+    }
+}
+const onFinishUploadFile = (
+    options: { file: UploadFileInfo; event?: any },
+    fileKey: 'photoFileName' | 'idFileName',
+) => {
+    // msg is file name
+    const res: { code: number; msg: string } = JSON.parse(options.event?.target.response)
+    switch (fileKey) {
+        case 'photoFileName':
+            createFormData.value.photoFileName = res.msg
+            break
+        case 'idFileName':
+            createFormData.value.idFileName = res.msg
+            break
+    }
+}
 const showModal = ref<boolean>(false)
 const isEdit = ref<boolean>(false)
 const createFormRef = ref<FormInst>()
@@ -259,16 +341,7 @@ const columns: DataTableColumns<RowData> = [
                     text: 'Edit',
                     loading: loading.value,
                     style: 'margin-left: 10px;',
-                    onClick: () => {
-                        createFormData.value = {
-                            name: data?.name,
-                            departmentId: data?.departmentId,
-                            salary: data?.salary,
-                            employeeType: data?.employeeType,
-                        }
-                        selectedEmployee.value = data
-                        showEditModal()
-                    },
+                    onClick: () => showEditModal(data),
                 }),
             ]
         },
@@ -285,7 +358,6 @@ const defaultFilterForm: EmployeeParams = {
     id: undefined,
 }
 const filterForm = reactive<EmployeeParams>({ ...defaultFilterForm })
-
 const handleDelete = async (employeeId: string) => {
     try {
         loading.value = true
@@ -325,7 +397,6 @@ const onSubmitCreate = () => {
             try {
                 loading.value = true
                 await apiCreateEmployee(createFormData.value)
-                createFormData.value = defaultCreateData
                 showModal.value = false
                 await fetchData()
             } catch (error) {
@@ -348,7 +419,6 @@ const onSubmitEdit = () => {
                 }
                 loading.value = true
                 await apiEditEmployee(selectedEmployee.value?.id, createFormData.value)
-                createFormData.value = defaultCreateData
                 showModal.value = false
                 await fetchData()
             } catch (error) {
@@ -363,14 +433,49 @@ const onSubmitEdit = () => {
 }
 
 const showCreateModal = () => {
+    createFormData.value = defaultCreateData
+    defaultIdFileList.value = []
+    defaultPhotoFileList.value = []
     showModal.value = true
     isEdit.value = false
 }
 
 const resetFilter = () => Object.assign(filterForm, defaultFilterForm)
 
-
-const showEditModal = () => {
+const showEditModal = (data: any) => {
+    defaultIdFileList.value = []
+    defaultPhotoFileList.value = []
+    const config = useRuntimeConfig()
+    createFormData.value = {
+        name: data?.name,
+        departmentId: data?.departmentId,
+        salary: data?.salary,
+        employeeType: data?.employeeType,
+        idFileName: data?.idFileName,
+        photoFileName: data?.photoFileName,
+        idNumber: data?.idNumber,
+    }
+    if (data?.idFileName) {
+        defaultIdFileList.value = [
+            {
+                id: 'idFile',
+                name: data?.idFileName,
+                status: 'finished',
+                url: `${config.public.apiURL}/public/images/employee/${data?.idFileName}`,
+            },
+        ]
+    }
+    if (data?.photoFileName) {
+        defaultPhotoFileList.value = [
+            {
+                id: 'photoFile',
+                name: data?.photoFileName,
+                status: 'finished',
+                url: `${config.public.apiURL}/public/images/employee/${data?.photoFileName}`,
+            },
+        ]
+    }
+    selectedEmployee.value = data
     showModal.value = true
     isEdit.value = true
 }

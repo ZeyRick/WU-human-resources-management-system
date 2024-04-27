@@ -17,6 +17,9 @@ type Employee struct {
 	TelegramUsername string                `json:"telegramUsername"`
 	EmployeeType     types.EmployeeType    `json:"employeeType"`
 	Salary           float64               `json:"salary"`
+	IdNumber         string                `json:"idNumber"`
+	IdFileName       string                `json:"idFileName"`
+	PhotoFileName    string                `json:"photoFileName"`
 }
 
 type EmployeeRepo struct{}

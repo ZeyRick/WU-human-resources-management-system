@@ -19,16 +19,16 @@ if (token) {
     const config = useRuntimeConfig()
     const { storeUserInfo } = useUserInfoStore()
     try {
-        const { data } = await useAsyncData('userinfo', async () => {
-            return await $fetch('/admin/user/userInfo', {
+        const userData: any = JSON.parse(
+            await $fetch('/admin/user/userInfo', {
                 headers: {
                     Accept: '*/*',
-                    Authorization: token ? `Bearer ${token}` : '',
+                    Authorization: `Bearer ${token}`,
                 },
                 baseURL: String(config.public.apiURL),
-            })
-        })
-        const userInfo = JSON.parse(data.value as string)?.res
+            }),
+        )
+        const userInfo = JSON.parse(decrypteData(userData.res as string))
         storeUserInfo(userInfo as User)
     } catch (error) {}
 }

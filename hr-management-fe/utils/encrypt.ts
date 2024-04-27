@@ -1,10 +1,9 @@
 import CryptoJS from 'crypto-js'
 
-const config = useRuntimeConfig()
-const ivKey = '03f6b349a565fcdc'
-const keyValue = config.public.aesKey
-
 export function encrypteData(data: string) {
+    const config = useRuntimeConfig()
+    const ivKey = '03f6b349a565fcdc'
+    const keyValue = config.public.aesKey
     if (data) {
         const key = CryptoJS.enc.Utf8.parse(keyValue)
         const iv = CryptoJS.enc.Utf8.parse(ivKey) // Convert string to WordArray
@@ -18,6 +17,9 @@ export function encrypteData(data: string) {
 }
 
 export function decrypteData(data: string) {
+    const config = useRuntimeConfig()
+    const ivKey = '03f6b349a565fcdc'
+    const keyValue = config.public.aesKey
     if (data) {
         const key = CryptoJS.enc.Utf8.parse(keyValue)
         const iv = CryptoJS.enc.Utf8.parse(ivKey)

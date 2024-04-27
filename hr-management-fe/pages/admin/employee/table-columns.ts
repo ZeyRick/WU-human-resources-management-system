@@ -52,17 +52,12 @@ export const employeeColumns: DataTableColumns<RowData> = [
     },
 
     {
-        title: i18n.global.t('status'),
-        key: 'Stauts',
+        title: 'ID Number',
+        key: 'idNumber',
         titleAlign: 'center',
         align: 'center',
         render: (data, index) => {
-            return data?.bindingStatus
-                ? h(StatusChip, {
-                      text: data?.bindingStatus,
-                      type: data?.bindingStatus === BIND_STATUS_ENUM.APPROVE ? 'success' : 'error',
-                  })
-                : '-'
+            return data?.idNumber || '-'
         },
     },
     {

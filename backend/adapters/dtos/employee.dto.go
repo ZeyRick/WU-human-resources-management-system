@@ -3,11 +3,14 @@ package dtos
 import "backend/core/types"
 
 type AddEmployee struct {
-	Name         string             `json:"name" validate:"required"`
-	ProfilePic   string             `json:"profilePic" validate:"omitempty"`
-	DepartmentId int                `json:"departmentId" validate:"required"`
-	EmployeeType types.EmployeeType `json:"employeeType" validate:"required"`
-	Salary       float64            `json:"salary" validate:"required"`
+	Name          string             `json:"name" validate:"required"`
+	ProfilePic    string             `json:"profilePic" validate:"omitempty"`
+	DepartmentId  int                `json:"departmentId" validate:"required"`
+	EmployeeType  types.EmployeeType `json:"employeeType" validate:"required"`
+	Salary        float64            `json:"salary" validate:"required"`
+	IdNumber      string             `json:"idNumber" validate:"omitempty"`
+	IdFileName    string             `json:"idFileName" validate:"omitempty"`
+	PhotoFileName string             `json:"photoFileName" validate:"omitempty"`
 }
 
 type EmployeeFilter struct {

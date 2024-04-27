@@ -3,6 +3,7 @@ package controllers
 import (
 	"backend/adapters/dtos"
 	"backend/core/services"
+	"backend/pkg/file"
 	"backend/pkg/helper"
 	"backend/pkg/https"
 	"backend/pkg/logger"
@@ -106,4 +107,14 @@ func (ctrl *EmployeeController) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	https.ResponseMsg(w, r, http.StatusCreated, "Employee deleted")
+}
+
+func (ctrl *EmployeeController) UploadFiles(w http.ResponseWriter, r *http.Request) {
+	fileName, err := file.SaveFile(r)
+	if err != nil {
+		logger.Trace(err)
+		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+	https.ResponseMsg(w, r, http.StatusCreated, fileName)
 }

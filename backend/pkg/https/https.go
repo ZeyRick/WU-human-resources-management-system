@@ -81,6 +81,11 @@ func GetBody[T any](r *http.Request) (T, error) {
 	return data, nil
 }
 
+func GetParamsStr(r *http.Request, key string) (string, error) {
+	str := chi.URLParam(r, key)
+	return str, nil
+}
+
 func GetParamsID(r *http.Request, key string) (*int, error) {
 	idStr := chi.URLParam(r, key)
 	if idStr == "" {

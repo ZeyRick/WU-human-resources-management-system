@@ -21,6 +21,14 @@ export type CreateEmployeeType = {
     departmentId: string
     salary: number
     employeeType: EMPLOYEE_TYPE
+    idNumber?: string
+    idFileName?: string
+    photoFileName?: string
+}
+
+export type UploadEmployeeFile = {
+    idFile?: File
+    photoFile?: File
 }
 
 export enum EMPLOYEE_TYPE {

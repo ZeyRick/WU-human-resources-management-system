@@ -37,7 +37,7 @@ func (ctrl *UserController) GetUserInfo(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	user.Password = ""
-	https.ResponseJSON(w,r, http.StatusOK, user)
+	https.ResponseJSON(w, r, http.StatusOK, user)
 }
 
 func (ctrl *UserController) UserRegister(w http.ResponseWriter, r *http.Request) {

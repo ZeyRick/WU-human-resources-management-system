@@ -68,16 +68,16 @@ const openLogoutModal = () => {
 
 
 const options = [
-    {
-        label: 'Profile',
-        key: 'profile',
-        icon: renderIcon(PersonCircleOutline),
-    },
-    {
-        label: 'Edit Profile',
-        key: 'editProfile',
-        icon: renderIcon(Pencil),
-    },
+    // {
+    //     label: 'Profile',
+    //     key: 'profile',
+    //     icon: renderIcon(PersonCircleOutline),
+    // },
+    // {
+    //     label: 'Edit Profile',
+    //     key: 'editProfile',
+    //     icon: renderIcon(Pencil),
+    // },
     {
         label: 'Logout',
         key: 'logout',
