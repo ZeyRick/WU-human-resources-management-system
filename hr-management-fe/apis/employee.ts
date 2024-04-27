@@ -1,6 +1,6 @@
 import type { CreateEmployeeType, EmployeeParams } from '~/types/employee'
 
-export const apiAllEmployee = async (params?: EmployeeParams) => {
+export const apiAllEmployee = async (params?: any) => {
     return privateRequest(
         '/admin/employee/all',
         {

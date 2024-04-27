@@ -13,8 +13,8 @@
                 preview-disabled
                 :src="
                     !isCollapsed
-                        ? 'https://flyclipart.com/thumb2/lol-logo-920003.png'
-                        : 'https://flyclipart.com/thumb2/ljl-spring-919994.png'
+                        ? '/img/logo-big.png'
+                        : '/img/logo-small.png'
                 "
             />
         </div>

@@ -27,7 +27,7 @@
         <div style="display: flex">
             <n-card
                 style="width: 600px; height: 750px"
-                :title="isUpdate ? 'Update Schedule' : 'Add New Schedule'"
+                :title="isUpdate ? `Update Schedule For ${employeeSchedule?.employee.name} :: ID ${employeeSchedule?.employeeId}` : 'Add New Schedule'"
                 :bordered="false"
                 size="huge"
                 role="dialog"
@@ -42,7 +42,7 @@
                         animated
                         :on-update:value="(value: string) => (curTab = value)"
                     >
-                        <n-tab-pane name="employees" tab="Employees">
+                        <n-tab-pane v-if="!isUpdate" name="employees" tab="Employees">
                             <n-form-item :label="i18n.global.t('select_department')">
                                 <n-select
                                     :disabled="loading || props.isUpdate"
