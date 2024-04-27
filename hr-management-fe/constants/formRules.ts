@@ -1,4 +1,4 @@
-import type { FormRules } from 'naive-ui'
+import type { FormItemRule, FormRules } from 'naive-ui'
 
 export const CommonFormRules: FormRules = {
     userName: {
@@ -65,5 +65,19 @@ export const CommonFormRules: FormRules = {
         required: true,
         message: 'Must Input',
         trigger: 'blur',
+    },
+    idNumber: {
+        required: true,
+        trigger: ['blur', 'input'],
+        validator(rule: FormItemRule, value: string) {
+            if (!value) {
+                return new Error('ID number is required')
+            } else if (!/^\d*$/.test(value)) {
+                return new Error('ID number should be number')
+            } else if (value.length != 10) {
+                return new Error('ID number should be 10 digit')
+            }
+            return true
+        },
     },
 }
