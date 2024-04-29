@@ -82,3 +82,17 @@ func (ctrl *ClockController) AttendenceExport(w http.ResponseWriter, r *http.Req
 	}
 	ctrl.clockService.AttendenceExport(w, r, &pageOpt, &dto)
 }
+
+func (ctrl *ClockController) Update(w http.ResponseWriter, r *http.Request) {
+	payload, err := https.GetBody[dtos.UpdateClock](r)
+	if err != nil {
+		logger.Trace(err)
+		return
+	}
+	clockId, err := https.GetParamsID(r, "id")
+	if err != nil {
+		helper.UnexpectedError(w, r, err)
+		return
+	}
+	ctrl.clockService.Update(w, r, clockId, &payload)
+}

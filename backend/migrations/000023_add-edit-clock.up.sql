@@ -1,0 +1,6 @@
+ALTER TABLE
+    clocks
+ADD
+    COLUMN edited_by INT DEFAULT NULL,
+ADD
+    FOREIGN KEY (edited_by) REFERENCES users(id) ON DELETE NO ACTION;

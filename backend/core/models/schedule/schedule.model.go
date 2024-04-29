@@ -80,3 +80,10 @@ func (repo *ScheduleRepo) GetAllByScope(dto *dtos.ScheduleFilter) (*[]Schedule, 
 	result := query.Find(&data, "scope = ?", dto.Scope)
 	return &data, result.Error
 }
+
+
+func (repo *ScheduleRepo) GetOneById(id uint) (Schedule, error) {
+	var data Schedule
+	result := db.Database.Where("id = ?", id).First(&data)
+	return data, result.Error
+}

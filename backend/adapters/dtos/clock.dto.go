@@ -20,6 +20,10 @@ type ClockFilter struct {
 	DepartmentId int    `json:"departmentId,string,omitempty"`
 }
 
+type UpdateClock struct {
+	ClockTime string `json:"clockTime" validate:"required"`
+}
+
 type AttendenceFilter struct {
 	StartDate    string `json:"startDate,string,omitempty"`
 	EndDate      string `json:"endDate,string,omitempty"`
@@ -27,4 +31,3 @@ type AttendenceFilter struct {
 	EmployeeId   int    `json:"employeeId,string,omitempty"`
 	DepartmentId int    `json:"departmentId,string,omitempty"`
 }
-

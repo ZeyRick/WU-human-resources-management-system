@@ -12,6 +12,7 @@ import (
 	"backend/pkg/helper"
 	"backend/pkg/https"
 	"backend/pkg/logger"
+	"backend/pkg/times"
 	"backend/pkg/variable"
 	"fmt"
 	"math"
@@ -378,4 +379,102 @@ func (srv *ClockService) ClockOut(employeeId *int, longtitude float64, latitude 
 		return "", err
 	}
 	return "", nil
+}
+
+func (srv *ClockService) Update(w http.ResponseWriter, r *http.Request, clockId *int, payload *dtos.UpdateClock) {
+	userId := r.Context().Value("userId").(uint)
+	clockData, err := srv.repo.GetOneById(uint(*clockId))
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			https.ResponseError(w, r, http.StatusBadRequest, "Record not found")
+			return
+		}
+		helper.UnexpectedError(w, r, err)
+		return
+	}
+	date := clockData.CreatedAt.Format("2006-01-02")
+	newClockTime, err := times.ParseTime(fmt.Sprintf("%s %s", date, payload.ClockTime))
+	if err != nil {
+		logger.Trace(err)
+		https.ResponseError(w, r, http.StatusInternalServerError, "Somthing went wrong")
+		return
+	}
+
+	// Checking allow time
+	clockSetting, err := srv.clockset.Get()
+	if err != nil {
+		logger.Trace(err)
+		https.ResponseError(w, r, http.StatusInternalServerError, "Somthing went wrong")
+		return
+	}
+	utcTime := time.Now().UTC()
+	schedule, err := srv.scheduleRepo.GetOneById(clockData.Schedule.ID)
+	if err != nil {
+		logger.Trace(err)
+		https.ResponseError(w, r, http.StatusInternalServerError, "Somthing went wrong")
+		return
+	}
+
+	utcPlus7 := utcTime.Add(7 * time.Hour)
+	compareTimeStr := fmt.Sprintf("%s-01 %02d:%02d:%02d", schedule.Scope, utcPlus7.Hour(), utcPlus7.Minute(), utcPlus7.Second())
+	compareCurTime, err := time.Parse("2006-01-02 15:04:05", compareTimeStr)
+	compareCurTime = compareCurTime.Add(-7 * time.Hour)
+	if err != nil {
+		logger.Trace(err)
+		https.ResponseError(w, r, http.StatusInternalServerError, "Somthing went wrong")
+		return
+	}
+
+	var status string = ""
+	var newClockData clock.Clock
+	newClock := *newClockTime
+	if clockData.ClockType == types.ClockIn {
+		differentMinutes := int(compareCurTime.Sub(schedule.ClockInTime).Minutes())
+		if differentMinutes > 0 && differentMinutes <= *clockSetting.AllowTime {
+			newClock = newClock.Add(time.Duration(differentMinutes * int(time.Minute)))
+		} else if differentMinutes > *clockSetting.AllowTime {
+			status = "late"
+		} else {
+			differentMinutes = 0
+		}
+
+		newClockData = clock.Clock{
+			BaseModel:   models.BaseModel{ID: uint(*clockId), CreatedAt: newClock},
+			EditedBy:    &userId,
+			Status:      status,
+			LateMinutes: &differentMinutes,
+		}
+	} else {
+		differentMinutes := int(schedule.ClockOutTime.Sub(compareCurTime).Minutes())
+		if differentMinutes > 0 && differentMinutes <= *clockSetting.AllowTime {
+			newClock = newClock.Add(time.Duration(differentMinutes * int(time.Minute)))
+		} else if differentMinutes > *clockSetting.AllowTime {
+			status = "early"
+		} else {
+			differentMinutes = 0
+		}
+
+		prevClock, err := srv.repo.GetOneById(uint(*clockData.ClockInId))
+
+		if err != nil {
+			logger.Trace(err)
+			https.ResponseError(w, r, http.StatusInternalServerError, "Somthing went wrong")
+			return
+		}
+		minuteWork := int(math.Round(math.Abs(newClock.Sub(prevClock.CreatedAt).Minutes())))
+		newClockData = clock.Clock{
+			EarlyMinutes:   &differentMinutes,
+			BaseModel:      models.BaseModel{ID: uint(*clockId), CreatedAt: newClock},
+			ClockOutMinute: &minuteWork,
+			Status:         status,
+		}
+	}
+
+	_, err = srv.repo.UpdateById(&newClockData)
+	if err != nil {
+		helper.UnexpectedError(w, r, err)
+		return
+	}
+
+	https.ResponseMsg(w, r, http.StatusCreated, "Clock updated")
 }

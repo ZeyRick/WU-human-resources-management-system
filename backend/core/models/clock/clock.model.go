@@ -7,6 +7,7 @@ import (
 	"backend/core/models/schedule"
 	"backend/core/types"
 	"backend/pkg/db"
+	"os/user"
 	"time"
 )
 
@@ -23,6 +24,8 @@ type Clock struct {
 	Status         string            `json:"status"`
 	EarlyMinutes   *int              `json:"earlyMinutes" gorm:"type:int;default 0"`
 	LateMinutes    *int              `json:"lateMinutes" gorm:"type:int;default 0"`
+	EditedBy       *uint             `json:"edited_by"`
+	Editor         *user.User        `json:"editor" gorm:"foreignKey:EditedBy;references:ID"`
 }
 
 type ClockRepo struct{}
@@ -156,9 +159,15 @@ func (repo *ClockRepo) SumReport(pageOpt *dtos.PageOpt, dto *dtos.ReportFilter) 
 }
 
 func (repo *ClockRepo) UpdateById(clock *Clock) (int64, error) {
-	result := db.Database.Model(&Clock{}).Where("id = ?", clock.ID).Updates(*clock)
+	result := db.Database.Model(&Clock{}).Where("id = ? AND edited_by = NULL", clock.ID).Updates(*clock)
 	if result.Error != nil {
 		return 0, result.Error
 	}
 	return result.RowsAffected, nil
+}
+
+func (repo *ClockRepo) GetOneById(id uint) (Clock, error) {
+	var clock Clock
+	err := db.Database.First(&clock, id).Error
+	return clock, err
 }
