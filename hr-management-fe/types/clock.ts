@@ -33,3 +33,7 @@ export type AttendenceFilter = {
     employeeId: string
     departmentId: string
 }
+
+export type EditClock = {
+    clockTime: string | null
+}

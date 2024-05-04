@@ -245,7 +245,8 @@ func (srv *ClockService) ClockIn(employeeId *int, longtitude float64, latitude f
 	if err != nil {
 		return "", err
 	}
-	distance := math.Sqrt(math.Pow(latitude-xCoordinate, 2) + math.Pow(longtitude-yCoordinate, 2))
+
+	distance := math.Sqrt(math.Pow(latitude-xCoordinate, 2)+math.Pow(longtitude-yCoordinate, 2)) * 100000
 	if distance > float64(*clockSetting.ClockRange) {
 		return "You are not inside clock range", nil
 	}
@@ -273,7 +274,8 @@ func (srv *ClockService) ClockIn(employeeId *int, longtitude float64, latitude f
 	differentMinutes := int(compareCurTime.Sub(schedule.ClockInTime).Minutes())
 	if differentMinutes > 0 && differentMinutes <= *clockSetting.AllowTime {
 		clockInTime = clockInTime.Add(time.Duration(differentMinutes * int(time.Minute)))
-	} else if differentMinutes > *clockSetting.AllowTime {
+	} 
+	if differentMinutes > *clockSetting.AllowTime {
 		status = "late"
 	} else {
 		differentMinutes = 0
@@ -318,7 +320,7 @@ func (srv *ClockService) ClockOut(employeeId *int, longtitude float64, latitude 
 	if err != nil {
 		return "", err
 	}
-	distance := math.Sqrt(math.Pow(latitude-xCoordinate, 2) + math.Pow(longtitude-yCoordinate, 2))
+	distance := math.Sqrt(math.Pow(latitude-xCoordinate, 2)+math.Pow(longtitude-yCoordinate, 2)) * 100000
 	if distance > float64(*clockSetting.ClockRange) {
 		return "You are not inside clock range", nil
 	}
@@ -343,10 +345,11 @@ func (srv *ClockService) ClockOut(employeeId *int, longtitude float64, latitude 
 
 	curTime := time.Now().UTC()
 	var status string = ""
-	differentMinutes := int(schedule.ClockOutTime.Sub(compareCurTime).Minutes())
+	differentMinutes := int(math.Round(schedule.ClockOutTime.Sub(compareCurTime).Minutes()))
 	if differentMinutes > 0 && differentMinutes <= *clockSetting.AllowTime {
 		curTime = curTime.Add(time.Duration(differentMinutes * int(time.Minute)))
-	} else if differentMinutes > *clockSetting.AllowTime {
+	} 
+	if differentMinutes > *clockSetting.AllowTime {
 		status = "early"
 	} else {
 		differentMinutes = 0
@@ -407,15 +410,14 @@ func (srv *ClockService) Update(w http.ResponseWriter, r *http.Request, clockId 
 		https.ResponseError(w, r, http.StatusInternalServerError, "Somthing went wrong")
 		return
 	}
-	utcTime := time.Now().UTC()
-	schedule, err := srv.scheduleRepo.GetOneById(clockData.Schedule.ID)
+	schedule, err := srv.scheduleRepo.GetOneById(uint(*clockData.ScheduleId))
 	if err != nil {
 		logger.Trace(err)
 		https.ResponseError(w, r, http.StatusInternalServerError, "Somthing went wrong")
 		return
 	}
 
-	utcPlus7 := utcTime.Add(7 * time.Hour)
+	utcPlus7 := newClockTime.Add(7 * time.Hour)
 	compareTimeStr := fmt.Sprintf("%s-01 %02d:%02d:%02d", schedule.Scope, utcPlus7.Hour(), utcPlus7.Minute(), utcPlus7.Second())
 	compareCurTime, err := time.Parse("2006-01-02 15:04:05", compareTimeStr)
 	compareCurTime = compareCurTime.Add(-7 * time.Hour)
@@ -425,17 +427,19 @@ func (srv *ClockService) Update(w http.ResponseWriter, r *http.Request, clockId 
 		return
 	}
 
-	var status string = ""
+	var status string = "-"
 	var newClockData clock.Clock
 	newClock := *newClockTime
 	if clockData.ClockType == types.ClockIn {
-		differentMinutes := int(compareCurTime.Sub(schedule.ClockInTime).Minutes())
+		differentMinutes := int(math.Round(compareCurTime.Sub(schedule.ClockInTime).Minutes()))
 		if differentMinutes > 0 && differentMinutes <= *clockSetting.AllowTime {
 			newClock = newClock.Add(time.Duration(differentMinutes * int(time.Minute)))
-		} else if differentMinutes > *clockSetting.AllowTime {
+		}  
+		if differentMinutes > *clockSetting.AllowTime {
 			status = "late"
 		} else {
 			differentMinutes = 0
+
 		}
 
 		newClockData = clock.Clock{
@@ -444,11 +448,34 @@ func (srv *ClockService) Update(w http.ResponseWriter, r *http.Request, clockId 
 			Status:      status,
 			LateMinutes: &differentMinutes,
 		}
+
+		clockOut, err := srv.repo.GetClockOutByClockIn(uint(*clockId))
+		if err != nil && !strings.Contains(err.Error(), "record not found") {
+			logger.Trace(err)
+			https.ResponseError(w, r, http.StatusInternalServerError, "Somthing went wrong")
+			return
+		}
+
+		if clockOut.ID != 0 {
+			minuteWork := int(math.Round(math.Abs(clockOut.CreatedAt.Sub(newClock).Minutes())))
+			newClockOut := clock.Clock{
+				BaseModel:   models.BaseModel{ID: clockOut.ID},	
+				ClockOutMinute: &minuteWork,
+			}
+			_, err = srv.repo.UpdateById(&newClockOut)
+			if err != nil {
+				helper.UnexpectedError(w, r, err)
+				return
+			}
+		}
+		
+
 	} else {
-		differentMinutes := int(schedule.ClockOutTime.Sub(compareCurTime).Minutes())
+		differentMinutes := int(math.Round(schedule.ClockOutTime.Sub(compareCurTime).Minutes()))
 		if differentMinutes > 0 && differentMinutes <= *clockSetting.AllowTime {
 			newClock = newClock.Add(time.Duration(differentMinutes * int(time.Minute)))
-		} else if differentMinutes > *clockSetting.AllowTime {
+		} 
+		if differentMinutes > *clockSetting.AllowTime {
 			status = "early"
 		} else {
 			differentMinutes = 0
@@ -467,6 +494,7 @@ func (srv *ClockService) Update(w http.ResponseWriter, r *http.Request, clockId 
 			BaseModel:      models.BaseModel{ID: uint(*clockId), CreatedAt: newClock},
 			ClockOutMinute: &minuteWork,
 			Status:         status,
+			EditedBy:       &userId,
 		}
 	}
 
@@ -477,4 +505,28 @@ func (srv *ClockService) Update(w http.ResponseWriter, r *http.Request, clockId 
 	}
 
 	https.ResponseMsg(w, r, http.StatusCreated, "Clock updated")
+}
+
+// get distance in meter
+func (srv *ClockService) getClockDistance(userLat, userLon, locationLat, locationLon float64) float64 {
+	const EarthRadiusKm = 6371
+	// Convert decimal degrees to radians (using modulo for better precision)
+	userLatRad := math.Mod(userLat+360, 360) * math.Pi / 180
+	userLonRad := math.Mod(userLon+360, 360) * math.Pi / 180
+	locationLatRad := math.Mod(locationLat+360, 360) * math.Pi / 180
+	locationLonRad := math.Mod(locationLon+360, 360) * math.Pi / 180
+
+	// Calculate difference in latitude and longitude
+	dLat := locationLatRad - userLatRad
+	dLon := locationLonRad - userLonRad
+
+	// Haversine formula steps
+	a := math.Sin(dLat/2) * math.Sin(dLat/2)
+	a += math.Cos(userLatRad) * math.Cos(locationLatRad) * math.Sin(dLon/2) * math.Sin(dLon/2)
+	c := 2 * math.Asin(math.Sqrt(a))
+
+	// Distance in kilometers
+	distance := EarthRadiusKm * c
+
+	return distance * 1000
 }

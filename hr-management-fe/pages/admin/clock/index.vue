@@ -60,7 +60,7 @@
                 <n-date-picker
                     size="large"
                     :disabled="loading"
-                    style="width: 130px; margin: 0 10px; border-radius: 900px"
+                    style="width: 150px; margin: 0 10px; border-radius: 900px"
                     :on-update:value="handlerTimeChange"
                     format="yyyy-MM-dd"
                     :v-model:value="filterForm.date"
@@ -83,7 +83,7 @@
                 >
             </div>
         </div>
-        <n-data-table size="large" :bordered="false" :loading="loading" :columns="clockColumns" :data="clockDatas" />
+        <n-data-table size="large" :bordered="false" :loading="loading" :columns="columns" :data="clockDatas" />
         <n-card
             content-style="padding: 10px;"
             style="display: flex; align-items: center; height: 50px; overflow: hidden"
@@ -100,21 +100,60 @@
                 :on-update:page="onPageChange"
             />
         </n-card>
+
+        <n-modal :show="showModal" :mask-closable="false">
+            <n-card
+                style="width: 600px"
+                :title="`Edit Clock Time ${selectedClock?.clockType}. Employee: ${selectedClock?.employee.name}. Date: ${selectedClock?.schedule.scope}`"
+                :bordered="false"
+                size="huge"
+                role="dialog"
+                aria-modal="true"
+            >
+                <n-form ref="createFormRef" :model="editClockPayload">
+                    <n-form-item path="name" :label="`Old Clock ${selectedClock?.clockType} time`">
+                        <n-time-picker
+                            style="width: 100%"
+                            disabled
+                            :default-formatted-value="aslocalTime(selectedClock?.createdAt || '', TIME_FORMAT)"
+                        />
+                    </n-form-item>
+                    <n-form-item path="name" :label="`New Clock ${selectedClock?.clockType} time`">
+                        <n-time-picker
+                            style="width: 100%"
+                            :on-update:value="
+                                (_: number | null, formattedValue: string | null) => {
+                                    editClockPayload.clockTime = formattedValue
+                                }
+                            "
+                        />
+                    </n-form-item>
+                </n-form>
+                <div style="display: flex; gap: 10px; justify-content: flex-end">
+                    <n-button :loading="loading" round @click="() => (showModal = false)"> Cancel </n-button>
+                    <n-button :loading="loading" round @click="onSubmitEdit"> Edit </n-button>
+                </div>
+            </n-card>
+        </n-modal>
     </n-layout>
 </template>
 
 <script setup lang="ts">
-import { useLoadingBar } from 'naive-ui'
 import { clockColumns } from './table-columns'
-import { apiGetClock } from '~/apis/clock'
+import { apiEditClock, apiGetClock } from '~/apis/clock'
 import { apiAllEmployee } from '~/apis/employee'
 import { getNowLocal } from '~/utils/time'
 import { DATE_FORMAT } from '~/constants/time'
 import moment from 'moment'
 import type { Employee } from '~/types/employee'
-import type { ClockFilter } from '~/types/clock'
+import type { Clock, ClockFilter, EditClock } from '~/types/clock'
 import type { Department } from '~/types/department'
 import { apiAllDepartment } from '~/apis/department'
+import type { DataTableColumns } from 'naive-ui'
+import type { RowData } from 'naive-ui/es/data-table/src/interface'
+import NormalButton from '~/components/OperateButton/NormalButton.vue'
+import { TIME_FORMAT } from '~/constants/time'
+import { useUserInfoStore } from '~/store/userInfo'
 
 const employeeOptions = ref<{ label: string; value: string }[]>([])
 const departmentOptions = ref<{ label: string; value: string }[]>([])
@@ -122,6 +161,61 @@ const pageOption = ref<Pagination>({ page: 1, size: 10 })
 const loading = ref<boolean>(true)
 const clockDatas = ref([])
 const totalPage = ref(0)
+const showModal = ref<boolean>(false)
+const selectedClock = ref<Clock>()
+const editClockPayload = ref<EditClock>({
+    clockTime: null,
+})
+const userStore = useUserInfoStore()
+const columns: DataTableColumns<RowData> = [
+    ...clockColumns,
+    {
+        title: 'Operate',
+        key: 'operate',
+        titleAlign: 'center',
+        align: 'center',
+        render: (data: any, index: any) => {
+            return [
+                h(NormalButton, {
+                    disabled: data.editedBy ? true : false,
+                    text: 'Edit',
+                    loading: loading.value,
+                    style: 'margin-left: 10px;',
+                    onClick: () => showEditModal(data),
+                }),
+            ]
+        },
+    },
+    ...(userStore.hasSuperAdminPermission() ? [{
+        title: 'Edit By Admin',
+        key: 'editbyadmin',
+        titleAlign: 'center',
+        align: 'center',
+        render: (data: any) => data?.editor?.username || '-',
+    }] : []),
+]
+
+const showEditModal = (data: Clock) => {
+    console.log(editClockPayload.value.clockTime)
+    selectedClock.value = data
+    showModal.value = true
+}
+
+const onSubmitEdit = async () => {
+    try {
+        if (!selectedClock.value?.id) {
+            return
+        }
+        loading.value = true
+        await apiEditClock(editClockPayload.value, selectedClock.value.id, selectedClock.value.schedule.scope)
+        showModal.value = false
+        await fetchData()
+    } catch (error) {
+        console.error(error)
+    } finally {
+        loading.value = false
+    }
+}
 
 const filterForm = reactive<ClockFilter>({
     employeeId: '',

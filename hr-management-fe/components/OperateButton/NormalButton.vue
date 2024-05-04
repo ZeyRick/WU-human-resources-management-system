@@ -1,5 +1,5 @@
 <template>
-    <n-button :style="style" :loading="loadingRef" @click="onClick">{{ text }}</n-button>
+    <n-button :disabled="disabled" :style="style" :loading="loadingRef" @click="onClick">{{ text }}</n-button>
 </template>
 
 <script setup lang="ts">
@@ -8,6 +8,7 @@ interface props {
     loading?: boolean
     style?: string
     onClick: Function
+    disabled?: boolean
 }
 
 const props = withDefaults(defineProps<props>(), {

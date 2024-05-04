@@ -1,6 +1,6 @@
 import moment from 'moment'
-import { DATE_TIME_FORMAT } from '~/constants/time'
-import type { AttendenceFilter, ClockFilter, ClockParams } from '~/types/clock'
+import { DATE_TIME_FORMAT, TIME_FORMAT } from '~/constants/time'
+import type { AttendenceFilter, ClockFilter, ClockParams, EditClock } from '~/types/clock'
 import { privateRequest } from '~/utils/request'
 
 export const apiClock = async (params: ClockParams) => {
@@ -11,6 +11,20 @@ export const apiClock = async (params: ClockParams) => {
             body: params,
         },
         'createClock',
+    )
+}
+
+export const apiEditClock = async (payload: EditClock, id: number, scope: string) => {
+    const newClockTime = `${scope}-01 ${payload.clockTime}`
+    return privateRequest(
+        `/admin/clock/${id}`,
+        {
+            method: 'patch',
+            body: {
+                clockTime: moment(newClockTime, 'YYYY-MM-DD HH:mm:ss').utc().format(TIME_FORMAT),
+            },
+        },
+        'apiEditClock',
     )
 }
 

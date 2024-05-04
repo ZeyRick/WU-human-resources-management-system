@@ -5,9 +5,10 @@ import (
 	"backend/core/models"
 	"backend/core/models/employee"
 	"backend/core/models/schedule"
+	"backend/core/models/user"
 	"backend/core/types"
 	"backend/pkg/db"
-	"os/user"
+
 	"time"
 )
 
@@ -24,7 +25,7 @@ type Clock struct {
 	Status         string            `json:"status"`
 	EarlyMinutes   *int              `json:"earlyMinutes" gorm:"type:int;default 0"`
 	LateMinutes    *int              `json:"lateMinutes" gorm:"type:int;default 0"`
-	EditedBy       *uint             `json:"edited_by"`
+	EditedBy       *uint             `json:"editedBy"`
 	Editor         *user.User        `json:"editor" gorm:"foreignKey:EditedBy;references:ID"`
 }
 
@@ -60,7 +61,7 @@ func (repo *ClockRepo) LatestClock(employeeId *int) (*Clock, error) {
 }
 
 func (repo *ClockRepo) List(pageOpt *dtos.PageOpt, dto *dtos.ClockFilter) (*types.ListData[Clock], error) {
-	query := db.Database.Joins(`JOIN employees ON employees.id = clocks.employee_id`).Preload("Employee").Order("id DESC")
+	query := db.Database.Joins(`JOIN employees ON employees.id = clocks.employee_id`).Preload("Employee").Preload("Schedule").Preload("Editor").Order("id DESC")
 
 	if dto.Date != "" {
 		startOfDay, err := time.Parse("2006-01-02 15:04:05", dto.Date)
@@ -159,7 +160,7 @@ func (repo *ClockRepo) SumReport(pageOpt *dtos.PageOpt, dto *dtos.ReportFilter) 
 }
 
 func (repo *ClockRepo) UpdateById(clock *Clock) (int64, error) {
-	result := db.Database.Model(&Clock{}).Where("id = ? AND edited_by = NULL", clock.ID).Updates(*clock)
+	result := db.Database.Model(&Clock{}).Where("id = ?", clock.ID).Updates(*clock)
 	if result.Error != nil {
 		return 0, result.Error
 	}
@@ -169,5 +170,11 @@ func (repo *ClockRepo) UpdateById(clock *Clock) (int64, error) {
 func (repo *ClockRepo) GetOneById(id uint) (Clock, error) {
 	var clock Clock
 	err := db.Database.First(&clock, id).Error
+	return clock, err
+}
+
+func (repo *ClockRepo) GetClockOutByClockIn(clockInID uint) (Clock, error) {
+	var clock Clock
+	err := db.Database.Preload("Schedule").Where("clock_in_id =?", clockInID).First(&clock).Error
 	return clock, err
 }
