@@ -10,7 +10,7 @@ COPY . .
 
 RUN go build -o ./build
 
-EXPOSE 4000
+EXPOSE 8080
 
 
 CMD [ "./build" ]
