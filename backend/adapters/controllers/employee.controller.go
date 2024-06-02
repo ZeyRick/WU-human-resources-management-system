@@ -3,11 +3,13 @@ package controllers
 import (
 	"backend/adapters/dtos"
 	"backend/core/services"
+	"backend/pkg/excel"
 	"backend/pkg/file"
 	"backend/pkg/helper"
 	"backend/pkg/https"
 	"backend/pkg/logger"
 	"backend/pkg/variable"
+	"fmt"
 	"net/http"
 )
 
@@ -117,4 +119,26 @@ func (ctrl *EmployeeController) UploadFiles(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	https.ResponseMsg(w, r, http.StatusCreated, fileName)
+}
+
+func (ctrl *EmployeeController) ImportEmployeeExcel(w http.ResponseWriter, r *http.Request) {
+	var employee *dtos.AddEmployee
+	filename, file, err := file.GetExcelFile(r)
+	if err != nil {
+		logger.Trace(err)
+		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+	employees, err := excel.ReadExcel(file)
+	if err != nil {
+		logger.Trace(err)
+		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+	for i := 0; i < len(employees); i++ {
+		employee = &employees[i]
+		ctrl.service.Add(w, r, employee)
+		fmt.Println(i)
+	}
+	https.ResponseMsg(w, r, http.StatusCreated, filename)
 }
