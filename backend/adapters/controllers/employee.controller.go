@@ -9,7 +9,6 @@ import (
 	"backend/pkg/https"
 	"backend/pkg/logger"
 	"backend/pkg/variable"
-	"fmt"
 	"net/http"
 )
 
@@ -129,7 +128,7 @@ func (ctrl *EmployeeController) ImportEmployeeExcel(w http.ResponseWriter, r *ht
 		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
-	employees, err := excel.ReadExcel(file)
+	employees, err := excel.ReadEmployeeExcel(file)
 	if err != nil {
 		logger.Trace(err)
 		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
@@ -138,7 +137,6 @@ func (ctrl *EmployeeController) ImportEmployeeExcel(w http.ResponseWriter, r *ht
 	for i := 0; i < len(employees); i++ {
 		employee = &employees[i]
 		ctrl.service.Add(w, r, employee)
-		fmt.Println(i)
 	}
 	https.ResponseMsg(w, r, http.StatusCreated, filename)
 }

@@ -5,13 +5,12 @@ import (
 	"backend/core/types"
 	"bytes"
 	"errors"
-	"fmt"
 	"strconv"
 
 	"github.com/xuri/excelize/v2"
 )
 
-func ReadExcel(buffer *bytes.Buffer) ([]dtos.AddEmployee, error) {
+func ReadEmployeeExcel(buffer *bytes.Buffer) ([]dtos.AddEmployee, error) {
 	var employeesdot []dtos.AddEmployee
 	file, err := excelize.OpenReader(buffer)
 	if err != nil {
@@ -71,7 +70,6 @@ func ReadExcel(buffer *bytes.Buffer) ([]dtos.AddEmployee, error) {
 		}
 		if !checked {
 			if name == nil || departmentId == nil || employeeType == nil || salary == nil {
-				fmt.Println(targetColName)
 				return employeesdot, errors.New("empty data")
 			}
 		}
@@ -98,4 +96,69 @@ func stringToEmployeeType(employeeTypeString string) (types.EmployeeType, error)
 	default:
 		return "", errors.New("invalid data type for conversion")
 	}
+}
+
+func ReadUserExcel(buffer *bytes.Buffer) ([]dtos.UserRegister, error) {
+	var usersdot []dtos.UserRegister
+	file, err := excelize.OpenReader(buffer)
+	if err != nil {
+		return usersdot, err
+	}
+
+	sheetName := "Sheet1"
+
+	rows, err := file.GetRows(sheetName)
+
+	if err != nil {
+		return usersdot, err
+	}
+	header := rows[0]
+	targetCols := []string{"Username", "Name", "Password", "UserLeval"}
+	var username []string
+	var name []string
+	var password []string
+	var userlevel []string
+	var checked bool
+	for _, targetColName := range targetCols {
+		checked = false
+		for i, colName := range header {
+			if colName == targetColName {
+				switch targetColName {
+				case "Username":
+					for _, row := range rows[1:] {
+						username = append(username, row[i])
+					}
+				case "Name":
+					for _, row := range rows[1:] {
+						name = append(name, row[i])
+					}
+				case "Password":
+					for _, row := range rows[1:] {
+						password = append(password, row[i])
+					}
+				case "UserLeval":
+					for _, row := range rows[1:] {
+						userlevel = append(userlevel, row[i])
+					}
+				}
+				checked = true
+			}
+		}
+		if !checked {
+			if username == nil || name == nil || password == nil || userlevel == nil {
+				return usersdot, errors.New("empty data")
+			}
+		}
+	}
+	if len(username) == len(name) && len(name) == len(password) && len(password) == len(userlevel) {
+		var userdot dtos.UserRegister
+		for i := range name {
+			userdot.Username = username[i]
+			userdot.Name = name[i]
+			userdot.Password = password[i]
+			userdot.UserLeval = userlevel[i]
+			usersdot = append(usersdot, userdot)
+		}
+	}
+	return usersdot, nil
 }
