@@ -9,7 +9,7 @@ export default defineNuxtRouteMiddleware((to) => {
     }
 
     if (curToken && to?.name === 'admin-login') {
-        return navigateTo('/admin/schedule')
+        return navigateTo('/admin/dashboard')
     }
 
     // if token doesn't exist redirect to login

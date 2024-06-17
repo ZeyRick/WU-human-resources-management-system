@@ -167,7 +167,7 @@ const editClockPayload = ref<EditClock>({
     clockTime: null,
 })
 const userStore = useUserInfoStore()
-const columns: DataTableColumns<RowData> = [
+const columns: any = [
     ...clockColumns,
     {
         title: 'Operate',

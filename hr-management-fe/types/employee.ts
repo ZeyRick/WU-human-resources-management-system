@@ -33,7 +33,7 @@ export type UploadEmployeeFile = {
 
 export enum EMPLOYEE_TYPE {
     FULL_TIME = 'Fulltime',
-    PART_TIME = 'Parttime,',
+    PART_TIME = 'Parttime',
 }
 
 export const BIND_STATUS_ENUM = {

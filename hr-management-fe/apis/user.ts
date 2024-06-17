@@ -89,7 +89,7 @@ export const apiLogin = async (params: LoginParams) => {
                     const userInfo = JSON.parse(decrypteData(userData.res as string))
                     storeUserInfo(userInfo as User)
                 } catch (error) {}
-                navigateTo('/admin/schedule')
+                navigateTo('/admin/dashboard')
                 return
             }
             throw new Error(body?.msg || 'Somthing went wrong')

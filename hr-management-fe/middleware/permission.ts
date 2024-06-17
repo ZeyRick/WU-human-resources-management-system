@@ -12,7 +12,7 @@ export default defineNuxtRouteMiddleware((to) => {
     if (!hasSuperAdminPermission()) {
         message.error('No Permission')
         abortNavigation()
-        return navigateTo('/admin/schedule')
+        return navigateTo('/admin/dashboard')
     }
     // if token doesn't exist redirect to login
 })

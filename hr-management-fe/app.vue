@@ -12,6 +12,7 @@
 import type { User } from './types/user'
 import { useAuthStore } from './store/auth'
 import { useUserInfoStore } from './store/userInfo'
+import './assets/vfonts-main/FiraCode.css'
 
 const { token } = useAuthStore()
 

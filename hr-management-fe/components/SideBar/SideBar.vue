@@ -8,17 +8,14 @@
         :native-scrollbar="false"
         :on-update:collapsed="collapseUpdated"
     >
-        <div style="height: 53px; margin: 0px; padding: 0px">
-            <NImage
-                preview-disabled
-                :src="
-                    !isCollapsed
-                        ? '/img/logo-big.png'
-                        : '/img/logo-small.png'
-                "
-            />
+        <div v-if="isCollapsed" style="margin: 0px; padding: 10px">
+            <NImage style="width: 40px;" preview-disabled src="/img/logo-big.png" />
         </div>
-        <n-menu icon-size="30" :collapsed-width="64" :collapsed-icon-size="22" :options="menuOptions" />
+        <div v-else style="margin: 0px; padding-left: 20px; display: flex; align-items: center;">
+            <NImage style="width: 43px;" preview-disabled src="/img/logo-big.png" />
+            <p style="margin-left: 20px; font-size: 15px;">Western University</p>
+        </div>
+        <n-menu style="margin-top: 20px;" icon-size="30" :collapsed-width="64" :collapsed-icon-size="22" :options="menuOptions" />
     </n-layout-sider>
 </template>
 
@@ -28,7 +25,7 @@ import { ref } from 'vue'
 import { getMenuOptions } from './items'
 
 const isCollapsed = ref(false)
-const menuOptions = getMenuOptions();
+const menuOptions = getMenuOptions()
 
 const collapseUpdated = (collalsed: boolean) => (isCollapsed.value = collalsed)
 </script>

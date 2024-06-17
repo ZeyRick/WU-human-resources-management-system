@@ -153,7 +153,7 @@
                     <n-form-item path="employeeType" label="Employee Type">
                         <n-select
                             disabled
-                            v-model:value="EMPLOYEE_TYPE.FULL_TIME"
+                            v-model:value="EMPLOYEE_TYPE.PART_TIME"
                             filterable
                             :placeholder="i18n.global.t('employeeType')"
                         />
@@ -269,7 +269,7 @@ const departmentOptions = ref<{ label: string; value: string }[]>([])
 // const employeeTypeOptions = ref<{ label: string; value: string }[]>([
 //     {
 //         label: `Full Time`,
-//         value: EMPLOYEE_TYPE.FULL_TIME,
+//         value: EMPLOYEE_TYPE.PART_TIME,
 //     },
 //     {
 //         label: `Part Time`,
@@ -283,7 +283,7 @@ const defaultCreateData: CreateEmployeeType = {
     name: '',
     departmentId: '',
     salary: 0,
-    employeeType: EMPLOYEE_TYPE.FULL_TIME,
+    employeeType: EMPLOYEE_TYPE.PART_TIME,
     idNumber: '',
     idFileName: '',
     photoFileName: '',
@@ -350,7 +350,7 @@ const columns: DataTableColumns<RowData> = [
 const defaultFilterForm: EmployeeParams = {
     employeeName: '',
     departmentId: '',
-    employeeType: EMPLOYEE_TYPE.FULL_TIME,
+    employeeType: EMPLOYEE_TYPE.PART_TIME,
     startSalary: null,
     endSalary: null,
     scope: '',

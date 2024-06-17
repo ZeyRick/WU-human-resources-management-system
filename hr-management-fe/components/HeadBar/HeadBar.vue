@@ -24,8 +24,8 @@
             <n-avatar round size="small" src="https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg" />
             <n-dropdown :options="options">
                 <n-button :onmouseover="onProfileHover" :onmouseout="onProfileOut" :bordered="false">
-                    User Profile
-                    <n-icon> <CaretUp v-if="isProfileHover" /> <CaretDown v-else /> </n-icon>
+                    {{userInfo?.name }} / {{ userInfo?.username }}
+                    <n-icon style="margin-left: 10px;"> <CaretUp v-if="isProfileHover" /> <CaretDown v-else /> </n-icon>
                 </n-button>
             </n-dropdown>
         </div>
@@ -48,13 +48,14 @@ import { useRoute } from 'vue-router'
 import { apiLogout } from '~/apis/user'
 import { Routes, type Route } from '~/constants/routes'
 import { useDarkThemeStore } from '~/store/theme'
+import { useUserInfoStore } from '~/store/userInfo'
 
 const route = useRoute()
 const themeStore = useDarkThemeStore()
 // const isDark = computed(() => themeStore.isDarkTheme);
 
 const routeObject: Route | undefined = Routes.find((r) => r.key === route.name)
-
+const { userInfo } = useUserInfoStore()
 const isProfileHover: Ref<boolean> = ref(false)
 const showLogoutModal = ref<boolean>(false)
 const loading = ref<boolean>(false)
@@ -65,7 +66,6 @@ const closelogoutModal = () => {
 const openLogoutModal = () => {
     showLogoutModal.value = true
 }
-
 
 const options = [
     // {
@@ -83,7 +83,7 @@ const options = [
         key: 'logout',
         icon: renderIcon(LogOutOutline),
         props: {
-            onClick: () => openLogoutModal()
+            onClick: () => openLogoutModal(),
         },
     },
 ]
