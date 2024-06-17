@@ -1,106 +1,107 @@
 <template>
-    <div class="flex items-center justify-center h-screen">
-        <n-image
-            style="width: 100%; height: 100%; position: absolute; top: 0; right: 0; z-index: -1"
-            :img-props="{ style: { width: '100%' } }"
-            src="/img/login-bg.png"
-        />
+    <n-space vertical id="login_page" style="height: 100%" justify="center" align="center">
+        <div class="blur"></div>
         <div
             style="
-                display: flex;
-                justify-content: center;
-                width: 530px;
-                height: 550px;
-                overflow: hidden;
+                background-color: white;
+                padding: 20px 10px;
                 border-radius: 20px;
-                border: 2px solid gainsboro;
+                background-image: url(../../../assets/western_logo.png);
+                background-repeat: no-repeat;
+                background-position: 50%;
+                background-size: 100%;
             "
         >
-            <div class="blur" />
-            <n-form :disabled="loading" style="width: 100%" ref="loginFormRef" :model="loginData" :rules="rules">
-                <n-space
-                    item-style="width: 100%;"
-                    style="width: 100%; padding: 35px"
-                    justify="center"
-                    align="center"
-                    vertical
-                    inline
+            <n-space justify="center" align="center">
+                <img
+                    style="
+                        width: 90px;
+
+                    "
+                    src="../../../assets/western_logo.png"
+                    alt=""
+                />
+                <n-space vertical justify="center" align="center">
+                    <p style="font-size: 25px">Western University</p>
+                    <p style="font-size: 25px">HR System</p>
+                </n-space>
+            </n-space>
+            <div
+                style="
+                    display: flex;
+                    justify-content: center;
+                    width: 430px;
+                    height: 420px;
+                    overflow: hidden;
+                    /* border-radius: 20px;
+                border: 2px solid gainsboro; */
+                    align-items: center;
+                    flex-direction: column;
+                "
+            >
+                <p style="font-size: 23px; opacity: 50%; margin-bottom: 20px">Admin Login</p>
+                <n-form
+                    ref="loginFormRef"
+                    label-placement="left"
+                    size="large"
+                    :model="loginData"
+                    :rules="rules"
+                    style="width: 80%"
                 >
-                    <n-p align-text style="text-align: center; color: white; font-size: 40px">Login</n-p>
-
-                    <n-form-item style="width: 100%" path="username">
+                    <n-form-item path="username">
                         <n-input
+                            style="box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2)"
                             v-model:value="loginData.username"
-                            type="text"
-                            placeholder="Basic Input"
-                            round
-                            style="
-                                border-radius: 40px;
-                                border-width: 2px;
-                                height: 65px;
-                                width: 100%;
-                                background-color: transparent;
-                            "
-                            :input-props="{
-                                style: {
-                                    'font-weight': 'bold',
-                                    'font-size': '18px',
-                                    color: 'white !important',
-                                    'background-color': 'transparent !important',
-                                },
-                            }"
-                        />
-                    </n-form-item>
-                    <n-form-item style="width: 100%" path="password">
-                        <n-input
-                            type="password"
-                            show-password-on="mousedown"
-                            placeholder="Password"
-                            size="large"
-                            v-model:value="loginData.password"
-                            round
-                            style="
-                                border-radius: 40px;
-                                border-width: 2px;
-                                height: 65px;
-                                width: 100%;
-                                background-color: transparent;
-                            "
-                            :input-props="{
-                                style: {
-                                    'font-weight': 'bold',
-                                    'font-size': '18px',
-                                    color: 'white !important',
-                                    'background-color': 'transparent !important',
-                                },
-                            }"
-                        />
-                    </n-form-item>
-
-                    <div style="padding-left: 10px">
-                        <n-checkbox
-                            v-model:checked="loginData.rememberMe"
-                            style="text-align: start; color: white; font-size: 16px"
+                            placeholder="Useranme"
                         >
-                            <n-p align-text style="text-align: start; color: white; font-size: 16px">Remember Me</n-p>
-                        </n-checkbox>
-                    </div>
+                            <template #prefix>
+                                <n-icon size="18" color="#808695">
+                                    <PersonOutline />
+                                </n-icon>
+                            </template>
+                        </n-input>
+                    </n-form-item>
+                    <n-form-item path="password">
+                        <n-input
+                            style="box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2)"
+                            v-model:value="loginData.password"
+                            type="password"
+                            showPasswordOn="click"
+                            placeholder="Password"
+                        >
+                            <template #prefix>
+                                <n-icon size="18" color="#808695">
+                                    <LockClosedOutline />
+                                </n-icon>
+                            </template>
+                        </n-input>
+                    </n-form-item>
+                    <n-form-item class="default-color">
+                        <div class="flex justify-between">
+                            <div class="flex-initial">
+                                <n-checkbox
+                                    v-model:checked="loginData.rememberMe"
+                                    >Remember Me</n-checkbox
+                                >
+                            </div>
+                        </div>
+                    </n-form-item>
                     <n-button
-                        style="height: 65px"
-                        class="button"
-                        strong
-                        secondary
-                        round
-                        type="success"
-                        :loading="loading"
+                        style="background-color: #409eff; margin-top: 15px; box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2)"
+                        color="#5cb85c"
+                        text-color="#000000"
+                        type="primary"
                         @click="handleClick"
+                        size="large"
+                        :loading="loading"
+                        block
                     >
                         Login
                     </n-button>
-                </n-space>
-            </n-form>
+                </n-form>
+            </div>
         </div>
-    </div>
+    </n-space>
 </template>
 
 <script setup lang="ts">
@@ -120,6 +121,7 @@ import {
     type FormValidationError,
 } from 'naive-ui'
 import { useMessage } from 'naive-ui'
+import { LockClosedOutline, PersonOutline } from '@vicons/ionicons5'
 
 const loginData = ref<LoginParams>({
     username: '',
@@ -151,6 +153,7 @@ const handleClick = (e: MouseEvent) => {
     e.preventDefault()
     loginFormRef.value?.validate(async (errors: Array<FormValidationError> | undefined) => {
         if (!errors) {
+            console.log(123)
             try {
                 loading.value = true
                 await apiLogin(loginData.value)
@@ -161,6 +164,7 @@ const handleClick = (e: MouseEvent) => {
                 loading.value = false
             }
         } else {
+            console.log(22)
             message.error('Please check login data')
         }
     })
@@ -168,49 +172,57 @@ const handleClick = (e: MouseEvent) => {
 </script>
 
 <style>
-/* Change Autocomplete styles in Chrome*/
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus input:-webkit-autofill:active,
-textarea:-webkit-autofill,
-textarea:-webkit-autofill:hover textarea:-webkit-autofill:focus,
-textarea:-webkit-autofill:active,
-select:-webkit-autofill,
-select:-webkit-autofill:hover,
-select:-webkit-autofill:focus,
-select:-webkit-autofill:active {
-    -webkit-text-fill-color: white !important;
-    transition: background-color 5000s ease-in-out 0s !important;
-}
-/* input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-input:-webkit-autofill:active {
-    transition: background-color 5000s ease-in-out 0s !important;
-} */
-.n-input__input {
+.view-account {
     display: flex;
-    align-items: center;
-}
-.button {
-    background-color: white;
-    height: 100%;
-    width: 100%;
-    font-size: 18px;
-    color: black;
-}
-.button:hover,
-.button:focus {
-    background-color: rgba(255, 255, 255, 0.2) !important;
-    color: white !important;
+    flex-direction: column;
+    height: 100vh;
+    overflow: auto;
+
+    &-container {
+        flex: 1;
+        padding: 32px 12px;
+        max-width: 384px;
+        min-width: 320px;
+        margin: 0 auto;
+    }
+
+    &-top {
+        padding: 32px 0;
+        text-align: center;
+
+        &-desc {
+            font-size: 14px;
+            color: #808695;
+        }
+    }
+
+    &-other {
+        width: 100%;
+    }
+
+    .default-color {
+        color: #515a6e;
+
+        .ant-checkbox-wrapper {
+            color: #515a6e;
+        }
+    }
 }
 .blur {
+    height: 100%; /* Set height to viewport height */
+    width: 100%;
+    opacity: 80%;
+    background-image: url(../../../assets/login-bg.jpg);
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
     position: absolute;
-    width: 530px;
-    height: 550px;
-    z-index: -1;
-    -webkit-backdrop-filter: blur(15px);
-    backdrop-filter: blur(6px);
-    background-color: rgba(0, 0, 0, 0.15);
+    filter: blur(10px); /* Adjust blur intensity as needed */
+    z-index: -1; /* Positions the blurred layer behind the content */
+    top: 0;
+    left: 0;
+}
+#login_page {
+    position: relative; /* Ensures proper layering */
+    overflow: hidden; /* Ensures blurred content doesn't overflow */
 }
 </style>

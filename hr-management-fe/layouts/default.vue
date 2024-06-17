@@ -1,15 +1,43 @@
 <template>
-  <div>
-    <slot />
-  </div>
+    <n-config-provider
+        class="fullScreen"
+    >
+        <slot style="flex-grow: 1" />
+    </n-config-provider>
 </template>
 
+<script setup lang="ts">
+import { darkTheme, type GlobalThemeOverrides } from 'naive-ui'
+import { PRIMARY_COLOR, DARK_THEME } from '~/constants/theme'
+import { useDarkThemeStore } from '~/store/theme'
+
+const isDarkTheme = computed(() => useDarkThemeStore().isDarkTheme)
+
+const darkThemeOverrides: GlobalThemeOverrides = {
+    common: {
+        primaryColor: PRIMARY_COLOR,
+        bodyColor: DARK_THEME.BACK_GROUND_COLOR,
+        iconColor: '#2A947D',
+    },
+}
+
+const lightThemeOverrides: GlobalThemeOverrides = {
+    common: {
+        primaryColor: PRIMARY_COLOR,
+        bodyColor: '#F0F2F5',
+        iconColor: '#2A947D',
+    },
+}
+</script>
+
 <style>
+.fullScreen,
 html,
 body,
 #__nuxt,
 #__layout {
-  height: 100% !important;
-  width: 100% !important;
+    height: 100% !important;
+    width: 100% !important;
+    overflow: hidden !important;
 }
 </style>
