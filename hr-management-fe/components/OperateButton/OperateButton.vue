@@ -5,10 +5,10 @@
         @positive-click="positiveClick"
         @negative-click="negativeClick"
         :loading="loadingRef"
-       
+         
     >
         <template #trigger>
-            <n-button  :style="style" :loading="loadingRef">{{ text }}</n-button>
+            <n-button  :style="style" type="error" quaternary :loading="loadingRef">{{ text }}</n-button>
         </template>
         {{ description }}
     </n-popconfirm>
