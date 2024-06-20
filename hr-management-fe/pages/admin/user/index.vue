@@ -69,7 +69,7 @@
                             :disable="loading"
                             v-model:value="createForm.userLevel"
                             filterable
-                            :placeholder="i18n.global.t('department')"
+                            :placeholder="i18n.global.t('course')"
                             :options="userLevalOptions"
                         />
                     </n-form-item>

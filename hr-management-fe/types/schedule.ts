@@ -6,14 +6,14 @@ export type CreateScheduleParams = {
     dates: string
     clockInTime: string
     clockOutTime: string
-    departmentId: string
+    courseId: string
     minuteBreakTime: number
 }
 
 export type ScheduleFilterParams = {
     employeeId?: string
     scope: string
-    departmentId: string
+    courseId: string
     date?: string
 }
 

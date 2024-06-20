@@ -17,7 +17,7 @@ type ClockFilter struct {
 	EndDate      string `json:"endDate,string,omitempty"`
 	EmployeeName string `json:"employeeName,string,omitempty"`
 	EmployeeId   int    `json:"employeeId,string,omitempty"`
-	DepartmentId int    `json:"departmentId,string,omitempty"`
+	CourseId int    `json:"courseId,string,omitempty"`
 }
 
 type UpdateClock struct {
@@ -29,5 +29,5 @@ type AttendenceFilter struct {
 	EndDate      string `json:"endDate,string,omitempty"`
 	EmployeeName string `json:"employeeName,string,omitempty"`
 	EmployeeId   int    `json:"employeeId,string,omitempty"`
-	DepartmentId int    `json:"departmentId,string,omitempty"`
+	CourseId int    `json:"courseId,string,omitempty"`
 }

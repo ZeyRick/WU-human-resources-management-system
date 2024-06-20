@@ -5,7 +5,7 @@ import "backend/core/types"
 type AddEmployee struct {
 	Name          string             `json:"name" validate:"required"`
 	ProfilePic    string             `json:"profilePic" validate:"omitempty"`
-	DepartmentId  int                `json:"departmentId" validate:"required"`
+	CourseId  int                `json:"courseId" validate:"required"`
 	EmployeeType  types.EmployeeType `json:"employeeType" validate:"required"`
 	Salary        float64            `json:"salary" validate:"required"`
 	IdNumber      string             `json:"idNumber" validate:"omitempty"`
@@ -15,7 +15,7 @@ type AddEmployee struct {
 
 type EmployeeFilter struct {
 	EmployeeName string             `json:"employeeName" validate:"omitempty"`
-	DepartmentId *int               `json:"departmentId" validate:"omitempty"`
+	CourseId *int               `json:"courseId" validate:"omitempty"`
 	EmployeeId   *int               `json:"employeeId" validate:"omitempty"`
 	EmployeeType types.EmployeeType `json:"employeeType" validate:"omitempty"`
 	StartSalary  float64            `json:"startSalary" validate:"omitempty"`

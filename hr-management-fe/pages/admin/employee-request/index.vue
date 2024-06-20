@@ -20,15 +20,15 @@
                 "
             >
                 <div style="font-size: 16px; display: flex; align-items: center">
-                    Department:
+                    Course:
                     <n-select
-                        @update:value="onDepartmentChange"
+                        @update:value="onCourseChange"
                         style="margin-left: 10px"
                         :disable="loading"
-                        v-model:value="filterForm.departmentId"
+                        v-model:value="filterForm.courseId"
                         filterable
-                        :placeholder="i18n.global.t('department')"
-                        :options="[{ label: 'All', value: '' }, ...departmentOptions]"
+                        :placeholder="i18n.global.t('course')"
+                        :options="[{ label: 'All', value: '' }, ...courseOptions]"
                     />
                 </div>
                 <div
@@ -69,8 +69,8 @@ import { clockColumns } from './table-columns'
 import { apiDeleteEmployee, apiEditEmployee } from '~/apis/employee'
 import { apiListEmployeeRequest, apiDenyEmployeeRequest, apiApproveEmployeeRequest } from '~/apis/employeeRequest'
 import type { Employee, EmployeeParams, CreateEmployeeType } from '~/types/employee'
-import type { Department } from '~/types/department'
-import { apiAllDepartment } from '~/apis/department'
+import type { Course } from '~/types/course'
+import { apiAllCourse } from '~/apis/course'
 import OperateButton from '~/components/OperateButton/OperateButton.vue'
 import type { RowData } from 'naive-ui/es/data-table/src/interface'
 import type { DataTableColumns, FormInst, FormValidationError } from 'naive-ui'
@@ -78,13 +78,13 @@ import { CommonFormRules } from '~/constants/formRules'
 import { AddCircleOutline } from '@vicons/ionicons5'
 import NormalButton from '~/components/OperateButton/NormalButton.vue'
 
-const departmentOptions = ref<{ label: string; value: string }[]>([])
+const courseOptions = ref<{ label: string; value: string }[]>([])
 const pageOption = ref<Pagination>({ page: 1, size: 10 })
 const loading = ref<boolean>(true)
 const employeeData = ref<Employee[]>([])
 const defaultCreateData: CreateEmployeeType = {
     name: '',
-    departmentId: '',
+    courseId: '',
 }
 const createFormData = ref<CreateEmployeeType>(defaultCreateData)
 const showModal = ref<boolean>(false)
@@ -124,7 +124,7 @@ const columns: DataTableColumns<RowData> = [
 
 const filterForm = reactive<EmployeeParams>({
     employeeName: '',
-    departmentId: '',
+    courseId: '',
 })
 
 const handleDelete = async (employeeId: string) => {
@@ -138,14 +138,14 @@ const handleDelete = async (employeeId: string) => {
     }
 }
 
-const getDepartment = async () => {
+const getCourse = async () => {
     try {
         loading.value = true
-        const res: any = await apiAllDepartment()
-        const departments = res as Department[]
-        departmentOptions.value
-        departments.map((e) => {
-            departmentOptions.value.push({
+        const res: any = await apiAllCourse()
+        const courses = res as Course[]
+        courseOptions.value
+        courses.map((e) => {
+            courseOptions.value.push({
                 label: `${e.id} - ${e.alias}`,
                 value: e.id,
             })
@@ -156,8 +156,8 @@ const getDepartment = async () => {
     }
 }
 
-const onDepartmentChange = (value: any) => {
-    filterForm.departmentId = value
+const onCourseChange = (value: any) => {
+    filterForm.courseId = value
 }
 
 const onDenyClick = async (requestId: string) => {
@@ -231,7 +231,7 @@ const onPageSizeChange = (pageSize: number) => {
 watch(filterForm, fetchData)
 
 onMounted(async () => {
-    await getDepartment()
+    await getCourse()
     await fetchData()
 }),
     definePageMeta({

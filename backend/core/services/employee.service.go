@@ -25,7 +25,6 @@ func (srv *EmployeeService) Edit(w http.ResponseWriter, r *http.Request, employe
 	_, err := srv.repo.UpdateById(&employee.Employee{
 		BaseModel:     models.BaseModel{ID: uint(*employeeId)},
 		Name:          payload.Name,
-		DepartmentId:  &payload.DepartmentId,
 		EmployeeType:  payload.EmployeeType,
 		Salary:        payload.Salary,
 		IdNumber:      payload.IdNumber,
@@ -46,7 +45,6 @@ func (srv *EmployeeService) Edit(w http.ResponseWriter, r *http.Request, employe
 func (srv *EmployeeService) Add(w http.ResponseWriter, r *http.Request, payload *dtos.AddEmployee) {
 	err := srv.repo.Create(&employee.Employee{
 		Name:          payload.Name,
-		DepartmentId:  &payload.DepartmentId,
 		EmployeeType:  payload.EmployeeType,
 		Salary:        payload.Salary,
 		IdNumber:      payload.IdNumber,

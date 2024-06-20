@@ -38,7 +38,7 @@ func (srv *ReportService) Export(w http.ResponseWriter, r *http.Request, pageOpt
 	columns := []string{
 		"Employee ID",
 		"Employee Name",
-		"Department",
+		"Course",
 		"Total Work Minute",
 		"Total Late Minute",
 		"Total Early Minute",

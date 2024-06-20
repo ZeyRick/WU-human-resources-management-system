@@ -4,22 +4,22 @@ import "time"
 
 type FormatedEmployee struct {
 	Name         string `json:"name"`
-	DepartmentId *int   `json:"departmentId"`
+	CourseId     *int   `json:"courseId"`
 	ProfilePic   string `json:"profilePic"`
 	ClockInTime  string `json:"clockInTime"`
 	ClockOutTime string `json:"clockOutTime"`
 }
 
 type EmployeeWithSchedule struct {
-	ID           uint   `json:"id" gorm:"primaryKey;autoIncrement"`
-	Name         string `json:"name" gorm:"type:string;not null"`
-	DepartmentId *int   `json:"departmentId" gorm:"type:number;not null"`
-	Department   struct {
-		DepartmentId uint      `json:"departmentId" gorm:"primaryKey;autoIncrement"`
-		Alias        string    `json:"alias" gorm:"type:string;not null"`
-		CreatedAt    time.Time `json:"createdAt"`
-		UpdatedAt    time.Time `json:"updatedAt"`
-	} `json:"department" gorm:"embedded"`
+	ID       uint   `json:"id" gorm:"primaryKey;autoIncrement"`
+	Name     string `json:"name" gorm:"type:string;not null"`
+	CourseId *int   `json:"courseId" gorm:"type:number;not null"`
+	Course   struct {
+		CourseId  uint      `json:"courseId" gorm:"primaryKey;autoIncrement"`
+		Alias     string    `json:"alias" gorm:"type:string;not null"`
+		CreatedAt time.Time `json:"createdAt"`
+		UpdatedAt time.Time `json:"updatedAt"`
+	} `json:"course" gorm:"embedded"`
 	ProfilePic string `json:"profilePic" gorm:"type:string;not null"`
 	Schedules  struct {
 		ScheduleId   uint      `json:"scheduleId"`
@@ -43,6 +43,7 @@ const (
 type EmployeeType string
 
 const (
-	Fulltime EmployeeType = "fulltime"
-	Parttime EmployeeType = "parttime"
+	Staff         EmployeeType = "staff"
+	TeachingStaff EmployeeType = "teaching_staff"
+	Lecture       EmployeeType = "lecture"
 )

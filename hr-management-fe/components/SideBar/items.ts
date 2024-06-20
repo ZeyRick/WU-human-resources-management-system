@@ -35,7 +35,7 @@ export const getMenuOptions = (): MenuOption[] => {
             key: 'schedule',
         },
         {
-            label: renderRoute('/admin/department', i18n.global.t('departments')),
+            label: renderRoute('/admin/course', i18n.global.t('courses')),
             icon: renderIcon(GridOutline),
             key: 'deparments',
         },

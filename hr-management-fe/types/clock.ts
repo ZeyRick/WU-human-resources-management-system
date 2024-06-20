@@ -9,7 +9,7 @@ export type ClockParams = {
 export type ClockFilter = {
     employeeId: string | null
     date: string
-    departmentId: string | null
+    courseId: string | null
 }
 
 export type Clock = {
@@ -31,7 +31,7 @@ export type AttendenceFilter = {
     endDate: string
     employeeName: string
     employeeId: string
-    departmentId: string
+    courseId: string
 }
 
 export type EditClock = {

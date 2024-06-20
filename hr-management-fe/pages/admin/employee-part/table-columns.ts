@@ -24,12 +24,12 @@ export const employeeColumns: DataTableColumns<RowData> = [
         },
     },
     {
-        title: i18n.global.t('department'),
-        key: 'Department',
+        title: i18n.global.t('course'),
+        key: 'Course',
         titleAlign: 'center',
         align: 'center',
         render: (data, index) => {
-            return data?.department?.alias || '-'
+            return data?.course?.alias || '-'
         },
     },
     {

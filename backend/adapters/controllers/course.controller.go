@@ -9,18 +9,18 @@ import (
 	"net/http"
 )
 
-type DepartmentController struct {
-	service *services.DepartmentService
+type CourseController struct {
+	service *services.CourseService
 }
 
-func NewDepartmentController() *DepartmentController {
-	return &DepartmentController{
-		service: services.NewDepartmentService(),
+func NewCourseController() *CourseController {
+	return &CourseController{
+		service: services.NewCourseService(),
 	}
 }
 
-func (ctrl *DepartmentController) All(w http.ResponseWriter, r *http.Request) {
-	dto, err := https.GetQuery[dtos.DepartmentFilter](r)
+func (ctrl *CourseController) All(w http.ResponseWriter, r *http.Request) {
+	dto, err := https.GetQuery[dtos.CourseFilter](r)
 	if err != nil {
 		logger.Trace(err)
 		helper.UnexpectedError(w, r,  err)
@@ -35,8 +35,8 @@ func (ctrl *DepartmentController) All(w http.ResponseWriter, r *http.Request) {
 	https.ResponseJSON(w, r, http.StatusOK, *result)
 }
 
-func (ctrl *DepartmentController) Add(w http.ResponseWriter, r *http.Request) {
-	dto, err := https.GetBody[dtos.AddDepartment](r)
+func (ctrl *CourseController) Add(w http.ResponseWriter, r *http.Request) {
+	dto, err := https.GetBody[dtos.AddCourse](r)
 	if err != nil {
 		logger.Trace(err)
 		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
@@ -45,8 +45,8 @@ func (ctrl *DepartmentController) Add(w http.ResponseWriter, r *http.Request) {
 	ctrl.service.Add(w, r, &dto)
 }
 
-func (ctrl *DepartmentController) List(w http.ResponseWriter, r *http.Request) {
-	pageOpt, dto, err := https.GetPaginationWithType[dtos.DepartmentFilter](r)
+func (ctrl *CourseController) List(w http.ResponseWriter, r *http.Request) {
+	pageOpt, dto, err := https.GetPaginationWithType[dtos.CourseFilter](r)
 	if err != nil {
 		logger.Trace(err)
 		helper.UnexpectedError(w, r, err)
@@ -61,21 +61,21 @@ func (ctrl *DepartmentController) List(w http.ResponseWriter, r *http.Request) {
 	https.ResponseJSON(w, r, http.StatusOK, *result)
 }
 
-func (ctrl *DepartmentController) Edit(w http.ResponseWriter, r *http.Request) {
-	departmentId, err := https.GetParamsID(r, "departmentId")
+func (ctrl *CourseController) Edit(w http.ResponseWriter, r *http.Request) {
+	courseId, err := https.GetParamsID(r, "courseId")
 	if err != nil {
 		helper.UnexpectedError(w, r, err)
 		return
 	}
-	if departmentId == nil {
-		https.ResponseError(w, r, http.StatusBadRequest, "Missing department id")
+	if courseId == nil {
+		https.ResponseError(w, r, http.StatusBadRequest, "Missing course id")
 		return
 	}
-	dto, err := https.GetBody[dtos.AddDepartment](r)
+	dto, err := https.GetBody[dtos.AddCourse](r)
 	if err != nil {
 		logger.Trace(err)
 		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
-	ctrl.service.Edit(w, r, departmentId, &dto)
+	ctrl.service.Edit(w, r, courseId, &dto)
 }

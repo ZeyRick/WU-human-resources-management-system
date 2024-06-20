@@ -1,10 +1,10 @@
 package dtos
 
-type DepartmentFilter struct {
+type CourseFilter struct {
 	ID   *int   `json:"id,string,omitempty"`
 	Alias string `json:"name,string,omitempty"`
 }
 
-type AddDepartment struct {
+type AddCourse struct {
 	Alias string `json:"alias" validate:"required"`
 }

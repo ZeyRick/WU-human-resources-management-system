@@ -11,12 +11,12 @@
             "
         >
             <div style="font-size: 16px; display: flex; align-items: center; white-space: nowrap">
-                <div>{{ i18n.global.t('department') }} Name:</div>
+                <div>{{ i18n.global.t('course') }} Name:</div>
                 <n-input
                     style="margin-left: 10px"
                     :disable="loading"
                     v-model:value="filterForm.alias"
-                    :placeholder="i18n.global.t('department_alias')"
+                    :placeholder="i18n.global.t('course_alias')"
                 />
             </div>
             <n-button
@@ -41,7 +41,7 @@
             size="large"
             style="margin-top: 20px"
             :columns="columns"
-            :data="departmentData"
+            :data="courseData"
         />
         <n-card
             content-style="padding: 10px;"
@@ -71,7 +71,7 @@
         >
             <n-card
                 style="width: 600px"
-                :title="isEdit ? 'Edit Department' : 'Create New Department'"
+                :title="isEdit ? 'Edit Course' : 'Create New Course'"
                 :bordered="false"
                 size="huge"
                 role="dialog"
@@ -104,26 +104,26 @@ import { tableColumns } from './table-columns'
 import { CommonFormRules } from '../../../constants/formRules'
 import { type DataTableColumns, type FormInst, type FormValidationError } from 'naive-ui'
 import {  apiDelUser  } from '../../../apis/user'
-import { apiCreateDeparment, apiListDepartment, apiEditDepartment } from '../../../apis/department'
+import { apiCreateDeparment, apiListCourse, apiEditCourse } from '../../../apis/course'
 import type { RowData } from 'naive-ui/es/data-table/src/interface'
 import OperateButton from '~/components/OperateButton/OperateButton.vue'
 import NormalButton from '~/components/OperateButton/NormalButton.vue'
-import type { CreateDepartmentParams, Department } from '~/types/department'
+import type { CreateCourseParams, Course } from '~/types/course'
 const showModal = ref<boolean>(false)
 const isEdit = ref<boolean>(false)
 const formRef = ref<FormInst>()
-const departmentData = ref<Department[]>()
+const courseData = ref<Course[]>()
 const pageOption = ref<Pagination>({ page: 1, size: 10 })
 const totalPage = ref(0)
 const loading = ref<boolean>(false)
-const defaultCreateData: CreateDepartmentParams = {
+const defaultCreateData: CreateCourseParams = {
     alias: '',
 }
-const createForm = ref<CreateDepartmentParams>(defaultCreateData)
+const createForm = ref<CreateCourseParams>(defaultCreateData)
 const filterForm = reactive({
     alias: '',
 })
-const selectedDepartment = ref<Department | null>(null)
+const selectedCourse = ref<Course | null>(null)
 const columns: DataTableColumns<RowData> = [
     ...tableColumns,
     {
@@ -139,7 +139,7 @@ const columns: DataTableColumns<RowData> = [
                     style: 'margin-left: 10px;',
                     onClick: () => {
                         createForm.value = { alias: data?.alias }
-                        selectedDepartment.value = data
+                        selectedCourse.value = data
                         showEditModal()
                     },
                 }),
@@ -162,9 +162,9 @@ const handleDelete = async (userId: string) => {
 const fetchData = async () => {
     try {
         loading.value = true
-        const res: any = await apiListDepartment(pageOption.value, filterForm)
+        const res: any = await apiListCourse(pageOption.value, filterForm)
         totalPage.value = res.pageOpt.totalPage
-        departmentData.value = res.data as Department[]
+        courseData.value = res.data as Course[]
         pageOption.value = {
             size: res.pageOpt.pageSize,
             page: res.pageOpt.curPage,
@@ -199,11 +199,11 @@ const onSubmitEdit = () => {
     formRef.value?.validate(async (errors: Array<FormValidationError> | undefined) => {
         if (!errors) {
             try {
-                if (!selectedDepartment.value?.id) {
+                if (!selectedCourse.value?.id) {
                     return
                 }
                 loading.value = true
-                await apiEditDepartment(selectedDepartment.value?.id, createForm.value)
+                await apiEditCourse(selectedCourse.value?.id, createForm.value)
                 createForm.value = defaultCreateData
                 showModal.value = false
                 await fetchData()

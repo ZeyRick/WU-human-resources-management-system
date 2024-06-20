@@ -71,8 +71,8 @@ func (repo *ScheduleRepo) List(pageOpt *dtos.PageOpt, dto *dtos.ScheduleFilter) 
 func (repo *ScheduleRepo) GetAllByScope(dto *dtos.ScheduleFilter) (*[]Schedule, error) {
 	var data []Schedule
 	query := db.Database.Joins(`JOIN employees ON employees.id = schedules.employee_id`).Preload("Employee")
-	if dto.DepartmentId != nil && *dto.DepartmentId != 0 {
-		query = query.Where("employees.department_id = ?", *dto.DepartmentId)
+	if dto.CourseId != nil && *dto.CourseId != 0 {
+		query = query.Where("employees.course_id = ?", *dto.CourseId)
 	}
 	if dto.EmployeeId != nil && *dto.EmployeeId != 0 {
 		query = query.Where(`employees.id = ?`, *dto.EmployeeId)

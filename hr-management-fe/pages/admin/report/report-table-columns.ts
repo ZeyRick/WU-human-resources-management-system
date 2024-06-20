@@ -15,8 +15,8 @@ export const reportTableColumns: DataTableColumns<RowData> = [
         align: 'center',
     },
     {
-        title: 'Department',
-        key: 'departmentAlias',
+        title: 'Course',
+        key: 'courseAlias',
         titleAlign: 'center',
         align: 'center',
     },

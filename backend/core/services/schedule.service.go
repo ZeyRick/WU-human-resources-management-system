@@ -57,7 +57,6 @@ func (srv *ScheduleService) GetAllWithFormat(w http.ResponseWriter, r *http.Requ
 				if date == i+1 {
 					var employeeData = types.FormatedEmployee{
 						Name:         mySchedule.Employee.Name,
-						DepartmentId: mySchedule.Employee.DepartmentId,
 						ClockInTime:  mySchedule.ClockInTime.String(),
 						ClockOutTime: mySchedule.ClockOutTime.String(),
 					}
@@ -89,7 +88,7 @@ func (srv *ScheduleService) GetByEmployeeId(w http.ResponseWriter, r *http.Reque
 }
 
 func (srv *ScheduleService) Add(w http.ResponseWriter, r *http.Request, dto *types.AddSchedule) {
-	// employees, err := srv.employeeRepo.All(&dtos.EmployeeFilter{EmployeeId: dto.EmployeeIds, DepartmentId: dto.DepartmentId})
+	// employees, err := srv.employeeRepo.All(&dtos.EmployeeFilter{EmployeeId: dto.EmployeeIds, CourseId: dto.CourseId})
 	// if err != nil {
 	// 	helper.UnexpectedError(w, r,  err)
 	// 	return

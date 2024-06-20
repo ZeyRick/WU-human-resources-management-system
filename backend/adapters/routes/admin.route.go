@@ -13,7 +13,7 @@ func initAdminRoutes(r chi.Router) {
 	employee := controllers.NewEmployeeController()
 	clock := controllers.NewClockController()
 	schedule := controllers.NewScheduleController()
-	department := controllers.NewDepartmentController()
+	course := controllers.NewCourseController()
 	report := controllers.NewReportController()
 	employeeRequest := controllers.NewEmployeeRequestController()
 	clockSetting := controllers.NewClockSettingController()
@@ -74,11 +74,11 @@ func initAdminRoutes(r chi.Router) {
 				r.Get("/schedule/{employeeId}", schedule.GetByEmployeeId)
 				r.Patch("/schedule", schedule.Update)
 
-				// Department
-				r.Get("/department/all", department.All)
-				r.Get("/department", department.List)
-				r.Post("/department", department.Add)
-				r.Patch("/department/{departmentId}", department.Edit)
+				// Course
+				r.Get("/course/all", course.All)
+				r.Get("/course", course.List)
+				r.Post("/course", course.Add)
+				r.Patch("/course/{courseId}", course.Edit)
 			})
 		})
 

@@ -1,7 +1,7 @@
 export type EmployeeParams = {
     id?: number
     employeeName?: string
-    departmentId?: string | null
+    courseId?: string | null
     scope?: string
     employeeType: EMPLOYEE_TYPE | ''
     startSalary: number | null
@@ -18,7 +18,7 @@ export type Employee = {
 
 export type CreateEmployeeType = {
     name: string
-    departmentId: string
+    courseId: string
     salary: number
     employeeType: EMPLOYEE_TYPE
     idNumber?: string
@@ -44,9 +44,9 @@ export const BIND_STATUS_ENUM = {
 export type EmployeeWithSchedule = {
     id: string
     name: string
-    departmentId: number | null
-    department: {
-        departmentId: number
+    courseId: number | null
+    course: {
+        courseId: number
         alias: string
         createdAt: string // You may need to adjust the date format based on your requirements
         updatedAt: string // You may need to adjust the date format based on your requirements

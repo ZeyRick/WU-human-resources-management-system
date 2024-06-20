@@ -3,23 +3,24 @@ package employee
 import (
 	"backend/adapters/dtos"
 	"backend/core/models"
-	"backend/core/models/department"
+	"backend/core/models/course"
+	"backend/core/models/degree"
 	"backend/core/types"
 	"backend/pkg/db"
 )
 
 type Employee struct {
 	models.BaseModel
-	Name             string                `json:"name" gorm:"type:string;not null"`
-	TelegramID       int64                 `json:"telegramId" gorm:"type:int;not null"`
-	DepartmentId     *int                  `json:"departmentId" gorm:"type:number;not null"`
-	Department       department.Department `json:"department"`
-	TelegramUsername string                `json:"telegramUsername"`
-	EmployeeType     types.EmployeeType    `json:"employeeType"`
-	Salary           float64               `json:"salary"`
-	IdNumber         string                `json:"idNumber"`
-	IdFileName       string                `json:"idFileName"`
-	PhotoFileName    string                `json:"photoFileName"`
+	Name             string             `json:"name" gorm:"type:string;not null"`
+	TelegramID       int64              `json:"telegramId" gorm:"type:int;not null"`
+	TelegramUsername string             `json:"telegramUsername"`
+	EmployeeType     types.EmployeeType `json:"employeeType"`
+	Salary           float64            `json:"salary"`
+	IdNumber         string             `json:"idNumber"`
+	IdFileName       string             `json:"idFileName"`
+	PhotoFileName    string             `json:"photoFileName"`
+	Degrees          []*degree.Degree   `gorm:"many2many:employee_degrees;"`
+	Courses          []*course.Course   `gorm:"many2many:employee_courses;"`
 }
 
 type EmployeeRepo struct{}
@@ -80,9 +81,9 @@ func (repo *EmployeeRepo) GetOneByName(name string) (*Employee, error) {
 }
 
 func (repo *EmployeeRepo) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter) (*types.ListData[Employee], error) {
-	query := db.Database.Joins(`JOIN departments ON employees.department_id = departments.id`).Preload("Department")
-	if dto.DepartmentId != nil && *dto.DepartmentId != 0 {
-		query = query.Where("employees.department_id = ?", *dto.DepartmentId)
+	query := db.Database.Joins(`JOIN courses ON employees.course_id = courses.id`).Preload("Course")
+	if dto.CourseId != nil && *dto.CourseId != 0 {
+		query = query.Where("employees.course_id = ?", *dto.CourseId)
 	}
 	if dto.EmployeeName != "" {
 		query = query.Where(`name LIKE ?`, "%"+dto.EmployeeName+"%")
@@ -106,15 +107,15 @@ func (repo *EmployeeRepo) All(dto *dtos.EmployeeFilter) (*[]types.EmployeeWithSc
 	var data []types.EmployeeWithSchedule
 	query := db.Database.Model(&Employee{}).
 		Joins("LEFT JOIN schedules ON schedules.employee_id = employees.id AND schedules.scope = ?", dto.Scope).
-		Joins("LEFT JOIN departments ON departments.id = employees.department_id").
+		Joins("LEFT JOIN courses ON courses.id = employees.course_id").
 		Select(`
 		employees.id,
 		employees.name,
-		employees.department_id,
-		departments.id AS department_id,
-		departments.alias AS department_alias,
-		departments.created_at AS department_created_at,
-		departments.updated_at AS department_updated_at,
+		employees.course_id,
+		courses.id AS course_id,
+		courses.alias AS course_alias,
+		courses.created_at AS course_created_at,
+		courses.updated_at AS course_updated_at,
 		COALESCE(schedules.id, 0) AS schedule_id,
 		COALESCE(schedules.employee_id, 0) AS schedule_employee_id,
 		COALESCE(schedules.scope, '') AS schedule_scope,
@@ -124,8 +125,8 @@ func (repo *EmployeeRepo) All(dto *dtos.EmployeeFilter) (*[]types.EmployeeWithSc
 		COALESCE(schedules.created_at, '0001-01-01 00:00:00') AS schedule_created_at,
 		COALESCE(schedules.updated_at, '0001-01-01 00:00:00') AS schedule_updated_at
 	`).Where(`employee_type = 'Fulltime'`)
-	if dto.DepartmentId != nil && *dto.DepartmentId != 0 {
-		query = query.Where("department_id = ?", *dto.DepartmentId)
+	if dto.CourseId != nil && *dto.CourseId != 0 {
+		query = query.Where("course_id = ?", *dto.CourseId)
 	}
 	if dto.EmployeeId != nil {
 		query = query.Where("id = ?", *dto.EmployeeId)

@@ -43,13 +43,13 @@
                         :on-update:value="(value: string) => (curTab = value)"
                     >
                         <n-tab-pane v-if="!isUpdate" name="employees" tab="Employees">
-                            <n-form-item :label="i18n.global.t('select_department')">
+                            <n-form-item :label="i18n.global.t('select_course')">
                                 <n-select
                                     :disabled="loading || props.isUpdate"
-                                    v-model:value="createFormData.departmentId"
+                                    v-model:value="createFormData.courseId"
                                     filterable
-                                    :placeholder="i18n.global.t('department')"
-                                    :options="[{ label: 'All', value: '' }, ...props.departmentOptions]"
+                                    :placeholder="i18n.global.t('course')"
+                                    :options="[{ label: 'All', value: '' }, ...props.courseOptions]"
                                     @update:value="getEmployee"
                                 />
                             </n-form-item>
@@ -195,7 +195,7 @@ const selectedBreakTimeOption = ref<string>('minutes')
 const props = defineProps<{
     isUpdate: boolean
     employeeOptions: { label: string; value: string }[]
-    departmentOptions: { label: string; value: string }[]
+    courseOptions: { label: string; value: string }[]
     filterForm: ScheduleFilterParams
     disable?: boolean
 }>()
@@ -223,7 +223,7 @@ const getTimesPickerValue = (dateString: string): { hours: number; minutes: numb
 
 const emit = defineEmits<{
     (e: 'currentDateChange', newDate: Date): void
-    (e: 'onDepartmentChange', departmentId: string): void
+    (e: 'onCourseChange', courseId: string): void
     (e: 'refreshData'): void
 }>()
 const createFormRef = ref<FormInst>()
@@ -238,7 +238,7 @@ const createFormData = ref<CreateScheduleParams>({
     dates: '',
     clockInTime: '',
     clockOutTime: '',
-    departmentId: props.filterForm.departmentId || props.departmentOptions[0]?.value,
+    courseId: props.filterForm.courseId || props.courseOptions[0]?.value,
 })
 const loading = ref<boolean>(false)
 const curTab = ref<string>('employees')
@@ -257,7 +257,7 @@ const closeCreateModal = () => {
         minuteBreakTime: breakTime.value,
         clockInTime: '',
         clockOutTime: '',
-        departmentId: props.filterForm.departmentId,
+        courseId: props.filterForm.courseId,
     }
     monthYearPicker.value?.clearValue()
     datesPicker.value?.clearValue()
@@ -281,7 +281,7 @@ const handleBreakTimeOptionsSelect = (key: string) => {
     selectedBreakTimeOption.value = key
 }
 const openCreateModal = async () => {
-    createFormData.value.departmentId = props.filterForm.departmentId
+    createFormData.value.courseId = props.filterForm.courseId
     createFormData.value.scope = moment().format('YYYY-MM')
     showCreateModal.value = true
     getEmployee()
@@ -332,10 +332,10 @@ const onSubmitCreate = () => {
                 if (res) {
                     const curScop = getMonthAndYear(createFormData.value.scope)
                     emit('currentDateChange', new Date(curScop.year, curScop.month, 1))
-                    emit('onDepartmentChange', createFormData.value.departmentId)
+                    emit('onCourseChange', createFormData.value.courseId)
                     if (
                         props.filterForm.scope == createFormData.value.scope &&
-                        props.filterForm.departmentId == createFormData.value.departmentId
+                        props.filterForm.courseId == createFormData.value.courseId
                     ) {
                         emit('refreshData')
                     }
@@ -366,7 +366,7 @@ const getEmployee = async () => {
     try {
         loading.value = true
         const res: any = await apiAllEmployee({
-            departmentId: createFormData.value.departmentId,
+            courseId: createFormData.value.courseId,
             scope: createFormData.value.scope,
         })
         const employees = res as EmployeeWithSchedule[]

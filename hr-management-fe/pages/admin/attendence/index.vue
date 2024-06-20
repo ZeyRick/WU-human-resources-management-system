@@ -2,15 +2,15 @@
     <n-layout style="flex-grow: 1; display: flex; flex-direction: column; padding: 20px">
         <div style="flex-direction: row; display: flex; align-items: center; justify-content: start; overflow: hidden">
             <div style="font-size: 16px; display: flex; align-items: center">
-                Department:
+                Course:
                 <n-select
-                    @update:value="onDepartmentChange"
+                    @update:value="onCourseChange"
                     style="margin-left: 10px"
                     :disable="loading"
-                    v-model:value="filterForm.departmentId"
+                    v-model:value="filterForm.courseId"
                     filterable
-                    :placeholder="i18n.global.t('department')"
-                    :options="departmentOptions"
+                    :placeholder="i18n.global.t('course')"
+                    :options="courseOptions"
                 />
             </div>
             <div style="font-size: 16px; display: flex; align-items: center; margin-left: 10px">
@@ -75,9 +75,9 @@
 <script setup lang="ts">
 import { apiGetAttendence, apiExportAttendence } from '~/apis/clock'
 import { apiAllEmployee } from '~/apis/employee'
-import { apiAllDepartment } from '~/apis/department'
+import { apiAllCourse } from '~/apis/course'
 import type { EmployeeWithSchedule } from '~/types/employee'
-import type { Department } from '~/types/department'
+import type { Course } from '~/types/course'
 import type { AttendenceFilter, Clock } from '~/types/clock'
 import type { ScheduleInfo } from '~/types/schedule'
 import moment from 'moment'
@@ -86,7 +86,7 @@ import { DATE_TIME_FORMAT } from '~/constants/time'
 
 const currentDate = ref<Date>(new Date())
 const employeeOptions = ref<{ label: string; value: string }[]>([])
-const departmentOptions = ref<{ label: string; value: string }[]>([])
+const courseOptions = ref<{ label: string; value: string }[]>([])
 const loading = ref<boolean>(true)
 const scheduleDatas = ref<ScheduleInfo[]>([])
 const diableUpdate = ref<boolean>(true)
@@ -99,7 +99,7 @@ const filterForm = reactive<AttendenceFilter>({
     endDate: range.value[1].toString(),
     employeeName: '',
     employeeId: '',
-    departmentId: '',
+    courseId: '',
 })
 
 watch(range, () => {
@@ -107,15 +107,15 @@ watch(range, () => {
     filterForm.endDate = range.value[1].toString()
 })
 
-const getDepartment = async () => {
+const getCourse = async () => {
     try {
         loading.value = true
-        const res: any = await apiAllDepartment()
-        const departments = res as Department[]
-        departmentOptions.value = [{ label: 'All', value: '' }]
-        filterForm.departmentId = departments[0].id || ''
-        departments.map((e) => {
-            departmentOptions.value.push({
+        const res: any = await apiAllCourse()
+        const courses = res as Course[]
+        courseOptions.value = [{ label: 'All', value: '' }]
+        filterForm.courseId = courses[0].id || ''
+        courses.map((e) => {
+            courseOptions.value.push({
                 label: `${e.id} - ${e.alias}`,
                 value: e.id,
             })
@@ -149,7 +149,7 @@ const onExportClick = () => {
 const getEmployee = async () => {
     try {
         loading.value = true
-        const res: any = await apiAllEmployee({ departmentId: filterForm.departmentId })
+        const res: any = await apiAllEmployee({ courseId: filterForm.courseId })
         const employees = res as EmployeeWithSchedule[]
         employeeOptions.value = [{ label: 'All', value: '' }]
         filterForm.employeeId = ''
@@ -184,8 +184,8 @@ const fetchData = async () => {
     }
 }
 
-const onDepartmentChange = (value: any) => {
-    filterForm.departmentId = value
+const onCourseChange = (value: any) => {
+    filterForm.courseId = value
     getEmployee()
 }
 
@@ -202,7 +202,7 @@ const onPageSizeChange = (pageSize: number) => {
 watch(filterForm, fetchData)
 
 onMounted(async () => {
-    await getDepartment()
+    await getCourse()
     await getEmployee()
     await fetchData()
 }),

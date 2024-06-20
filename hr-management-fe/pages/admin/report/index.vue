@@ -10,14 +10,14 @@
                     placeholder="Select a date"
                 />
                 <div style="font-size: 16px; display: flex; align-items: center; white-space: nowrap">
-                    Department:
+                    Course:
                     <n-select
                         style="margin-left: 10px"
-                        v-model:value="filterForm.departmentId"
+                        v-model:value="filterForm.courseId"
                         filterable
                         size="small"
-                        :placeholder="i18n.global.t('department')"
-                        :options="[{ label: 'All', value: '' }, ...departmentOptions]"
+                        :placeholder="i18n.global.t('course')"
+                        :options="[{ label: 'All', value: '' }, ...courseOptions]"
                     />
                 </div>
                 <div style="font-size: 16px; display: flex; align-items: center; white-space: nowrap">
@@ -66,8 +66,8 @@
 import type { RowData } from 'naive-ui/es/data-table/src/interface'
 import { NLayout, NInput, NSelect, NCard, NText, type DataTableColumns } from 'naive-ui'
 import type { Employee, EmployeeParams, CreateEmployeeType } from '~/types/employee'
-import type { Department } from '~/types/department'
-import { apiAllDepartment } from '~/apis/department'
+import type { Course } from '~/types/course'
+import { apiAllCourse } from '~/apis/course'
 import { apiGetReport } from '~/apis/report'
 import './index.css'
 import moment from 'moment'
@@ -78,19 +78,19 @@ import { DATE_TIME_FORMAT } from '~/constants/time'
 const totalPage = ref(0)
 const loading = ref<boolean>(true)
 const pageOption = ref<Pagination>({ page: 1, size: 10 })
-const departmentOptions = ref<{ label: string; value: string }[]>([])
+const courseOptions = ref<{ label: string; value: string }[]>([])
 
 const reportDatas = ref<Report[]>([])
 
 const columns: DataTableColumns<RowData> = [...reportTableColumns]
-const getDepartment = async () => {
+const getCourse = async () => {
     try {
         loading.value = true
-        const res: any = await apiAllDepartment()
-        const departments = res as Department[]
-        departmentOptions.value
-        departments.map((e) => {
-            departmentOptions.value.push({
+        const res: any = await apiAllCourse()
+        const courses = res as Course[]
+        courseOptions.value
+        courses.map((e) => {
+            courseOptions.value.push({
                 label: `${e.id} - ${e.alias}`,
                 value: e.id,
             })
@@ -102,7 +102,7 @@ const getDepartment = async () => {
 }
 const range = ref<number[]>([moment().startOf('days').valueOf(), moment().endOf('days').valueOf()])
 const filterForm = reactive<ReportFilter>({
-    departmentId: '',
+    courseId: '',
     employeeName: '',
     startDate: range.value[0].toString(),
     endDate: range.value[1].toString(),
@@ -163,7 +163,7 @@ const onExportClick = () => {
 }
 
 onMounted(async () => {
-    await getDepartment()
+    await getCourse()
     await fetchReport()
 }),
     watch(filterForm, fetchReport)

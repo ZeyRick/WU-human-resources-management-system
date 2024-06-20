@@ -62,8 +62,8 @@ func (repo *EmployeeRequestRepo) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeR
 	if dto.EmployeeName != "" {
 		query = query.Where(`employees.name LIKE ?`, "%"+dto.EmployeeName+"%")
 	}
-	if dto.DepartmentId != 0 {
-		query = query.Where("employees.department_id = ?", dto.EmployeeID)
+	if dto.CourseId != 0 {
+		query = query.Where("employees.course_id = ?", dto.EmployeeID)
 	}
 	if dto.TelegramUsername != "" {
 		query = query.Where(`telegram_username LIKE ?`, "%"+dto.TelegramUsername+"%")

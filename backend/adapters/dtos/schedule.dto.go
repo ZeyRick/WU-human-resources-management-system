@@ -12,5 +12,5 @@ type AddSchedule struct {
 type ScheduleFilter struct {
 	EmployeeId   *int   `json:"employeeId,omitempty"`
 	Scope        string `json:"scope" validate:"required"`
-	DepartmentId *int   `json:"departmentId" validate:"required"`
+	CourseId *int   `json:"courseId" validate:"required"`
 }

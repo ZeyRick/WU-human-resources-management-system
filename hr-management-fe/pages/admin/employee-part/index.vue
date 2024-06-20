@@ -22,15 +22,15 @@
                 "
             >
                 <div style="margin-right: 15px; font-size: 16px; display: flex; align-items: center">
-                    Department:
+                    Course:
                     <n-select
-                        @update:value="onDepartmentChange"
+                        @update:value="onCourseChange"
                         style="margin-left: 10px"
                         :disable="loading"
-                        v-model:value="filterForm.departmentId"
+                        v-model:value="filterForm.courseId"
                         filterable
-                        :placeholder="i18n.global.t('department')"
-                        :options="[{ label: 'All', value: '' }, ...departmentOptions]"
+                        :placeholder="i18n.global.t('course')"
+                        :options="[{ label: 'All', value: '' }, ...courseOptions]"
                     />
                 </div>
                 <!-- <div style="margin-right: 15px; font-size: 16px; display: flex; align-items: center">
@@ -179,13 +179,13 @@
                             <template #suffix> USD </template>
                         </n-input-number>
                     </n-form-item>
-                    <n-form-item path="departmentId" label="Department">
+                    <n-form-item path="courseId" label="Course">
                         <n-select
                             :disable="loading"
-                            v-model:value="createFormData.departmentId"
+                            v-model:value="createFormData.courseId"
                             filterable
-                            :placeholder="i18n.global.t('department')"
-                            :options="departmentOptions"
+                            :placeholder="i18n.global.t('course')"
+                            :options="courseOptions"
                         />
                     </n-form-item>
                     <n-form-item path="idNumber" label="ID Number">
@@ -243,8 +243,8 @@ import { employeeColumns } from './table-columns'
 import { apiListEmployee, apiDeleteEmployee, apiCreateEmployee, apiEditEmployee } from '~/apis/employee'
 import type { Employee, EmployeeParams, CreateEmployeeType } from '~/types/employee'
 import { EMPLOYEE_TYPE } from '~/types/employee'
-import type { Department } from '~/types/department'
-import { apiAllDepartment } from '~/apis/department'
+import type { Course } from '~/types/course'
+import { apiAllCourse } from '~/apis/course'
 import OperateButton from '~/components/OperateButton/OperateButton.vue'
 import type { RowData } from 'naive-ui/es/data-table/src/interface'
 import {
@@ -265,7 +265,7 @@ import { useAuthStore } from '~/store/auth'
 const { token } = useAuthStore()
 const defaultIdFileList = ref<UploadFileInfo[]>([])
 const defaultPhotoFileList = ref<UploadFileInfo[]>([])
-const departmentOptions = ref<{ label: string; value: string }[]>([])
+const courseOptions = ref<{ label: string; value: string }[]>([])
 // const employeeTypeOptions = ref<{ label: string; value: string }[]>([
 //     {
 //         label: `Full Time`,
@@ -281,7 +281,7 @@ const loading = ref<boolean>(true)
 const employeeData = ref<Employee[]>([])
 const defaultCreateData: CreateEmployeeType = {
     name: '',
-    departmentId: '',
+    courseId: '',
     salary: 0,
     employeeType: EMPLOYEE_TYPE.PART_TIME,
     idNumber: '',
@@ -349,7 +349,7 @@ const columns: DataTableColumns<RowData> = [
 
 const defaultFilterForm: EmployeeParams = {
     employeeName: '',
-    departmentId: '',
+    courseId: '',
     employeeType: EMPLOYEE_TYPE.PART_TIME,
     startSalary: null,
     endSalary: null,
@@ -368,14 +368,14 @@ const handleDelete = async (employeeId: string) => {
     }
 }
 
-const getDepartment = async () => {
+const getCourse = async () => {
     try {
         loading.value = true
-        const res: any = await apiAllDepartment()
-        const departments = res as Department[]
-        departmentOptions.value
-        departments.map((e) => {
-            departmentOptions.value.push({
+        const res: any = await apiAllCourse()
+        const courses = res as Course[]
+        courseOptions.value
+        courses.map((e) => {
+            courseOptions.value.push({
                 label: `${e.id} - ${e.alias}`,
                 value: e.id,
             })
@@ -386,8 +386,8 @@ const getDepartment = async () => {
     }
 }
 
-const onDepartmentChange = (value: any) => {
-    filterForm.departmentId = value
+const onCourseChange = (value: any) => {
+    filterForm.courseId = value
 }
 
 const onSubmitCreate = () => {
@@ -447,7 +447,7 @@ const showEditModal = (data: any) => {
     const config = useRuntimeConfig()
     createFormData.value = {
         name: data?.name,
-        departmentId: data?.departmentId,
+        courseId: data?.courseId,
         salary: data?.salary,
         employeeType: data?.employeeType,
         idFileName: data?.idFileName,
@@ -508,7 +508,7 @@ const onPageSizeChange = (pageSize: number) => {
 watch(filterForm, fetchData)
 
 onMounted(async () => {
-    await getDepartment()
+    await getCourse()
     await fetchData()
 }),
     definePageMeta({

@@ -40,8 +40,8 @@
                     </n-progress>
                 </n-list-item>
                 <n-list-item>
-                    <n-text>Total Departments:</n-text>
-                    <n-text>{{ departmentCount }}</n-text>
+                    <n-text>Total Courses:</n-text>
+                    <n-text>{{ courseCount }}</n-text>
                 </n-list-item>
             </n-list>
             <div v-else>Loading...</div> -->
@@ -182,7 +182,7 @@ const props = defineProps({
         type: Number,
         default: 150,
     },
-    departmentCount: {
+    courseCount: {
         type: Number,
         default: 10,
     },

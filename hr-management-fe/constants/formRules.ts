@@ -21,10 +21,10 @@ export const CommonFormRules: FormRules = {
         message: 'Must Input',
         trigger: 'blur',
     },
-    departmentId: {
+    courseId: {
         type: 'number',
         required: true,
-        message: 'Department ID Must Input',
+        message: 'Course ID Must Input',
         trigger: 'blur',
     },
     employeeType: {
