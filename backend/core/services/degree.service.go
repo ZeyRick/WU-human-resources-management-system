@@ -27,9 +27,7 @@ func (srv *DegreeService) All() (*[]degree.Degree, error) {
 func (srv *DegreeService) List(pageOpt *dtos.PageOpt, dto *dtos.DegreeFilter) (*types.ListData[degree.Degree], error) {
 	return srv.repo.List(pageOpt, dto)
 }
-func (srv *DegreeService) SearchList(dto *dtos.DegreeFilter) ([]*degree.Degree, error) {
-	return srv.repo.SearchList(dto)
-}
+
 func (srv *DegreeService) Add(w http.ResponseWriter, r *http.Request, payload *dtos.AddDegree) {
 	err := srv.repo.Create(&degree.Degree{
 		Alias: payload.Alias,
@@ -45,10 +43,10 @@ func (srv *DegreeService) Add(w http.ResponseWriter, r *http.Request, payload *d
 	https.ResponseMsg(w, r, http.StatusCreated, "Degree created")
 }
 
-func (srv *DegreeService) Edit(w http.ResponseWriter, r *http.Request, payload *dtos.AddDegree) {
+func (srv *DegreeService) Edit(w http.ResponseWriter, r *http.Request, payload *dtos.AddDegree, id uint) {
 	rowAffected, err := srv.repo.UpdateById(&degree.Degree{
 		Alias: payload.Alias,
-		ID:    payload.ID,
+		ID:    id,
 		Rate:  payload.Rate,
 	})
 	if err != nil || rowAffected <= 0 {

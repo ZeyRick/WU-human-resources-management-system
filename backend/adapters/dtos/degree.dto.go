@@ -10,5 +10,4 @@ type DegreeFilter struct {
 type AddDegree struct {
 	Alias string   `json:"alias" validate:"required"`
 	Rate  *float64 `json:"rate,omitempty"`
-	ID    uint     `json:"degree_id,omitempty"`
 }

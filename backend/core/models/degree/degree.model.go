@@ -37,17 +37,7 @@ func (repo *DegreeRepo) List(pageOpt *dtos.PageOpt, dto *dtos.DegreeFilter) (*ty
 	}
 	return models.List[Degree](pageOpt, query, "degrees")
 }
-func (repo *DegreeRepo) SearchList(dto *dtos.DegreeFilter) ([]*Degree, error) {
-	var data []*Degree
-	query := db.Database
-	if dto.Alias != "" {
-		query = query.Where(`degrees.alias LIKE ?`, "%"+dto.Alias+"%").Find(&data)
-	}
-	if dto.StartRate >= 0 && dto.EndRate > 0 {
-		query = query.Where("degrees.rate BETWEEN ? AND ?", dto.StartRate, dto.EndRate).Find(&data)
-	}
-	return data, nil
-}
+
 func (repo *DegreeRepo) Create(newDegree *Degree) error {
 	result := db.Database.Create(newDegree)
 	if result.Error != nil {
