@@ -19,8 +19,8 @@ type Employee struct {
 	IdNumber         string             `json:"idNumber"`
 	IdFileName       string             `json:"idFileName"`
 	PhotoFileName    string             `json:"photoFileName"`
-	Degrees          []*degree.Degree   `gorm:"many2many:employee_degrees;"`
-	Courses          []*course.Course   `gorm:"many2many:employee_courses;"`
+	Degrees          []degree.Degree    `json:"courses"gorm:"many2many:employee_degrees;"`
+	Courses          []course.Course    `json:"degrees"gorm:"many2many:employee_courses;"`
 }
 
 type EmployeeRepo struct{}
@@ -81,10 +81,7 @@ func (repo *EmployeeRepo) GetOneByName(name string) (*Employee, error) {
 }
 
 func (repo *EmployeeRepo) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter) (*types.ListData[Employee], error) {
-	query := db.Database.Joins(`JOIN courses ON employees.course_id = courses.id`).Preload("Course")
-	if dto.CourseId != nil && *dto.CourseId != 0 {
-		query = query.Where("employees.course_id = ?", *dto.CourseId)
-	}
+	query := db.Database.Preload("Courses").Preload("Degrees")
 	if dto.EmployeeName != "" {
 		query = query.Where(`name LIKE ?`, "%"+dto.EmployeeName+"%")
 	}
@@ -107,12 +104,9 @@ func (repo *EmployeeRepo) All(dto *dtos.EmployeeFilter) (*[]types.EmployeeWithSc
 	var data []types.EmployeeWithSchedule
 	query := db.Database.Model(&Employee{}).
 		Joins("LEFT JOIN schedules ON schedules.employee_id = employees.id AND schedules.scope = ?", dto.Scope).
-		Joins("LEFT JOIN courses ON courses.id = employees.course_id").
 		Select(`
 		employees.id,
 		employees.name,
-		employees.course_id,
-		courses.id AS course_id,
 		courses.alias AS course_alias,
 		courses.created_at AS course_created_at,
 		courses.updated_at AS course_updated_at,
@@ -125,9 +119,7 @@ func (repo *EmployeeRepo) All(dto *dtos.EmployeeFilter) (*[]types.EmployeeWithSc
 		COALESCE(schedules.created_at, '0001-01-01 00:00:00') AS schedule_created_at,
 		COALESCE(schedules.updated_at, '0001-01-01 00:00:00') AS schedule_updated_at
 	`).Where(`employee_type = 'Fulltime'`)
-	if dto.CourseId != nil && *dto.CourseId != 0 {
-		query = query.Where("course_id = ?", *dto.CourseId)
-	}
+
 	if dto.EmployeeId != nil {
 		query = query.Where("id = ?", *dto.EmployeeId)
 	}

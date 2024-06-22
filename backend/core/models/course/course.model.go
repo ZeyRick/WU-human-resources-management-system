@@ -55,3 +55,9 @@ func (repo *CourseRepo) UpdateById(employee *Course) (int64, error) {
 	}
 	return result.RowsAffected, nil
 }
+
+func (repo *CourseRepo) FindByIds(ids []int) ([]Course, error) {
+	var result []Course
+	err := db.Database.Find(&result, ids).Error
+	return result, err
+}

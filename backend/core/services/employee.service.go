@@ -3,6 +3,7 @@ package services
 import (
 	"backend/adapters/dtos"
 	"backend/core/models"
+	"backend/core/models/course"
 	"backend/core/models/employee"
 	"backend/core/types"
 	"backend/pkg/helper"
@@ -12,12 +13,14 @@ import (
 )
 
 type EmployeeService struct {
-	repo *employee.EmployeeRepo
+	repo       *employee.EmployeeRepo
+	courseRepo *course.CourseRepo
 }
 
 func NewEmployeeService() *EmployeeService {
 	return &EmployeeService{
-		repo: employee.NewEmployeeRepo(),
+		repo:       employee.NewEmployeeRepo(),
+		courseRepo: course.NewCourseRepo(),
 	}
 }
 
@@ -43,13 +46,19 @@ func (srv *EmployeeService) Edit(w http.ResponseWriter, r *http.Request, employe
 }
 
 func (srv *EmployeeService) Add(w http.ResponseWriter, r *http.Request, payload *dtos.AddEmployee) {
-	err := srv.repo.Create(&employee.Employee{
+	courses, err := srv.courseRepo.FindByIds(payload.CourseId)
+	if err != nil {
+		helper.UnexpectedError(w, r, err)
+		return
+	}
+	err = srv.repo.Create(&employee.Employee{
 		Name:          payload.Name,
 		EmployeeType:  payload.EmployeeType,
 		Salary:        payload.Salary,
 		IdNumber:      payload.IdNumber,
 		IdFileName:    payload.IdFileName,
 		PhotoFileName: payload.PhotoFileName,
+		Courses:       courses,
 	})
 	if err != nil {
 		if strings.Contains(err.Error(), "Duplicate entry") {

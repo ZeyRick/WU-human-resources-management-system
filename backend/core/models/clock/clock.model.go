@@ -81,10 +81,6 @@ func (repo *ClockRepo) List(pageOpt *dtos.PageOpt, dto *dtos.ClockFilter) (*type
 		query = query.Where(`employees.name LIKE ?`, "%"+dto.EmployeeName+"%")
 	}
 
-	if dto.CourseId != 0 {
-		query = query.Where("employees.course_id = ?", dto.CourseId)
-	}
-
 	// datetime BETWEEN '2024-01-14 00:00:00' AND '2024-01-14 23:59:59'
 	return models.List[Clock](pageOpt, query, "clocks")
 }
@@ -107,10 +103,6 @@ func (repo *ClockRepo) Attendence(pageOpt *dtos.PageOpt, dto *dtos.AttendenceFil
 		query = query.Where(`employees.name LIKE ?`, "%"+dto.EmployeeName+"%")
 	}
 
-	if dto.CourseId != 0 {
-		query = query.Where("employees.course_id = ?", dto.CourseId)
-	}
-
 	if dto.StartDate != "" && dto.EndDate != "" {
 		startDate, err := time.Parse("2006-01-02 15:04:05", dto.StartDate)
 		if err != nil {
@@ -129,7 +121,6 @@ func (repo *ClockRepo) Attendence(pageOpt *dtos.PageOpt, dto *dtos.AttendenceFil
 func (repo *ClockRepo) SumReport(pageOpt *dtos.PageOpt, dto *dtos.ReportFilter) (*types.ListData[types.ClockReports], error) {
 	query := db.Database.Table("clocks").
 		Joins(`JOIN employees ON employees.id = clocks.employee_id`).Preload("Employee").
-		Joins(`JOIN courses ON courses.id = employees.course_id`).Preload("Course").
 		Order("clocks.employee_id DESC")
 	query = query.Group("clocks.employee_id")
 	if dto.StartDate != "" && dto.EndDate != "" {
@@ -146,10 +137,6 @@ func (repo *ClockRepo) SumReport(pageOpt *dtos.PageOpt, dto *dtos.ReportFilter) 
 
 	if dto.EmployeeName != "" {
 		query = query.Where(`employees.name LIKE ?`, "%"+dto.EmployeeName+"%")
-	}
-
-	if dto.CourseId != 0 {
-		query = query.Where("employees.course_id = ?", dto.CourseId)
 	}
 
 	query = query.Select(`clocks.employee_id, employees.*, courses.*, 

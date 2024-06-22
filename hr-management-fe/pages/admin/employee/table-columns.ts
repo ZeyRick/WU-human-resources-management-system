@@ -1,16 +1,16 @@
 import StatusChip from '~/components/StatusChip/StatusChip.vue'
 import { type DataTableColumns } from 'naive-ui'
 import type { RowData } from 'naive-ui/es/data-table/src/interface'
-import { BIND_STATUS_ENUM } from '~/types/employee'
+import { BIND_STATUS_ENUM, EMPLOYEE_TYPE } from '~/types/employee'
 import i18n from '~/utils/i18n'
 
-export const employeeColumns: DataTableColumns<RowData> = [
+export const employeeColumns = (employeeType: EMPLOYEE_TYPE): any => [
     {
         title: i18n.global.t('id'),
         key: 'ID',
         titleAlign: 'center',
         align: 'center',
-        render: (data, index) => {
+        render: (data: any, index: number) => {
             return data.id || '-'
         },
     },
@@ -19,25 +19,29 @@ export const employeeColumns: DataTableColumns<RowData> = [
         key: 'Name',
         titleAlign: 'center',
         align: 'center',
-        render: (data, index) => {
+        render: (data: any, index: number) => {
             return data.name || '-'
         },
     },
-    {
-        title: i18n.global.t('course'),
-        key: 'Course',
-        titleAlign: 'center',
-        align: 'center',
-        render: (data, index) => {
-            return data?.course?.alias || '-'
-        },
-    },
+    ...(employeeType != EMPLOYEE_TYPE.STAFF
+        ? [
+              {
+                  title: i18n.global.t('course'),
+                  key: 'Course',
+                  titleAlign: 'center',
+                  align: 'center',
+                  render: (data: any, index: number) => {
+                      return data?.course?.alias || '-'
+                  },
+              },
+          ]
+        : []),
     {
         title: i18n.global.t('salary'),
         key: 'Salary',
         titleAlign: 'center',
         align: 'center',
-        render: (data, index) => {
+        render: (data: any, index: number) => {
             return `${data?.salary} $` || '-'
         },
     },
@@ -46,7 +50,7 @@ export const employeeColumns: DataTableColumns<RowData> = [
         key: 'EmployeeType',
         titleAlign: 'center',
         align: 'center',
-        render: (data, index) => {
+        render: (data: any, index: number) => {
             return data?.employeeType || '-'
         },
     },
@@ -56,7 +60,7 @@ export const employeeColumns: DataTableColumns<RowData> = [
         key: 'idNumber',
         titleAlign: 'center',
         align: 'center',
-        render: (data, index) => {
+        render: (data: any, index: number) => {
             return data?.idNumber || '-'
         },
     },
@@ -65,7 +69,7 @@ export const employeeColumns: DataTableColumns<RowData> = [
         key: 'TelegramId',
         titleAlign: 'center',
         align: 'center',
-        render: (data, index) => {
+        render: (data: any, index: number) => {
             return data?.telegramId || '-'
         },
     },
@@ -74,7 +78,7 @@ export const employeeColumns: DataTableColumns<RowData> = [
         key: 'TelegramUsername',
         titleAlign: 'center',
         align: 'center',
-        render: (data, index) => {
+        render: (data: any, index: number) => {
             return data?.telegramUsername || '-'
         },
     },
