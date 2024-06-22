@@ -6,6 +6,7 @@ import (
 	"backend/pkg/logger"
 	"backend/pkg/variable"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -127,4 +128,11 @@ func GetPaginationWithType[T any](r *http.Request) (dtos.PageOpt, T, error) {
 		pageOpt.Size = variable.Create[int64](10)
 	}
 	return pageOpt, filter, nil
+}
+func GetParamsStrV2(r *http.Request, key string) (string, error) {
+	str := r.URL.Query().Get(key)
+	if str == "" {
+		return "", fmt.Errorf("query parameter '%s' not found", key)
+	}
+	return str, nil
 }
