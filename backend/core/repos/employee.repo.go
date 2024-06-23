@@ -7,7 +7,6 @@ import (
 	"backend/pkg/db"
 )
 
-
 type EmployeeRepo struct{}
 
 func NewEmployeeRepo() *EmployeeRepo {
@@ -85,22 +84,14 @@ func (repo *EmployeeRepo) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter) 
 	return List[models.Employee](pageOpt, query, "employees")
 }
 
-func (repo *EmployeeRepo) All(dto *dtos.EmployeeFilter) (*[]types.EmployeeWithSchedule, error) {
-	var data []types.EmployeeWithSchedule
-	query := db.Database.Model(&models.Employee{}).
-		Joins("LEFT JOIN schedules ON schedules.employee_id = employees.id AND schedules.scope = ?", dto.Scope).
-		Select(`
-		employees.id,
-		employees.name,
-		COALESCE(schedules.id, 0) AS schedule_id,
-		COALESCE(schedules.employee_id, 0) AS schedule_employee_id,
-		COALESCE(schedules.scope, '') AS schedule_scope,
-		COALESCE(schedules.dates, '') AS schedule_dates,
-		COALESCE(schedules.clock_in_time, '0001-01-01 00:00:00') AS schedule_clock_in_time,
-		COALESCE(schedules.clock_out_time, '0001-01-01 00:00:00') AS schedule_clock_out_time,
-		COALESCE(schedules.created_at, '0001-01-01 00:00:00') AS schedule_created_at,
-		COALESCE(schedules.updated_at, '0001-01-01 00:00:00') AS schedule_updated_at
-	`).Where(`employee_type = 'Fulltime'`)
+func (repo *EmployeeRepo) All(dto *dtos.EmployeeFilter) (*[]models.Employee, error) {
+	var data []models.Employee
+	query := db.Database.Model(&models.Employee{}).Preload("Schedules").
+		Joins("LEFT JOIN schedules ON schedules.employee_id = employees.id AND schedules.scope = ?", dto.Scope)
+		
+	if dto.EmployeeType != "" {
+		query = query.Where("employees.employee_type = ?", dto.EmployeeType)
+	}
 
 	if dto.EmployeeId != nil {
 		query = query.Where("id = ?", *dto.EmployeeId)

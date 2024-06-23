@@ -27,7 +27,11 @@
         <div style="display: flex">
             <n-card
                 style="width: 600px; height: 750px"
-                :title="isUpdate ? `Update Schedule For ${employeeSchedule?.employee.name} :: ID ${employeeSchedule?.employeeId}` : 'Add New Schedule'"
+                :title="
+                    isUpdate
+                        ? `Update Schedule For ${employeeSchedule?.employee.name} :: ID ${employeeSchedule?.employeeId}`
+                        : 'Add New Schedule'
+                "
                 :bordered="false"
                 size="huge"
                 role="dialog"
@@ -164,7 +168,7 @@ import { useMessage, type FormInst, type FormValidationError } from 'naive-ui'
 import { apiAllEmployee } from '~/apis/employee'
 import { apiCreateSchedule, apiGetScheduleByEmployeeId, apiUpdateSchedule } from '~/apis/schedule'
 import { CommonFormRules } from '~/constants/formRules'
-import type { EmployeeWithSchedule } from '~/types/employee'
+import { EMPLOYEE_TYPE, type Employee } from '~/types/employee'
 import type { CreateScheduleParams, ScheduleFilterParams, Schedule } from '~/types/schedule'
 import VueDatePicker, { type DatePickerInstance } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
@@ -187,6 +191,7 @@ const props = defineProps<{
     employeeOptions: { label: string; value: string }[]
     courseOptions: { label: string; value: string }[]
     filterForm: ScheduleFilterParams
+    employees: Employee[]
     disable?: boolean
 }>()
 const getMonthAndYear = (propsScope: string) => {
@@ -218,7 +223,13 @@ const emit = defineEmits<{
 }>()
 const createFormRef = ref<FormInst>()
 const employeeOptions = ref<{ label: string; value: string | undefined; disabled?: boolean }[]>(
-    props.isUpdate ? props.employeeOptions.slice(1) : [],
+    props.isUpdate
+        ? props.employeeOptions.slice(1)
+        : props.employees.map((e) => ({
+              label: `${e.id} - ${e.name}`,
+              value: e.id,
+              disabled: e.schedules.length > 0,
+          })),
 )
 const showCreateModal = ref<boolean>(false)
 const createFormData = ref<CreateScheduleParams>({
@@ -271,15 +282,14 @@ const handleBreakTimeOptionsSelect = (key: string) => {
 const openCreateModal = async () => {
     createFormData.value.scope = moment().format('YYYY-MM')
     showCreateModal.value = true
-    getEmployee()
+    // getEmployee()
 
     if (props.isUpdate) {
         try {
-            const res: any = await apiGetScheduleByEmployeeId({
+            employeeSchedule.value = (await apiGetScheduleByEmployeeId({
                 ...props.filterForm,
                 employeeId: props?.filterForm?.employeeId || employeeOptions?.value[0]?.value,
-            })
-            employeeSchedule.value = res as Schedule
+            })) as Schedule
 
             breakTime.value = employeeSchedule.value.minuteBreakPerDay
             createFormData.value.employeeId = [employeeSchedule.value.employeeId]
@@ -319,9 +329,7 @@ const onSubmitCreate = () => {
                 if (res) {
                     const curScop = getMonthAndYear(createFormData.value.scope)
                     emit('currentDateChange', new Date(curScop.year, curScop.month, 1))
-                    if (
-                        props.filterForm.scope == createFormData.value.scope
-                    ) {
+                    if (props.filterForm.scope == createFormData.value.scope) {
                         emit('refreshData')
                     }
                     closeCreateModal()
@@ -347,26 +355,27 @@ const onSelectAllDates = () => {
     date.value = dateObjects
 }
 
-const getEmployee = async () => {
-    try {
-        loading.value = true
-        const employees: EmployeeWithSchedule[] = await apiAllEmployee({
-            scope: createFormData.value.scope,
-        }) as EmployeeWithSchedule[]
-        employeeOptions.value = []
-        console.log(123, employees)
-        employees.map((e) => {
-            employeeOptions.value.push({
-                label: `${e.id} - ${e.name}`,
-                value: e.id,
-                disabled: e.schedule.scheduleId != 0,
-            })
-        })
-    } catch (error) {
-    } finally {
-        loading.value = false
-    }
-}
+// const getEmployee = async () => {
+//     try {
+//         loading.value = true
+//         const employees: Employee[] = (await apiAllEmployee({
+//             scope: createFormData.value.scope,
+//             employeeType: EMPLOYEE_TYPE.STAFF,
+//         })) as Employee[]
+//         employeeOptions.value = []
+//         console.log(123, employees)
+//         employees.map((e) => {
+//             employeeOptions.value.push({
+//                 label: `${e.id} - ${e.name}`,
+//                 value: e.id,
+//                 disabled: e.schedules.length > 0,
+//             })
+//         })
+//     } catch (error) {
+//     } finally {
+//         loading.value = false
+//     }
+// }
 
 const dateFormat = (dates: Date[]): string => {
     let formatDates: string[] = []
@@ -383,7 +392,7 @@ const dateFormat = (dates: Date[]): string => {
 const updateScope = ({ instance, month, year }: { instance: number; month: number; year: number }) => {
     datesPicker.value?.clearValue()
     createFormData.value.scope = moment(`${year}-${month + 1}`).format('YYYY-MM')
-    getEmployee()
+    // getEmployee()
 }
 
 const updateDates = (dates: Date[]) => (createFormData.value.dates = dateFormat(dates))

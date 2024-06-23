@@ -19,18 +19,6 @@
                     overflow: hidden;
                 "
             >
-                <div style="font-size: 16px; display: flex; align-items: center">
-                    Course:
-                    <n-select
-                        @update:value="onCourseChange"
-                        style="margin-left: 10px"
-                        :disable="loading"
-                        v-model:value="filterForm.courseId"
-                        filterable
-                        :placeholder="i18n.global.t('course')"
-                        :options="courseOptions"
-                    />
-                </div>
                 <div style="font-size: 16px; display: flex; align-items: center; margin-left: 10px">
                     Employee:
                     <n-select
@@ -53,6 +41,8 @@
                         @currentDateChange="currentDateChange"
                         @on-course-change="onCourseChange"
                         @refresh-data="fetchData"
+                        :disable="employees?.some(e => e.id === filterForm.employeeId && e.schedules.length < 1)"
+                        :employees="employees"
                     />
                 </div>
                 <div>
@@ -64,6 +54,7 @@
                         @currentDateChange="currentDateChange"
                         @on-course-change="onCourseChange"
                         @refresh-data="fetchData"
+                         :employees="employees"
                     />
                 </div>
             </div>
@@ -76,18 +67,19 @@
 import { apiGetSchedule } from '~/apis/schedule'
 import { apiAllEmployee } from '~/apis/employee'
 import { apiAllCourse } from '~/apis/course'
-import type { EmployeeWithSchedule } from '~/types/employee'
 import type { Course } from '~/types/course'
 import type { ScheduleFilterParams, ScheduleInfo } from '~/types/schedule'
 import ScheduleCreateModal from '~/components/SchedulePage/ScheduleCreateModal.vue'
 import moment from 'moment'
+import { EMPLOYEE_TYPE, type Employee } from '~/types/employee'
 
 const currentDate = ref<Date>(new Date())
 const employeeOptions = ref<{ label: string; value: string }[]>([])
 const courseOptions = ref<{ label: string; value: string }[]>([])
 const loading = ref<boolean>(true)
 const scheduleDatas = ref<ScheduleInfo[]>([])
-const diableUpdate = ref<boolean>(true)
+const disableUpdate = ref<boolean>(true)
+const employees = ref<Employee[]>([])
 
 const filterForm = reactive<ScheduleFilterParams>({
     scope: moment().format('YYYY-MM'),
@@ -121,11 +113,13 @@ const getCourse = async () => {
 const getEmployee = async () => {
     try {
         loading.value = true
-        const res: any = await apiAllEmployee({ courseId: filterForm.courseId })
-        const employees = res as EmployeeWithSchedule[]
+        employees.value = (await apiAllEmployee({
+            courseId: filterForm.courseId,
+            employeeType: EMPLOYEE_TYPE.STAFF,
+        })) as Employee[]
         employeeOptions.value = [{ label: 'All', value: '' }]
         filterForm.employeeId = ''
-        employees.map((e) => {
+        employees.value.map((e) => {
             employeeOptions.value.push({
                 label: `${e.id} - ${e.name}`,
                 value: e.id,
@@ -142,7 +136,7 @@ const fetchData = async () => {
         loading.value = true
         const res: any = await apiGetSchedule(filterForm)
         scheduleDatas.value = res
-        diableUpdate.value = true
+        disableUpdate.value = true
     } catch (error) {
         console.error(error)
     } finally {
