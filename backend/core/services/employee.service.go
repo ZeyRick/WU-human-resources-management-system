@@ -3,8 +3,7 @@ package services
 import (
 	"backend/adapters/dtos"
 	"backend/core/models"
-	"backend/core/models/course"
-	"backend/core/models/employee"
+	"backend/core/repos"
 	"backend/core/types"
 	"backend/pkg/helper"
 	"backend/pkg/https"
@@ -13,19 +12,19 @@ import (
 )
 
 type EmployeeService struct {
-	repo       *employee.EmployeeRepo
-	courseRepo *course.CourseRepo
+	repo       *repos.EmployeeRepo
+	courseRepo *repos.CourseRepo
 }
 
 func NewEmployeeService() *EmployeeService {
 	return &EmployeeService{
-		repo:       employee.NewEmployeeRepo(),
-		courseRepo: course.NewCourseRepo(),
+		repo:       repos.NewEmployeeRepo(),
+		courseRepo: repos.NewCourseRepo(),
 	}
 }
 
 func (srv *EmployeeService) Edit(w http.ResponseWriter, r *http.Request, employeeId *int, payload *dtos.AddEmployee) {
-	_, err := srv.repo.UpdateById(&employee.Employee{
+	_, err := srv.repo.UpdateById(&models.Employee{
 		BaseModel:     models.BaseModel{ID: uint(*employeeId)},
 		Name:          payload.Name,
 		EmployeeType:  payload.EmployeeType,
@@ -51,7 +50,7 @@ func (srv *EmployeeService) Add(w http.ResponseWriter, r *http.Request, payload 
 		helper.UnexpectedError(w, r, err)
 		return
 	}
-	err = srv.repo.Create(&employee.Employee{
+	err = srv.repo.Create(&models.Employee{
 		Name:          payload.Name,
 		EmployeeType:  payload.EmployeeType,
 		Salary:        payload.Salary,
@@ -75,11 +74,11 @@ func (srv *EmployeeService) Delete(employeeId *int) error {
 	return srv.repo.Delete(employeeId)
 }
 
-func (srv *EmployeeService) GetOneById(employeeId *int) (*employee.Employee, error) {
+func (srv *EmployeeService) GetOneById(employeeId *int) (*models.Employee, error) {
 	return srv.repo.GetOneById(employeeId)
 }
 
-func (srv *EmployeeService) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter) (*types.ListData[employee.Employee], error) {
+func (srv *EmployeeService) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter) (*types.ListData[models.Employee], error) {
 	return srv.repo.List(pageOpt, dto)
 }
 

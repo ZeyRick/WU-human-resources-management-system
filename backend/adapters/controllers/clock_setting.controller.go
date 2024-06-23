@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"backend/adapters/dtos"
-	clocksetting "backend/core/models/clock_setting"
+	"backend/core/models"
 	"backend/core/services"
 	"backend/pkg/helper"
 	"backend/pkg/https"
@@ -34,7 +34,7 @@ func (ctrl *ClockSettingController) Save(w http.ResponseWriter, r *http.Request)
 		helper.UnexpectedError(w, r, err)
 		return
 	}
-	ctrl.services.Save(w, r, &clocksetting.ClockSetting{
+	ctrl.services.Save(w, r, &models.ClockSetting{
 		Coordinate: payload.Coordinate,
 		AllowTime: payload.AllowTime,
 		ClockRange: payload.ClockRange,

@@ -3,10 +3,7 @@ package services
 import (
 	"backend/adapters/dtos"
 	"backend/core/models"
-	"backend/core/models/clock"
-	clocksetting "backend/core/models/clock_setting"
-	"backend/core/models/employee"
-	"backend/core/models/schedule"
+	"backend/core/repos"
 	"backend/core/types"
 	"backend/pkg/excelhelper"
 	"backend/pkg/helper"
@@ -25,18 +22,18 @@ import (
 )
 
 type ClockService struct {
-	repo         *clock.ClockRepo
-	emp          *employee.EmployeeRepo
-	clockset     *clocksetting.ClockSettingRepo
-	scheduleRepo *schedule.ScheduleRepo
+	repo         *repos.ClockRepo
+	emp          *repos.EmployeeRepo
+	clockset     *repos.ClockSettingRepo
+	scheduleRepo *repos.ScheduleRepo
 }
 
 func NewClockService() *ClockService {
 	return &ClockService{
-		repo:         clock.NewClockRepo(),
-		emp:          employee.NewEmployeeRepo(),
-		clockset:     clocksetting.NewClockSettingRepo(),
-		scheduleRepo: schedule.NewScheduleRepo(),
+		repo:         repos.NewClockRepo(),
+		emp:          repos.NewEmployeeRepo(),
+		clockset:     repos.NewClockSettingRepo(),
+		scheduleRepo: repos.NewScheduleRepo(),
 	}
 }
 
@@ -54,7 +51,7 @@ func (srv *ClockService) Clock(w http.ResponseWriter, r *http.Request, payload d
 		curTime := time.Now().UTC()
 		minuteWork := int(math.Round(math.Abs(curTime.Sub(prevClock.CreatedAt).Minutes())))
 		err = srv.repo.Create(
-			&clock.Clock{
+			&models.Clock{
 				EmployeeId:     payload.EmployeeId,
 				ClockType:      payload.ClockType,
 				BaseModel:      models.BaseModel{CreatedAt: curTime},
@@ -66,7 +63,7 @@ func (srv *ClockService) Clock(w http.ResponseWriter, r *http.Request, payload d
 		}
 		return nil
 	}
-	err := srv.repo.Create(&clock.Clock{EmployeeId: payload.EmployeeId, ClockType: payload.ClockType})
+	err := srv.repo.Create(&models.Clock{EmployeeId: payload.EmployeeId, ClockType: payload.ClockType})
 	if err != nil {
 		helper.UnexpectedError(w, r, err)
 		return err
@@ -74,12 +71,12 @@ func (srv *ClockService) Clock(w http.ResponseWriter, r *http.Request, payload d
 	return nil
 }
 
-func (srv *ClockService) List(pageOpt *dtos.PageOpt, dto *dtos.ClockFilter) (*types.ListData[clock.Clock], error) {
+func (srv *ClockService) List(pageOpt *dtos.PageOpt, dto *dtos.ClockFilter) (*types.ListData[models.Clock], error) {
 	result, err := srv.repo.List(pageOpt, dto)
 	return result, err
 }
 
-func (srv *ClockService) Attendence(pageOpt *dtos.PageOpt, dto *dtos.AttendenceFilter) (*types.ListData[clock.Clock], error) {
+func (srv *ClockService) Attendence(pageOpt *dtos.PageOpt, dto *dtos.AttendenceFilter) (*types.ListData[models.Clock], error) {
 	result, err := srv.repo.Attendence(pageOpt, dto)
 	return result, err
 }
@@ -185,13 +182,13 @@ func (srv *ClockService) ClockFromTelegram(telegramID *int64, clockType types.Cl
 		}
 		curTime := time.Now().UTC()
 		hourWork := int(math.Round(prevClock.CreatedAt.Sub(curTime).Hours()))
-		err = srv.repo.Create(&clock.Clock{EmployeeId: empID2, ClockType: clockType, BaseModel: models.BaseModel{CreatedAt: curTime}, ClockOutMinute: &hourWork})
+		err = srv.repo.Create(&models.Clock{EmployeeId: empID2, ClockType: clockType, BaseModel: models.BaseModel{CreatedAt: curTime}, ClockOutMinute: &hourWork})
 		if err != nil {
 			return err
 		}
 		return nil
 	}
-	err = srv.repo.Create(&clock.Clock{EmployeeId: empID2, ClockType: clockType})
+	err = srv.repo.Create(&models.Clock{EmployeeId: empID2, ClockType: clockType})
 	if err != nil {
 		return err
 	}
@@ -290,7 +287,7 @@ func (srv *ClockService) ClockIn(employeeId *int, longtitude float64, latitude f
 		return errMsg, nil
 	}
 
-	err = srv.repo.Create(&clock.Clock{
+	err = srv.repo.Create(&models.Clock{
 		BaseModel: models.BaseModel{
 			CreatedAt: clockInTime,
 		},
@@ -368,7 +365,7 @@ func (srv *ClockService) ClockOut(employeeId *int, longtitude float64, latitude 
 	}
 	minuteWork := int(math.Round(math.Abs(curTime.Sub(prevClock.CreatedAt).Minutes())))
 	err = srv.repo.Create(
-		&clock.Clock{
+		&models.Clock{
 			EarlyMinutes:   &differentMinutes,
 			EmployeeId:     employeeId,
 			ClockType:      types.ClockOut,
@@ -428,7 +425,7 @@ func (srv *ClockService) Update(w http.ResponseWriter, r *http.Request, clockId 
 	}
 
 	var status string = "-"
-	var newClockData clock.Clock
+	var newClockData models.Clock
 	newClock := *newClockTime
 	if clockData.ClockType == types.ClockIn {
 		differentMinutes := int(math.Round(compareCurTime.Sub(schedule.ClockInTime).Minutes()))
@@ -442,7 +439,7 @@ func (srv *ClockService) Update(w http.ResponseWriter, r *http.Request, clockId 
 
 		}
 
-		newClockData = clock.Clock{
+		newClockData = models.Clock{
 			BaseModel:   models.BaseModel{ID: uint(*clockId), CreatedAt: newClock},
 			EditedBy:    &userId,
 			Status:      status,
@@ -458,7 +455,7 @@ func (srv *ClockService) Update(w http.ResponseWriter, r *http.Request, clockId 
 
 		if clockOut.ID != 0 {
 			minuteWork := int(math.Round(math.Abs(clockOut.CreatedAt.Sub(newClock).Minutes())))
-			newClockOut := clock.Clock{
+			newClockOut := models.Clock{
 				BaseModel:   models.BaseModel{ID: clockOut.ID},	
 				ClockOutMinute: &minuteWork,
 			}
@@ -489,7 +486,7 @@ func (srv *ClockService) Update(w http.ResponseWriter, r *http.Request, clockId 
 			return
 		}
 		minuteWork := int(math.Round(math.Abs(newClock.Sub(prevClock.CreatedAt).Minutes())))
-		newClockData = clock.Clock{
+		newClockData = models.Clock{
 			EarlyMinutes:   &differentMinutes,
 			BaseModel:      models.BaseModel{ID: uint(*clockId), CreatedAt: newClock},
 			ClockOutMinute: &minuteWork,

@@ -2,7 +2,8 @@ package services
 
 import (
 	"backend/adapters/dtos"
-	"backend/core/models/degree"
+	"backend/core/models"
+	"backend/core/repos"
 	"backend/core/types"
 	"backend/pkg/helper"
 	"backend/pkg/https"
@@ -11,25 +12,25 @@ import (
 )
 
 type DegreeService struct {
-	repo *degree.DegreeRepo
+	repo *repos.DegreeRepo
 }
 
 func NewDegreeService() *DegreeService {
 	return &DegreeService{
-		repo: degree.NewDegreeRepo(),
+		repo: repos.NewDegreeRepo(),
 	}
 }
 
-func (srv *DegreeService) All() (*[]degree.Degree, error) {
+func (srv *DegreeService) All() (*[]models.Degree, error) {
 	return srv.repo.All()
 }
 
-func (srv *DegreeService) List(pageOpt *dtos.PageOpt, dto *dtos.DegreeFilter) (*types.ListData[degree.Degree], error) {
+func (srv *DegreeService) List(pageOpt *dtos.PageOpt, dto *dtos.DegreeFilter) (*types.ListData[models.Degree], error) {
 	return srv.repo.List(pageOpt, dto)
 }
 
 func (srv *DegreeService) Add(w http.ResponseWriter, r *http.Request, payload *dtos.AddDegree) {
-	err := srv.repo.Create(&degree.Degree{
+	err := srv.repo.Create(&models.Degree{
 		Alias: payload.Alias,
 		Rate:  payload.Rate,
 	})
@@ -45,7 +46,7 @@ func (srv *DegreeService) Add(w http.ResponseWriter, r *http.Request, payload *d
 }
 
 func (srv *DegreeService) Edit(w http.ResponseWriter, r *http.Request, payload *dtos.AddDegree, id uint) {
-	rowAffected, err := srv.repo.UpdateById(&degree.Degree{
+	rowAffected, err := srv.repo.UpdateById(&models.Degree{
 		Alias: payload.Alias,
 		ID:    id,
 		Rate:  payload.Rate,

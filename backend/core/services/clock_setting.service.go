@@ -1,7 +1,8 @@
 package services
 
 import (
-	clocksetting "backend/core/models/clock_setting"
+	"backend/core/models"
+	"backend/core/repos"
 	"backend/pkg/helper"
 	"backend/pkg/https"
 	"backend/pkg/validate"
@@ -9,20 +10,20 @@ import (
 )
 
 type ClockSettingService struct {
-	repo clocksetting.ClockSettingRepo
+	repo repos.ClockSettingRepo
 }
 
 func NewClockSettingService() *ClockSettingService {
 	return &ClockSettingService{
-		repo: *clocksetting.NewClockSettingRepo(),
+		repo: *repos.NewClockSettingRepo(),
 	}
 }
 
-func (svc *ClockSettingService) Get() (*clocksetting.ClockSetting, error) {
+func (svc *ClockSettingService) Get() (*models.ClockSetting, error) {
 	return svc.repo.Get()
 }
 
-func (svc *ClockSettingService) Save(w http.ResponseWriter, r *http.Request, newClockSetting *clocksetting.ClockSetting) {
+func (svc *ClockSettingService) Save(w http.ResponseWriter, r *http.Request, newClockSetting *models.ClockSetting) {
 	if (!validate.IsValidGoogleCoordinate(newClockSetting.Coordinate)) {
 		https.ResponseError(w,r, http.StatusBadRequest, "[" + newClockSetting.Coordinate + "] Is Not Valid Coordinate")
 		return

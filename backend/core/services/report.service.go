@@ -2,7 +2,7 @@ package services
 
 import (
 	"backend/adapters/dtos"
-	"backend/core/models/clock"
+	"backend/core/repos"
 	"backend/core/types"
 	"backend/pkg/excelhelper"
 	"backend/pkg/helper"
@@ -16,12 +16,12 @@ import (
 )
 
 type ReportService struct {
-	clockRepo clock.ClockRepo
+	clockRepo repos.ClockRepo
 }
 
 func NewReportService() *ReportService {
 	return &ReportService{
-		clockRepo: *clock.NewClockRepo(),
+		clockRepo: *repos.NewClockRepo(),
 	}
 }
 

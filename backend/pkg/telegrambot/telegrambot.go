@@ -1,7 +1,7 @@
 package telegrambot
 
 import (
-	"backend/core/models/employee"
+	"backend/core/repos"
 	"backend/core/services"
 	"backend/pkg/logger"
 	"backend/pkg/variable"
@@ -14,14 +14,14 @@ import (
 type Bot struct {
 	EmployeeRequestService *services.EmployeeRequestService
 	ClockService           *services.ClockService
-	EmployeeRepo           *employee.EmployeeRepo
+	EmployeeRepo           *repos.EmployeeRepo
 }
 
 func NewBot() *Bot {
 	return &Bot{
 		EmployeeRequestService: services.NewEmployeeRequestService(),
 		ClockService:           services.NewClockService(),
-		EmployeeRepo:           employee.NewEmployeeRepo(),
+		EmployeeRepo:           repos.NewEmployeeRepo(),
 	}
 }
 

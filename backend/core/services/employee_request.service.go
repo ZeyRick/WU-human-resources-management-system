@@ -3,20 +3,19 @@ package services
 import (
 	"backend/adapters/dtos"
 	"backend/core/models"
-	"backend/core/models/employee"
-	"backend/core/models/employee_request"
+	"backend/core/repos"
 	"backend/core/types"
 	"backend/pkg/logger"
 )
 
 type EmployeeRequestService struct {
-	emp  *employee.EmployeeRepo
-	repo *employee_request.EmployeeRequestRepo
+	emp  *repos.EmployeeRepo
+	repo *repos.EmployeeRequestRepo
 }
 
 func NewEmployeeRequestService() *EmployeeRequestService {
 	return &EmployeeRequestService{
-		emp: employee.NewEmployeeRepo(),
+		emp: repos.NewEmployeeRepo(),
 	}
 }
 
@@ -34,7 +33,7 @@ func (srv *EmployeeRequestService) Pend(name string, id *int64, telegramName str
 		return false, nil
 	}
 	logger.Console(int64(*id))
-	err = srv.repo.Create(&employee_request.EmployeeRequest{
+	err = srv.repo.Create(&models.EmployeeRequest{
 		EmployeeID:       employees.ID,
 		TelegramID:       int64(*id),
 		TelegramUsername: telegramName,
@@ -66,7 +65,7 @@ func (srv *EmployeeRequestService) CheckPending(id *int64) (bool, error) {
 	return true, nil
 }
 
-func (srv *EmployeeRequestService) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeRequestFilter) (*types.ListData[employee_request.EmployeeRequest], error) {
+func (srv *EmployeeRequestService) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeRequestFilter) (*types.ListData[models.EmployeeRequest], error) {
 	return srv.repo.List(pageOpt, dto)
 }
 
@@ -78,7 +77,7 @@ func (srv *EmployeeRequestService) Confirmation(dto dtos.Confirmation) (bool, in
 	if dto.Confirmation == types.Rejected {
 		return false, request.TelegramID, srv.repo.Delete(dto.RequestID)
 	}
-	_, err = srv.emp.UpdateById(&employee.Employee{
+	_, err = srv.emp.UpdateById(&models.Employee{
 		BaseModel:        models.BaseModel{ID: request.EmployeeID},
 		TelegramID:       request.TelegramID,
 		TelegramUsername: request.TelegramUsername,

@@ -2,8 +2,8 @@ package services
 
 import (
 	"backend/adapters/dtos"
-	"backend/core/models/employee"
-	"backend/core/models/schedule"
+	"backend/core/models"
+	"backend/core/repos"
 	"backend/core/types"
 	"backend/pkg/helper"
 	"backend/pkg/https"
@@ -15,18 +15,18 @@ import (
 )
 
 type ScheduleService struct {
-	repo         *schedule.ScheduleRepo
-	employeeRepo *employee.EmployeeRepo
+	repo         *repos.ScheduleRepo
+	employeeRepo *repos.EmployeeRepo
 }
 
 func NewScheduleService() *ScheduleService {
 	return &ScheduleService{
-		repo:         schedule.NewScheduleRepo(),
-		employeeRepo: employee.NewEmployeeRepo(),
+		repo:         repos.NewScheduleRepo(),
+		employeeRepo: repos.NewEmployeeRepo(),
 	}
 }
 
-func (srv *ScheduleService) List(pageOpt *dtos.PageOpt, dto *dtos.ScheduleFilter) (*types.ListData[schedule.Schedule], error) {
+func (srv *ScheduleService) List(pageOpt *dtos.PageOpt, dto *dtos.ScheduleFilter) (*types.ListData[models.Schedule], error) {
 	result, err := srv.repo.List(pageOpt, dto)
 	return result, err
 }
@@ -81,7 +81,7 @@ func (srv *ScheduleService) GetByEmployeeId(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	if len(*schedulesData) < 1 {
-		https.ResponseError(w, r, http.StatusOK, "User has no schedule")
+		https.ResponseError(w, r, http.StatusOK, "User has no models")
 		return
 	}
 	https.ResponseJSON(w, r, http.StatusOK, (*schedulesData)[0])
@@ -102,7 +102,7 @@ func (srv *ScheduleService) Add(w http.ResponseWriter, r *http.Request, dto *typ
 		helper.UnexpectedError(w, r, err)
 		return
 	}
-	var newSchedules []schedule.Schedule
+	var newSchedules []models.Schedule
 	for _, curEmployeeId := range *dto.EmployeeIds {
 		// existedSchedue, err := srv.repo.FindExistedScope(&curEmployeeId, dto.Scope)
 		// if err != nil {
@@ -110,12 +110,12 @@ func (srv *ScheduleService) Add(w http.ResponseWriter, r *http.Request, dto *typ
 		// 	return
 		// }
 		// if existedSchedue.ID != 0 {
-		// 	https.ResponseError(w, r, http.StatusInternalServerError, fmt.Sprintf(`"Employee ID: %d already has a schedule"`, curEmployeeId))
+		// 	https.ResponseError(w, r, http.StatusInternalServerError, fmt.Sprintf(`"Employee ID: %d already has a models"`, curEmployeeId))
 		// 	return
 		// }
 		minuteWorkPerDay := int(math.Round(dto.ClockOutTime.Sub(*dto.ClockInTime).Minutes())) - *dto.MinuteBreakTime
 		converetedDates := "[" + string(datesJson)[1:len(string(datesJson))-1] + "]"
-		newSchedules = append(newSchedules, schedule.Schedule{
+		newSchedules = append(newSchedules, models.Schedule{
 			EmployeeId:        curEmployeeId,
 			Scope:             dto.Scope,
 			Dates:             converetedDates,
@@ -141,7 +141,7 @@ func (srv *ScheduleService) Update(w http.ResponseWriter, r *http.Request, dto *
 		return
 	}
 	converetedDates := "[" + string(datesJson)[1:len(string(datesJson))-1] + "]"
-	err = srv.repo.Update(*dto.EmployeeIds, &schedule.Schedule{
+	err = srv.repo.Update(*dto.EmployeeIds, &models.Schedule{
 		Dates:        converetedDates,
 		Scope:        dto.Scope,
 		ClockInTime:  *dto.ClockInTime,

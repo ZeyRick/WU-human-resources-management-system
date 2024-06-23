@@ -2,7 +2,8 @@ package services
 
 import (
 	"backend/adapters/dtos"
-	"backend/core/models/user"
+	"backend/core/models"
+	"backend/core/repos"
 	"backend/pkg/helper"
 	"backend/pkg/https"
 	"backend/pkg/hush"
@@ -11,12 +12,12 @@ import (
 )
 
 type UserService struct {
-	usermodel *user.UserRepo
+	usermodel *repos.UserRepo
 }
 
 func NewUserModel() *UserService {
 	return &UserService{
-		usermodel: user.NewUserRepo(),
+		usermodel: repos.NewUserRepo(),
 	}
 }
 
@@ -38,7 +39,7 @@ func (srv *UserService) UserRegister(w http.ResponseWriter, r *http.Request, pay
 	if err != nil {
 		return
 	}
-	newuser = user.User{Username: payload.Username, Name: payload.Name, Password: password, UserLevel: payload.UserLeval}
+	newuser = models.User{Username: payload.Username, Name: payload.Name, Password: password, UserLevel: payload.UserLeval}
 	err = srv.usermodel.Create(&newuser)
 	if err != nil {
 		helper.UnexpectedError(w, r, err)
@@ -100,11 +101,11 @@ func (srv *UserService) ResetPW(w http.ResponseWriter, r *http.Request, userId *
 	https.ResponseMsg(w, r, http.StatusOK, "Password reseted")
 }
 
-func (srv *UserService) GetUserData(params *dtos.ListUser) (*[]user.User, error) {
+func (srv *UserService) GetUserData(params *dtos.ListUser) (*[]models.User, error) {
 	result, err := srv.usermodel.All(params)
 	return result, err
 }
 
-func (srv *UserService) FindById(userId *int) (*user.User, error) {
+func (srv *UserService) FindById(userId *int) (*models.User, error) {
 	return srv.usermodel.FindById(userId)
 }

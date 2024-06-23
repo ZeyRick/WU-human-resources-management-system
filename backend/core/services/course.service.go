@@ -2,7 +2,8 @@ package services
 
 import (
 	"backend/adapters/dtos"
-	"backend/core/models/course"
+	"backend/core/models"
+	"backend/core/repos"
 	"backend/core/types"
 	"backend/pkg/helper"
 	"backend/pkg/https"
@@ -11,25 +12,25 @@ import (
 )
 
 type CourseService struct {
-	repo *course.CourseRepo
+	repo *repos.CourseRepo
 }
 
 func NewCourseService() *CourseService {
 	return &CourseService{
-		repo: course.NewCourseRepo(),
+		repo: repos.NewCourseRepo(),
 	}
 }
 
-func (srv *CourseService) All(dto *dtos.CourseFilter) (*[]course.Course, error) {
+func (srv *CourseService) All(dto *dtos.CourseFilter) (*[]models.Course, error) {
 	return srv.repo.All(dto)
 }
 
-func (srv *CourseService) List(pageOpt *dtos.PageOpt, dto *dtos.CourseFilter) (*types.ListData[course.Course], error) {
+func (srv *CourseService) List(pageOpt *dtos.PageOpt, dto *dtos.CourseFilter) (*types.ListData[models.Course], error) {
 	return srv.repo.List(pageOpt, dto)
 }
 
 func (srv *CourseService) Add(w http.ResponseWriter, r *http.Request, payload *dtos.AddCourse) {
-	err := srv.repo.Create(&course.Course{
+	err := srv.repo.Create(&models.Course{
 		Alias: payload.Alias,
 	})
 	if err != nil {
@@ -44,7 +45,7 @@ func (srv *CourseService) Add(w http.ResponseWriter, r *http.Request, payload *d
 }
 
 func (srv *CourseService) Edit(w http.ResponseWriter, r *http.Request, courseId *int, payload *dtos.AddCourse) {
-	_, err := srv.repo.UpdateById(&course.Course{
+	_, err := srv.repo.UpdateById(&models.Course{
 		ID:    uint(*courseId),
 		Alias: payload.Alias,
 	})
