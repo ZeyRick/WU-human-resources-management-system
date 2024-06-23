@@ -19,18 +19,6 @@
                     overflow: hidden;
                 "
             >
-                <div style="font-size: 16px; display: flex; align-items: center">
-                    Course:
-                    <n-select
-                        @update:value="onCourseChange"
-                        style="margin-left: 10px"
-                        :disable="loading"
-                        v-model:value="filterForm.courseId"
-                        filterable
-                        :placeholder="i18n.global.t('course')"
-                        :options="courseOptions"
-                    />
-                </div>
                 <div style="font-size: 16px; display: flex; align-items: center; margin-left: 10px">
                     Employee:
                     <div>
@@ -219,7 +207,6 @@ const onSubmitEdit = async () => {
 
 const filterForm = reactive<ClockFilter>({
     employeeId: '',
-    courseId: '',
     date: getNowLocal(DATE_FORMAT),
 })
 
@@ -235,7 +222,6 @@ const getCourse = async () => {
         loading.value = true
         const res: any = await apiAllCourse()
         const courses = res as Course[]
-        filterForm.courseId = ''
         courseOptions.value = [{ label: 'All', value: '' }]
         courses.map((e) => {
             courseOptions.value.push({
@@ -252,7 +238,7 @@ const getCourse = async () => {
 const getEmployee = async () => {
     try {
         loading.value = true
-        const res: any = await apiAllEmployee({ courseId: filterForm.courseId })
+        const res: any = await apiAllEmployee()
         const employees = res as Employee[]
         employeeOptions.value = [{ label: 'All', value: '' }]
         filterForm.employeeId = ''
@@ -266,11 +252,6 @@ const getEmployee = async () => {
     } finally {
         loading.value = false
     }
-}
-
-const onCourseChange = (value: any) => {
-    filterForm.courseId = value
-    getEmployee()
 }
 
 const fetchData = async () => {

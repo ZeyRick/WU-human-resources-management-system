@@ -43,16 +43,6 @@
                         :on-update:value="(value: string) => (curTab = value)"
                     >
                         <n-tab-pane v-if="!isUpdate" name="employees" tab="Employees">
-                            <n-form-item :label="i18n.global.t('select_course')">
-                                <n-select
-                                    :disabled="loading || props.isUpdate"
-                                    v-model:value="createFormData.courseId"
-                                    filterable
-                                    :placeholder="i18n.global.t('course')"
-                                    :options="[{ label: 'All', value: '' }, ...props.courseOptions]"
-                                    @update:value="getEmployee"
-                                />
-                            </n-form-item>
                             <n-form-item
                                 style="height: 100%"
                                 path="employeeId"
@@ -238,7 +228,6 @@ const createFormData = ref<CreateScheduleParams>({
     dates: '',
     clockInTime: '',
     clockOutTime: '',
-    courseId: props.filterForm.courseId || props.courseOptions[0]?.value,
 })
 const loading = ref<boolean>(false)
 const curTab = ref<string>('employees')
@@ -257,7 +246,6 @@ const closeCreateModal = () => {
         minuteBreakTime: breakTime.value,
         clockInTime: '',
         clockOutTime: '',
-        courseId: props.filterForm.courseId,
     }
     monthYearPicker.value?.clearValue()
     datesPicker.value?.clearValue()
@@ -281,7 +269,6 @@ const handleBreakTimeOptionsSelect = (key: string) => {
     selectedBreakTimeOption.value = key
 }
 const openCreateModal = async () => {
-    createFormData.value.courseId = props.filterForm.courseId
     createFormData.value.scope = moment().format('YYYY-MM')
     showCreateModal.value = true
     getEmployee()
@@ -332,10 +319,8 @@ const onSubmitCreate = () => {
                 if (res) {
                     const curScop = getMonthAndYear(createFormData.value.scope)
                     emit('currentDateChange', new Date(curScop.year, curScop.month, 1))
-                    emit('onCourseChange', createFormData.value.courseId)
                     if (
-                        props.filterForm.scope == createFormData.value.scope &&
-                        props.filterForm.courseId == createFormData.value.courseId
+                        props.filterForm.scope == createFormData.value.scope
                     ) {
                         emit('refreshData')
                     }
@@ -365,12 +350,11 @@ const onSelectAllDates = () => {
 const getEmployee = async () => {
     try {
         loading.value = true
-        const res: any = await apiAllEmployee({
-            courseId: createFormData.value.courseId,
+        const employees: EmployeeWithSchedule[] = await apiAllEmployee({
             scope: createFormData.value.scope,
-        })
-        const employees = res as EmployeeWithSchedule[]
+        }) as EmployeeWithSchedule[]
         employeeOptions.value = []
+        console.log(123, employees)
         employees.map((e) => {
             employeeOptions.value.push({
                 label: `${e.id} - ${e.name}`,

@@ -42,5 +42,10 @@
     "total_work_minute": "Total Work Minute",
     "work_time": "Work Time",
     "employee_id": "Employee ID",
-    "attendence": "Attendence"
+    "attendence": "Attendence",
+    "staff": "Staff",
+    "teaching_staff": "Teaching Staff",
+    "lecture": "Lecture",
+    "degree_alias": "Degree Alias",
+    "degree": "Degree"
 }

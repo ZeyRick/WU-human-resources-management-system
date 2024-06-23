@@ -9,7 +9,6 @@ export type ClockParams = {
 export type ClockFilter = {
     employeeId: string | null
     date: string
-    courseId: string | null
 }
 
 export type Clock = {

@@ -9,10 +9,10 @@
             aria-modal="true"
         >
             <n-form ref="formRef" :rules="CommonFormRules" :model="createFormData">
-                <n-form-item path="employeeType" label="Employee Type">
+                <n-form-item label="Employee Type">
                     <n-select
                         disabled
-                        v-model:value="EMPLOYEE_TYPE.STAFF"
+                        :default-value="employeeType"
                         filterable
                         :placeholder="i18n.global.t('employeeType')"
                     />
@@ -55,7 +55,7 @@
                         v-model:value="createFormData.degreeIds"
                         filterable
                         :placeholder="i18n.global.t('degree')"
-                        :options="courseOptions"
+                        :options="degreeOptions"
                     />
                 </n-form-item>
                 <n-form-item path="idNumber" label="ID Number">
@@ -115,6 +115,7 @@ import { CommonFormRules } from '~/constants/formRules'
 import { useAuthStore } from '~/store/auth'
 import { apiAllCourse } from '~/apis/course'
 import type { Course } from '~/types/course'
+import { apiAllDegree } from '~/apis/degree'
 
 type props = {
     loading: boolean
@@ -142,6 +143,7 @@ const defaultCreateData: CreateEmployeeType = {
 }
 const createFormData = ref<CreateEmployeeType>(defaultCreateData)
 const courseOptions = ref<{ label: string; value: string }[]>([])
+const degreeOptions = ref<{ label: string; value: string }[]>([])
 const formRef = ref<FormInst>()
 const files = reactive<{ idFile: UploadFileInfo[]; profileFile: UploadFileInfo[] }>({ idFile: [], profileFile: [] })
 const { token } = useAuthStore()
@@ -198,6 +200,22 @@ const onErrorUploadFile = (options: { file: UploadFileInfo; event?: any }) => {
     }
 }
 
+const getDegree = async () => {
+    try {
+        const res: any = await apiAllDegree()
+        const degrees = res as Course[]
+        degreeOptions.value
+        degrees.map((e) => {
+            degreeOptions.value.push({
+                label: `${e.id} - ${e.alias}`,
+                value: e.id,
+            })
+        })
+    } catch (error) {
+    } finally {
+    }
+}
+
 const getCourse = async () => {
     try {
         const res: any = await apiAllCourse()
@@ -222,7 +240,13 @@ watch(
 )
 
 const onShow = async () => {
-    await Promise.all([getCourse()])
+    try {
+        propsData.loading = true
+        await Promise.all([getCourse(), getDegree()])
+    } catch (error) {
+    } finally {
+        propsData.loading = false
+    }
     if (propsData.isEdit) {
         files.idFile = []
         files.profileFile = []
@@ -232,7 +256,7 @@ const onShow = async () => {
             courseIds: propsData.selectedEmployee?.courses?.map((course) => course.id) || [],
             degreeIds: propsData.selectedEmployee?.courses?.map((course) => course.id) || [] || [],
             salary: propsData.selectedEmployee?.salary || 0,
-            employeeType: propsData.selectedEmployee?.type || EMPLOYEE_TYPE.STAFF,
+            employeeType: undefined,
             idFileName: propsData.selectedEmployee?.idFileName || '',
             photoFileName: propsData.selectedEmployee?.photoFileName || '',
             idNumber: propsData.selectedEmployee?.idNumber,

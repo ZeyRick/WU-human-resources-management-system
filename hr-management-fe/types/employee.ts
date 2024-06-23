@@ -35,7 +35,7 @@ export type CreateEmployeeType = {
     courseIds: string[]
     degreeIds: string[]
     salary: number
-    employeeType: EMPLOYEE_TYPE
+    employeeType?: EMPLOYEE_TYPE
     idNumber?: string
     idFileName?: string
     photoFileName?: string
@@ -48,7 +48,7 @@ export type UploadEmployeeFile = {
 
 export enum EMPLOYEE_TYPE {
     STAFF = 'staff',
-    PART_TIME = 'Parttime',
+    TEACHING_STAFF = 'teaching_staff',
 }
 
 export const BIND_STATUS_ENUM = {

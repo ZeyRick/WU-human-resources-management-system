@@ -45,15 +45,15 @@ export const employeeColumns = (employeeType: EMPLOYEE_TYPE): any => [
             return `${data?.salary} $` || '-'
         },
     },
-    {
-        title: i18n.global.t('employeeType'),
-        key: 'EmployeeType',
-        titleAlign: 'center',
-        align: 'center',
-        render: (data: any, index: number) => {
-            return data?.employeeType || '-'
-        },
-    },
+    // {
+    //     title: i18n.global.t('employeeType'),
+    //     key: 'EmployeeType',
+    //     titleAlign: 'center',
+    //     align: 'center',
+    //     render: (data: any, index: number) => {
+    //         return data?.employeeType || '-'
+    //     },
+    // },
 
     {
         title: 'ID Number',
@@ -64,22 +64,26 @@ export const employeeColumns = (employeeType: EMPLOYEE_TYPE): any => [
             return data?.idNumber || '-'
         },
     },
-    {
-        title: i18n.global.t('telegram_id'),
-        key: 'TelegramId',
-        titleAlign: 'center',
-        align: 'center',
-        render: (data: any, index: number) => {
-            return data?.telegramId || '-'
-        },
-    },
-    {
-        title: i18n.global.t('telegram_username'),
-        key: 'TelegramUsername',
-        titleAlign: 'center',
-        align: 'center',
-        render: (data: any, index: number) => {
-            return data?.telegramUsername || '-'
-        },
-    },
+    ...(employeeType === EMPLOYEE_TYPE.STAFF
+        ? [
+              {
+                  title: i18n.global.t('telegram_id'),
+                  key: 'TelegramId',
+                  titleAlign: 'center',
+                  align: 'center',
+                  render: (data: any, index: number) => {
+                      return data?.telegramId || '-'
+                  },
+              },
+              {
+                  title: i18n.global.t('telegram_username'),
+                  key: 'TelegramUsername',
+                  titleAlign: 'center',
+                  align: 'center',
+                  render: (data: any, index: number) => {
+                      return data?.telegramUsername || '-'
+                  },
+              },
+          ]
+        : []),
 ]

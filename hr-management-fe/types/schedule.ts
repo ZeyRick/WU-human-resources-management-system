@@ -6,7 +6,6 @@ export type CreateScheduleParams = {
     dates: string
     clockInTime: string
     clockOutTime: string
-    courseId: string
     minuteBreakTime: number
 }
 

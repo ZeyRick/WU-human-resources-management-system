@@ -31,6 +31,7 @@ func (srv *DegreeService) List(pageOpt *dtos.PageOpt, dto *dtos.DegreeFilter) (*
 func (srv *DegreeService) Add(w http.ResponseWriter, r *http.Request, payload *dtos.AddDegree) {
 	err := srv.repo.Create(&degree.Degree{
 		Alias: payload.Alias,
+		Rate:  payload.Rate,
 	})
 	if err != nil {
 		if strings.Contains(err.Error(), "Duplicate entry") {

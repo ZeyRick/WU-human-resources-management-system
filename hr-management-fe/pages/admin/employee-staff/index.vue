@@ -154,7 +154,6 @@
 </template>
 
 <script setup lang="ts">
-import { employeeColumns } from './table-columns'
 import { apiListEmployee, apiDeleteEmployee, apiCreateEmployee, apiEditEmployee } from '~/apis/employee'
 import type { Employee, EmployeeParams, CreateEmployeeType, EmployeeWithFile } from '~/types/employee'
 import { EMPLOYEE_TYPE } from '~/types/employee'
@@ -163,6 +162,7 @@ import type { RowData } from 'naive-ui/es/data-table/src/interface'
 import { type DataTableColumns } from 'naive-ui'
 import { AddCircleOutline, CloseCircleOutline, Options } from '@vicons/ionicons5'
 import NormalButton from '~/components/OperateButton/NormalButton.vue'
+import { employeeColumns } from '~/constants/columns/employees'
 
 // const employeeTypeOptions = ref<{ label: string; value: string }[]>([
 //     {

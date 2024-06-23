@@ -81,7 +81,7 @@ func (repo *EmployeeRepo) GetOneByName(name string) (*Employee, error) {
 }
 
 func (repo *EmployeeRepo) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter) (*types.ListData[Employee], error) {
-	query := db.Database.Preload("Courses").Preload("Degrees")
+	query := db.Database.Preload("Degrees")
 	if dto.EmployeeName != "" {
 		query = query.Where(`name LIKE ?`, "%"+dto.EmployeeName+"%")
 	}
@@ -107,9 +107,6 @@ func (repo *EmployeeRepo) All(dto *dtos.EmployeeFilter) (*[]types.EmployeeWithSc
 		Select(`
 		employees.id,
 		employees.name,
-		courses.alias AS course_alias,
-		courses.created_at AS course_created_at,
-		courses.updated_at AS course_updated_at,
 		COALESCE(schedules.id, 0) AS schedule_id,
 		COALESCE(schedules.employee_id, 0) AS schedule_employee_id,
 		COALESCE(schedules.scope, '') AS schedule_scope,

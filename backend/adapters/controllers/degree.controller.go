@@ -56,7 +56,7 @@ func (ctrl *DegreeController) List(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ctrl *DegreeController) Edit(w http.ResponseWriter, r *http.Request) {
-	degreeId, err := https.GetParamsID(r, "courseId")
+	degreeId, err := https.GetParamsID(r, "degreeId")
 	if err != nil {
 		helper.UnexpectedError(w, r, err)
 		return

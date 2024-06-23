@@ -85,7 +85,7 @@ func initAdminRoutes(r chi.Router) {
 				r.Get("/degree/all", degree.All)
 				r.Get("/degree", degree.List)
 				r.Post("/degree", degree.Add)
-				r.Patch("/degree/:id", degree.Edit)
+				r.Patch("/degree/{degreeId}", degree.Edit)
 			})
 		})
 

@@ -11,12 +11,12 @@
             "
         >
             <div style="font-size: 16px; display: flex; align-items: center; white-space: nowrap">
-                <div>{{ i18n.global.t('course') }} Name:</div>
+                <div>{{ i18n.global.t('degree') }} Name:</div>
                 <n-input
                     style="margin-left: 10px"
                     :disable="loading"
                     v-model:value="filterForm.alias"
-                    :placeholder="i18n.global.t('course_alias')"
+                    :placeholder="i18n.global.t('degree_alias')"
                 />
             </div>
             <n-button
@@ -36,13 +36,7 @@
                 Create
             </n-button>
         </div>
-        <n-data-table
-            :loading="loading"
-            size="large"
-            style="margin-top: 20px"
-            :columns="columns"
-            :data="courseData"
-        />
+        <n-data-table :loading="loading" size="large" style="margin-top: 20px" :columns="columns" :data="degreeData" />
         <n-card
             content-style="padding: 10px;"
             style="display: flex; align-items: center; height: 50px; overflow: hidden"
@@ -66,12 +60,13 @@
                 () =>
                     (createForm = {
                         alias: '',
+                        rate: 0,
                     })
             "
         >
             <n-card
                 style="width: 600px"
-                :title="isEdit ? 'Edit Course' : 'Create New Course'"
+                :title="isEdit ? 'Edit Degree' : 'Create New Degree'"
                 :bordered="false"
                 size="huge"
                 role="dialog"
@@ -85,6 +80,20 @@
                             v-model:value="createForm.alias"
                             @keydown.enter.prevent
                         />
+                    </n-form-item>
+                    <n-form-item path="rate" label="Rate">
+                        <n-input-number
+                            style="width: 100%"
+                            v-model:value="createForm.rate"
+                            :loading="loading"
+                            placeholder="From"
+                            :min="0"
+                            :precision="2"
+                            :input-props="{ 'auto-complete': 'off' }"
+                            @keydown.enter.prevent
+                        >
+                            <template #suffix> USD </template>
+                        </n-input-number>
                     </n-form-item>
                 </n-form>
                 <div style="display: flex; gap: 10px; justify-content: flex-end">
@@ -102,30 +111,30 @@
 import { AddCircleOutline } from '@vicons/ionicons5'
 import { CommonFormRules } from '../../../constants/formRules'
 import { type DataTableColumns, type FormInst, type FormValidationError } from 'naive-ui'
-import {  apiDelUser  } from '../../../apis/user'
-import { apiCreateDeparment, apiListCourse, apiEditCourse } from '../../../apis/course'
+import { apiDelUser } from '../../../apis/user'
+import { apiCreateDeparment, apiListDegree, apiEditDegree } from '../../../apis/degree'
 import type { RowData } from 'naive-ui/es/data-table/src/interface'
-import OperateButton from '~/components/OperateButton/OperateButton.vue'
 import NormalButton from '~/components/OperateButton/NormalButton.vue'
-import type { CreateCourseParams, Course } from '~/types/course'
-import { courseColumns } from '~/constants/columns/courses'
+import type { CreateDegreeParams, Degree } from '~/types/degree'
+import { degreeColumns } from '~/constants/columns/degree'
 const showModal = ref<boolean>(false)
 const isEdit = ref<boolean>(false)
 const formRef = ref<FormInst>()
-const courseData = ref<Course[]>()
+const degreeData = ref<Degree[]>()
 const pageOption = ref<Pagination>({ page: 1, size: 10 })
 const totalPage = ref(0)
 const loading = ref<boolean>(false)
-const defaultCreateData: CreateCourseParams = {
+const defaultCreateData: CreateDegreeParams = {
     alias: '',
+    rate: 0,
 }
-const createForm = ref<CreateCourseParams>(defaultCreateData)
+const createForm = ref<CreateDegreeParams>(defaultCreateData)
 const filterForm = reactive({
     alias: '',
 })
-const selectedCourse = ref<Course | null>(null)
+const selectedDegree = ref<Degree | null>(null)
 const columns: DataTableColumns<RowData> = [
-    ...courseColumns,
+    ...degreeColumns,
     {
         title: 'Operate',
         key: 'operate',
@@ -138,8 +147,8 @@ const columns: DataTableColumns<RowData> = [
                     loading: loading.value,
                     style: 'margin-left: 10px;',
                     onClick: () => {
-                        createForm.value = { alias: data?.alias }
-                        selectedCourse.value = data
+                        createForm.value = { alias: data?.alias, rate: data?.rate || 0 }
+                        selectedDegree.value = data
                         showEditModal()
                     },
                 }),
@@ -148,23 +157,23 @@ const columns: DataTableColumns<RowData> = [
     },
 ]
 
-const handleDelete = async (userId: string) => {
-    try {
-        loading.value = true
-        const res: any = await apiDelUser(userId)
-        await fetchData()
-    } catch (error) {
-    } finally {
-        loading.value = false
-    }
-}
+// const handleDelete = async (userId: string) => {
+//     try {
+//         loading.value = true
+//         const res: any = await apiDelUser(userId)
+//         await fetchData()
+//     } catch (error) {
+//     } finally {
+//         loading.value = false
+//     }
+// }
 
 const fetchData = async () => {
     try {
         loading.value = true
-        const res: any = await apiListCourse(pageOption.value, filterForm)
+        const res: any = await apiListDegree(pageOption.value, filterForm)
         totalPage.value = res.pageOpt.totalPage
-        courseData.value = res.data as Course[]
+        degreeData.value = res.data as Degree[]
         pageOption.value = {
             size: res.pageOpt.pageSize,
             page: res.pageOpt.curPage,
@@ -186,11 +195,10 @@ const onSubmitCreate = () => {
                 await fetchData()
             } catch (error) {
                 console.error(error)
-            } finally {
-                loading.value = false
-            }
+            } 
         } else {
             console.log(errors)
+            loading.value = false
         }
     })
 }
@@ -199,19 +207,18 @@ const onSubmitEdit = () => {
     formRef.value?.validate(async (errors: Array<FormValidationError> | undefined) => {
         if (!errors) {
             try {
-                if (!selectedCourse.value?.id) {
+                if (!selectedDegree.value?.id) {
                     return
                 }
                 loading.value = true
-                await apiEditCourse(selectedCourse.value?.id, createForm.value)
+                await apiEditDegree(selectedDegree.value?.id, createForm.value)
                 createForm.value = defaultCreateData
                 showModal.value = false
                 await fetchData()
             } catch (error) {
                 console.error(error)
-            } finally {
                 loading.value = false
-            }
+            } 
         } else {
             console.log(errors)
         }
@@ -241,7 +248,6 @@ const onPageSizeChange = (pageSize: number) => {
     pageOption.value.size = pageSize
     fetchData()
 }
-
 
 watch(filterForm, fetchData)
 

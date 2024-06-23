@@ -139,7 +139,7 @@ func (repo *ClockRepo) SumReport(pageOpt *dtos.PageOpt, dto *dtos.ReportFilter) 
 		query = query.Where(`employees.name LIKE ?`, "%"+dto.EmployeeName+"%")
 	}
 
-	query = query.Select(`clocks.employee_id, employees.*, courses.*, 
+	query = query.Select(`clocks.employee_id, employees.*,
 	SUM(clocks.clock_out_minute) as total_work_minute, 
 	SUM(clocks.early_minutes) as total_early_minute, 
 	SUM(clocks.late_minutes) as total_late_minute`)

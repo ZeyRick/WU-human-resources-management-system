@@ -9,11 +9,11 @@ import (
 )
 
 type Degree struct {
-	ID        uint      `gorm:"primaryKey"`
-	Alias     string    `gorm:"unique;not null"`
-	Rate      *float64  `gorm:"not null"`
-	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP"`
-	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"`
+	ID        uint      `json:"id" gorm:"primaryKey"`
+	Alias     string    `json:"alias" gorm:"unique;not null"`
+	Rate      float64   `json:"rate" gorm:"not null"`
+	CreatedAt time.Time `json:"createdAt" gorm:"default:CURRENT_TIMESTAMP"`
+	UpdatedAt time.Time `json:"updatedAt" gorm:"default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"`
 }
 type DegreeRepo struct{}
 

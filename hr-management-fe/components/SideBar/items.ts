@@ -37,10 +37,15 @@ export const getMenuOptions = (): MenuOption[] => {
         {
             label: renderRoute('/admin/course', i18n.global.t('courses')),
             icon: renderIcon(GridOutline),
-            key: 'deparments',
+            key: 'courses',
         },
         {
-            label: 'Employee',
+            label: renderRoute('/admin/degree', i18n.global.t('degree')),
+            icon: renderIcon(SchoolOutline),
+            key: 'degree',
+        },
+        {
+            label: 'Data',
             icon: renderIcon(DocumentOutline),
             key: 'report-big',
             children: [
@@ -63,14 +68,14 @@ export const getMenuOptions = (): MenuOption[] => {
             key: 'employee',
             children: [
                 {
-                    label: renderRoute('/admin/employee', i18n.global.t('employee_full')),
+                    label: renderRoute('/admin/employee-staff', i18n.global.t('staff')),
                     icon: renderIcon(PeopleOutline),
-                    key: 'employee-full',
+                    key: 'employee-staff',
                 },
                 {
-                    label: renderRoute('/admin/employee-part', i18n.global.t('employee_part')),
+                    label: renderRoute('/admin/employee-teaching', i18n.global.t('teaching_staff')),
                     icon: renderIcon(SchoolOutline),
-                    key: 'employee-part',
+                    key: 'employee-teaching',
                 },
                 {
                     label: renderRoute('/admin/employee-request', i18n.global.t('telegram_requests')),
