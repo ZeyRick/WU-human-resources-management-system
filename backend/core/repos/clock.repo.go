@@ -145,3 +145,12 @@ func (repo *ClockRepo) GetClockOutByClockIn(clockInID uint) (models.Clock, error
 	err := db.Database.Preload("Schedule").Where("clock_in_id =?", clockInID).First(&clock).Error
 	return clock, err
 }
+
+func (repo *ClockRepo) LatestManualClock(clock *dtos.ManualClock) (*models.Clock, error) {
+	var data models.Clock
+	result := db.Database.Last(&data, "employee_id = ? AND course = ? AND degree = ?", clock.EmployeeId, clock.Course, clock.Degree)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &data, nil
+}

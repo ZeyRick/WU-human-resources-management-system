@@ -1,0 +1,10 @@
+ALTER TABLE
+    clocks
+ADD
+    COLUMN course VARCHAR(255),
+ADD
+    COLUMN degree VARCHAR(255),
+ADD
+    FOREIGN KEY (course) REFERENCES courses(alias) ON DELETE NO ACTION,
+ADD
+    FOREIGN KEY (degree) REFERENCES degrees(alias) ON DELETE NO ACTION;
