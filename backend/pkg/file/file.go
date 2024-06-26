@@ -1,6 +1,7 @@
 package file
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -53,4 +54,28 @@ func SaveFile(r *http.Request) (string, error) {
 		return fileName, err
 	}
 	return fileName, nil
+}
+
+func GetExcelFile(r *http.Request) (string, *bytes.Buffer, error) {
+	err := r.ParseMultipartForm(1048576 * 100)
+	if err != nil {
+		return "", bytes.NewBuffer(nil), err
+	}
+
+	file, header, err := r.FormFile("file")
+	if err != nil {
+		return "", bytes.NewBuffer(nil), err
+	}
+	defer file.Close()
+
+	//Create buffer to hold file
+	buffer := bytes.NewBuffer(nil)
+
+	//Copy content to buffer
+	_, err = io.Copy(buffer, file)
+
+	if err != nil {
+		return "", bytes.NewBuffer(nil), err
+	}
+	return header.Filename, buffer, err
 }

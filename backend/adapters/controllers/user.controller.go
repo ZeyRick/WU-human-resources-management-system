@@ -3,6 +3,8 @@ package controllers
 import (
 	"backend/adapters/dtos"
 	"backend/core/services"
+	"backend/pkg/excel"
+	"backend/pkg/file"
 	"backend/pkg/helper"
 	"backend/pkg/https"
 	"backend/pkg/logger"
@@ -121,4 +123,25 @@ func (ctrl *UserController) GetUserData(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	https.ResponseJSON(w, r, http.StatusOK, *result)
+}
+
+func (ctrl *UserController) ImportUserExcel(w http.ResponseWriter, r *http.Request) {
+	var user *dtos.UserRegister
+	filename, file, err := file.GetExcelFile(r)
+	if err != nil {
+		logger.Trace(err)
+		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+	users, err := excel.ReadUserExcel(file)
+	if err != nil {
+		logger.Trace(err)
+		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+	for i := 0; i < len(users); i++ {
+		user = &users[i]
+		ctrl.userservice.UserRegister(w, r, user)
+	}
+	https.ResponseMsg(w, r, http.StatusCreated, filename)
 }
