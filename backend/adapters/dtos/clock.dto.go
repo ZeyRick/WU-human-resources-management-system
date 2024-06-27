@@ -36,9 +36,14 @@ type AttendenceFilter struct {
 }
 
 type ManualClock struct {
-	EmployeeId *int            `json:"employeeId,string" validate:"required"`
-	ClockType  types.ClockType `json:"clockType" validate:"required"`
-	Degree     string          `json:"degree,string" validate:"required"`
-	Course     string          `json:"course,string" validate:"required"`
-	ClockTime  time.Time       `json:"clockTime" validate:"required"`
+	EmployeeId   *int      `json:"employeeId,string" validate:"required"`
+	Degree       int       `json:"degree,string" validate:"required"`
+	Course       int       `json:"course,string" validate:"required"`
+	ClockInTime  time.Time `json:"clockInTime" validate:"required"`
+	ClockOutTime time.Time `json:"clockOutTime" validate:"required"`
+}
+
+type UpdateManualClock struct {
+	ClockInTime  time.Time `json:"clockInTime" validate:"required"`
+	ClockOutTime time.Time `json:"clockOutTime" validate:"required"`
 }
