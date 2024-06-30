@@ -1,4 +1,5 @@
 import type { Course } from './course'
+import type { Degree } from './degree'
 import type { Schedule } from './schedule'
 
 export type EmployeeParams = {
@@ -16,20 +17,19 @@ export type Employee = {
     name: string
     salary: number
     employeeName: string
-    type: EMPLOYEE_TYPE
+    employeeType: EMPLOYEE_TYPE
     clockInTime: string
     clockOutTime: string
     courses?: Course[]
     courseIds?: string[]
-    degrees?: Course[]
+    degrees?: Degree[]
     degreeIds?: string[]
     schedules: Schedule[]
-}
-
-export type EmployeeWithFile = Employee & {
+    idNumber?: string
     idFileName?: string
     photoFileName?: string
-    idNumber?: string
+    telegramId?: string
+    telegramUsername?: string
 }
 
 export type CreateEmployeeType = {
@@ -51,6 +51,7 @@ export type UploadEmployeeFile = {
 export enum EMPLOYEE_TYPE {
     STAFF = 'staff',
     TEACHING_STAFF = 'teaching_staff',
+    LECTURE = 'lecture',
 }
 
 export const BIND_STATUS_ENUM = {

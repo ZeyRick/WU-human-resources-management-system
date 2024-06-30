@@ -150,12 +150,13 @@
             @close-modal="() => (showModal = false)"
             @fetch-data="fetchData"
         />
+        <EmployeeDetailsModal :employee="selectedEmployee" :show="showDetailsModal" @update:show="() => showDetailsModal = false" />
     </n-layout>
 </template>
 
 <script setup lang="ts">
 import { apiListEmployee, apiDeleteEmployee, apiCreateEmployee, apiEditEmployee } from '~/apis/employee'
-import type { Employee, EmployeeParams, CreateEmployeeType, EmployeeWithFile } from '~/types/employee'
+import type { Employee, EmployeeParams } from '~/types/employee'
 import { EMPLOYEE_TYPE } from '~/types/employee'
 import OperateButton from '~/components/OperateButton/OperateButton.vue'
 import type { RowData } from 'naive-ui/es/data-table/src/interface'
@@ -179,10 +180,11 @@ const loading = ref<boolean>(true)
 const employeeData = ref<Employee[]>([])
 
 const showModal = ref<boolean>(false)
+const showDetailsModal = ref<boolean>(false)
 const isEdit = ref<boolean>(false)
 
 const totalPage = ref(0)
-const selectedEmployee = ref<EmployeeWithFile | undefined>()
+const selectedEmployee = ref<Employee | undefined>()
 const columns: DataTableColumns<RowData> = [
     ...employeeColumns(EMPLOYEE_TYPE.TEACHING_STAFF),
     {
@@ -202,6 +204,12 @@ const columns: DataTableColumns<RowData> = [
                     loading: loading.value,
                     style: 'margin-left: 10px;',
                     onClick: () => showEditModal(data),
+                }),
+                h(NormalButton, {
+                    text: 'Details',
+                    loading: loading.value,
+                    style: 'margin-left: 10px;',
+                    onClick: () => onShowDetailsModal(data),
                 }),
             ]
         },
@@ -242,11 +250,17 @@ const showEditModal = (data: any) => {
     isEdit.value = true
 }
 
+const onShowDetailsModal = (data: any) => {
+    selectedEmployee.value = data
+    showDetailsModal.value = true
+}
+
 const fetchData = async () => {
     try {
         loading.value = true
         const res: any = await apiListEmployee(pageOption.value, filterForm)
         totalPage.value = res.pageOpt.totalPage
+
         employeeData.value = res.data as Employee[]
         pageOption.value = {
             size: res.pageOpt.pageSize,

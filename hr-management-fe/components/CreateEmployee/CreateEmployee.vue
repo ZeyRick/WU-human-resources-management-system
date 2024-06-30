@@ -1,5 +1,5 @@
 <template>
-    <n-modal :show="showModal" :mask-closable="false" :on-after-leave="() => (createFormData = defaultCreateData)">
+    <n-modal :show="showModal" :mask-closable="false" >
         <n-card
             style="width: 600px"
             :title="isEdit ? 'Edit Employee' : 'Create New Employee'"
@@ -25,7 +25,7 @@
                         @keydown.enter.prevent
                     />
                 </n-form-item>
-                <n-form-item path="salary" label="Salary">
+                <n-form-item v-if="employeeType !== EMPLOYEE_TYPE.LECTURE" path="salary" label="Salary">
                     <n-input-number
                         style="width: 100%"
                         v-model:value="createFormData.salary"
@@ -110,7 +110,7 @@
 <script setup lang="ts">
 import { darkTheme, createDiscreteApi, type FormInst, type FormValidationError, type UploadFileInfo } from 'naive-ui'
 import { apiCreateEmployee, apiEditEmployee } from '~/apis/employee'
-import { EMPLOYEE_TYPE, type CreateEmployeeType, type EmployeeWithFile } from '~/types/employee'
+import { EMPLOYEE_TYPE, type CreateEmployeeType, type Employee } from '~/types/employee'
 import { CommonFormRules } from '~/constants/formRules'
 import { useAuthStore } from '~/store/auth'
 import { apiAllCourse } from '~/apis/course'
@@ -124,7 +124,7 @@ type props = {
     employeeType: EMPLOYEE_TYPE
 
     //for edit
-    selectedEmployee?: EmployeeWithFile
+    selectedEmployee?: Employee
 }
 
 const emit = defineEmits(['fetchData', 'loading', 'closeModal'])
@@ -171,7 +171,7 @@ const onSubmit = () => {
                     return
                 }
                 propsData.loading = true
-                if (propsData.isEdit) apiEditEmployee(propsData.selectedEmployee?.id || '', createFormData.value)
+                if (propsData.isEdit) await apiEditEmployee(propsData.selectedEmployee?.id || '', createFormData.value)
                 else await apiCreateEmployee(createFormData.value)
 
                 emit('closeModal')
@@ -182,7 +182,7 @@ const onSubmit = () => {
                 propsData.loading = false
             }
         } else {
-            console.log(errors)
+            console.error(errors)
         }
     })
 }
@@ -204,7 +204,7 @@ const getDegree = async () => {
     try {
         const res: any = await apiAllDegree()
         const degrees = res as Course[]
-        degreeOptions.value
+        degreeOptions.value = []
         degrees.map((e) => {
             degreeOptions.value.push({
                 label: `${e.id} - ${e.alias}`,
@@ -220,7 +220,7 @@ const getCourse = async () => {
     try {
         const res: any = await apiAllCourse()
         const courses = res as Course[]
-        courseOptions.value
+        courseOptions.value = []
         courses.map((e) => {
             courseOptions.value.push({
                 label: `${e.id} - ${e.alias}`,
@@ -254,7 +254,7 @@ const onShow = async () => {
         createFormData.value = {
             name: propsData.selectedEmployee?.name || '',
             courseIds: propsData.selectedEmployee?.courses?.map((course) => course.id) || [],
-            degreeIds: propsData.selectedEmployee?.courses?.map((course) => course.id) || [] || [],
+            degreeIds: propsData.selectedEmployee?.degrees?.map((degree) => degree.id) || [] ,
             salary: propsData.selectedEmployee?.salary || 0,
             employeeType: undefined,
             idFileName: propsData.selectedEmployee?.idFileName || '',
@@ -283,8 +283,10 @@ const onShow = async () => {
         }
     } else {
         createFormData.value = defaultCreateData
+        console.log( createFormData.value )
+        console.log(22, defaultCreateData)
         files.idFile = []
-        files.profileFile = []
+        files.profileFile = [] 
     }
 }
 </script>

@@ -12,7 +12,7 @@ type Employee struct {
 	IdNumber         string             `json:"idNumber"`
 	IdFileName       string             `json:"idFileName"`
 	PhotoFileName    string             `json:"photoFileName"`
-	Degrees          []Degree           `json:"courses" gorm:"many2many:employee_degrees;"`
-	Courses          []Course           `json:"degrees" gorm:"many2many:employee_courses;"`
+	Degrees          []Degree           `json:"degrees" gorm:"many2many:employee_degrees;"`
+	Courses          []Course           `json:"courses" gorm:"many2many:employee_courses;"`
 	Schedules        []Schedule         `json:"schedules"`
 }

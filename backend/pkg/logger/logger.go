@@ -1,6 +1,8 @@
 package logger
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -52,4 +54,20 @@ func Error(msg string) {
 // Print out in blue color
 func Success(msg string) {
 	log.Info().Msg(fmt.Sprintf(infoColor, msg))
+}
+
+func PrettyJson(v interface{}) {
+	// Marshal the struct to JSON
+	jsonBytes, err := json.Marshal(v)
+	if err != nil {
+		Trace(err)
+	}
+	// Indent the JSON
+	var prettyJSON bytes.Buffer
+	err = json.Indent(&prettyJSON, jsonBytes, "", "  ")
+	if err != nil {
+		Trace(err)
+	}
+
+	fmt.Println(prettyJSON.String())
 }

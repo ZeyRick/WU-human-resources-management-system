@@ -24,6 +24,7 @@ export const apiCreateEmployee = async (params: CreateEmployeeType) => {
 }
 
 export const apiEditEmployee = async (employeeId: string, params: CreateEmployeeType) => {
+    console.log(123, params)
     return privateRequest(
         `/admin/employee/${employeeId}`,
         {
