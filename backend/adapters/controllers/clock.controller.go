@@ -122,5 +122,5 @@ func (ctrl *ClockController) UpdateManual(w http.ResponseWriter, r *http.Request
 		helper.UnexpectedError(w, r, err)
 		return
 	}
-	ctrl.clockService.UpdateManual(w, r, clockId, &payload)
+	ctrl.clockService.ManualUpdate(w, r, clockId, &payload)
 }

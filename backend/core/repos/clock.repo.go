@@ -5,8 +5,11 @@ import (
 	"backend/core/models"
 	"backend/core/types"
 	"backend/pkg/db"
+	"backend/pkg/variable"
 
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type ClockRepo struct{}
@@ -156,10 +159,25 @@ func (repo *ClockRepo) LatestManualClock(clock *dtos.ManualClock) (*models.Clock
 	return &data, nil
 }
 
-func (repo *ClockRepo) CreateAndGetID(newClock *models.Clock) (uint, error) {
-	result := db.Database.Create(newClock)
-	if result.Error != nil {
-		return 0, result.Error
-	}
-	return newClock.ID, nil
+func (repo *ClockRepo) ManualClock(clockIn *models.Clock, clockOut *models.Clock) error {
+	return db.Database.Transaction(func(tx *gorm.DB) error {
+		err := tx.Create(clockIn).Error
+		if err != nil {
+			return err
+		}
+		clockOut.ClockInId = variable.Create(int(clockIn.ID))
+		err = tx.Create(clockOut).Error
+		return err
+	})
+}
+
+func (repo *ClockRepo) ManualUpdate(clockIn *models.Clock, clockOut *models.Clock) error {
+	return db.Database.Transaction(func(tx *gorm.DB) error {
+		err := tx.Model(&models.Clock{}).Where("id = ?", clockIn.ID).Updates(*clockIn).Error
+		if err != nil {
+			return err
+		}
+		err = tx.Model(&models.Clock{}).Where("id = ?", clockOut.ID).Updates(*clockOut).Error
+		return err
+	})
 }

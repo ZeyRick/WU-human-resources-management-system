@@ -534,17 +534,12 @@ func (srv *ClockService) ManualClock(w http.ResponseWriter, r *http.Request, pay
 		https.ResponseError(w, r, http.StatusInternalServerError, "Somthing went wrong")
 		return err
 	}
-	id, err := srv.repo.CreateAndGetID(
-		&models.Clock{
-			EmployeeId: payload.EmployeeId,
-			ClockType:  types.ClockIn,
-			Course:     payload.Course,
-			Degree:     payload.Degree,
-			ClockTime:  *clockInTime})
-	if err != nil {
-		helper.UnexpectedError(w, r, err)
-		return err
-	}
+	clockIn := &models.Clock{
+		EmployeeId: payload.EmployeeId,
+		ClockType:  types.ClockIn,
+		Course:     payload.Course,
+		Degree:     payload.Degree,
+		ClockTime:  *clockInTime}
 	clockOutTime, err := times.ParseTime(payload.ClockOutTime)
 	if err != nil {
 		logger.Trace(err)
@@ -552,23 +547,23 @@ func (srv *ClockService) ManualClock(w http.ResponseWriter, r *http.Request, pay
 		return err
 	}
 	minuteWork := int(math.Round(math.Abs(clockOutTime.Sub(*clockInTime).Minutes())))
-	err = srv.repo.Create(
-		&models.Clock{
-			EmployeeId:     payload.EmployeeId,
-			ClockType:      types.ClockOut,
-			ClockInId:      variable.Create(int(id)),
-			ClockOutMinute: &minuteWork,
-			Course:         payload.Course,
-			Degree:         payload.Degree,
-			ClockTime:      *clockOutTime})
+	clockOut := &models.Clock{
+		EmployeeId:     payload.EmployeeId,
+		ClockType:      types.ClockOut,
+		ClockOutMinute: &minuteWork,
+		Course:         payload.Course,
+		Degree:         payload.Degree,
+		ClockTime:      *clockOutTime}
+	err = srv.repo.ManualClock(clockIn, clockOut)
 	if err != nil {
-		helper.UnexpectedError(w, r, err)
+		logger.Trace(err)
+		https.ResponseError(w, r, http.StatusInternalServerError, "Somthing went wrong")
 		return err
 	}
 	return nil
 }
 
-func (srv *ClockService) UpdateManual(w http.ResponseWriter, r *http.Request, clockId *int, payload *dtos.UpdateManualClock) {
+func (srv *ClockService) ManualUpdate(w http.ResponseWriter, r *http.Request, clockId *int, payload *dtos.UpdateManualClock) {
 	userId := r.Context().Value("userId").(uint)
 	_, err := srv.repo.GetOneById(uint(*clockId))
 	if err != nil {
@@ -585,17 +580,12 @@ func (srv *ClockService) UpdateManual(w http.ResponseWriter, r *http.Request, cl
 		helper.UnexpectedError(w, r, err)
 		return
 	}
-	newClockData := models.Clock{
+	newClockInData := models.Clock{
 		BaseModel: models.BaseModel{ID: uint(*clockId)},
 		EditedBy:  &userId,
 		Course:    payload.Course,
 		Degree:    payload.Degree,
 		ClockTime: *clockInTime,
-	}
-	_, err = srv.repo.UpdateById(&newClockData)
-	if err != nil {
-		helper.UnexpectedError(w, r, err)
-		return
 	}
 	clockOut, err := srv.repo.GetClockOutByClockIn(uint(*clockId))
 	if err != nil {
@@ -613,7 +603,7 @@ func (srv *ClockService) UpdateManual(w http.ResponseWriter, r *http.Request, cl
 		return
 	}
 	minuteWork := int(math.Round(math.Abs(clockOutTime.Sub(*clockInTime).Minutes())))
-	newClockData = models.Clock{
+	newClockOutData := models.Clock{
 		BaseModel:      models.BaseModel{ID: uint(clockOut.ID)},
 		ClockOutMinute: &minuteWork,
 		EditedBy:       &userId,
@@ -621,7 +611,7 @@ func (srv *ClockService) UpdateManual(w http.ResponseWriter, r *http.Request, cl
 		Degree:         payload.Degree,
 		ClockTime:      *clockOutTime,
 	}
-	_, err = srv.repo.UpdateById(&newClockData)
+	err = srv.repo.ManualUpdate(&newClockInData, &newClockOutData)
 	if err != nil {
 		helper.UnexpectedError(w, r, err)
 		return
