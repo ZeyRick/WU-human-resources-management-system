@@ -45,3 +45,9 @@ func (repo *DegreeRepo) UpdateById(degree *models.Degree) (int64, error) {
 	}
 	return result.RowsAffected, nil
 }
+
+func (repo *DegreeRepo) FindByIds(ids []int) ([]models.Degree, error) {
+	var result []models.Degree
+	err := db.Database.Find(&result, ids).Error
+	return result, err
+}

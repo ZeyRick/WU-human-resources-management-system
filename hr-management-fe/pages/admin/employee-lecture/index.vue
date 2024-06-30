@@ -145,7 +145,7 @@
             :loading="loading"
             :show-modal="showModal"
             :is-edit="isEdit"
-            :employee-type="EMPLOYEE_TYPE.STAFF"
+            :employee-type="EMPLOYEE_TYPE.LECTURE"
             :selected-employee="selectedEmployee"
             @close-modal="() => (showModal = false)"
             @fetch-data="fetchData"
@@ -182,14 +182,14 @@ import { employeeColumns } from '~/constants/columns/employees'
 const pageOption = ref<Pagination>({ page: 1, size: 10 })
 const loading = ref<boolean>(true)
 const employeeData = ref<Employee[]>([])
-    const showDetailsModal = ref<boolean>(false)
+const showDetailsModal = ref<boolean>(false)
 const showModal = ref<boolean>(false)
 const isEdit = ref<boolean>(false)
 
 const totalPage = ref(0)
 const selectedEmployee = ref<Employee | undefined>()
 const columns: DataTableColumns<RowData> = [
-    ...employeeColumns(EMPLOYEE_TYPE.STAFF),
+    ...employeeColumns(EMPLOYEE_TYPE.LECTURE),
     {
         title: 'Operate',
         key: 'operate',
@@ -222,7 +222,7 @@ const columns: DataTableColumns<RowData> = [
 const defaultFilterForm: EmployeeParams = {
     employeeName: '',
     courseId: '',
-    employeeType: EMPLOYEE_TYPE.STAFF,
+    employeeType: EMPLOYEE_TYPE.LECTURE,
     startSalary: null,
     endSalary: null,
     scope: '',
@@ -244,7 +244,6 @@ const onShowDetailsModal = (data: any) => {
     selectedEmployee.value = data
     showDetailsModal.value = true
 }
-
 
 const showCreateModal = () => {
     showModal.value = true

@@ -5,6 +5,8 @@ import (
 	"backend/core/models"
 	"backend/core/types"
 	"backend/pkg/db"
+
+	"gorm.io/gorm"
 )
 
 type EmployeeRepo struct{}
@@ -23,11 +25,24 @@ func (repo *EmployeeRepo) FindId(employeeId *int) (models.Employee, error) {
 }
 
 func (repo *EmployeeRepo) UpdateById(employee *models.Employee) (int64, error) {
-	result := db.Database.Model(&models.Employee{}).Where("id = ?", employee.ID).Updates(*employee)
-	if result.Error != nil {
-		return 0, result.Error
-	}
-	return result.RowsAffected, nil
+	var effectedRows int64 = 0
+	var err error
+	return effectedRows, db.Database.Transaction(func(tx *gorm.DB) error {
+		err =  tx.Model(employee).Association("Courses").Replace(employee.Courses)
+		if err != nil {
+			return err
+		}
+
+		err =  tx.Model(employee).Association("Degrees").Replace(employee.Degrees)
+		if err != nil {
+			return err
+		}
+		result := tx.Updates(employee)
+
+		effectedRows = result.RowsAffected
+		err = result.Error
+		return result.Error
+	})
 }
 
 func (repo *EmployeeRepo) Create(newEmployee *models.Employee) error {
@@ -65,7 +80,7 @@ func (repo *EmployeeRepo) GetOneByName(name string) (*models.Employee, error) {
 }
 
 func (repo *EmployeeRepo) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter) (*types.ListData[models.Employee], error) {
-	query := db.Database.Preload("Degrees")
+	query := db.Database.Preload("Degrees").Preload("Courses")
 	if dto.EmployeeName != "" {
 		query = query.Where(`name LIKE ?`, "%"+dto.EmployeeName+"%")
 	}
@@ -88,7 +103,7 @@ func (repo *EmployeeRepo) All(dto *dtos.EmployeeFilter) (*[]models.Employee, err
 	var data []models.Employee
 	query := db.Database.Model(&models.Employee{}).Preload("Schedules").
 		Joins("LEFT JOIN schedules ON schedules.employee_id = employees.id AND schedules.scope = ?", dto.Scope)
-		
+
 	if dto.EmployeeType != "" {
 		query = query.Where("employees.employee_type = ?", dto.EmployeeType)
 	}

@@ -11,6 +11,7 @@ import {
     DocumentOutline,
     SchoolOutline,
     MenuSharp,
+    BookOutline,
 } from '@vicons/ionicons5'
 import { useUserInfoStore } from '~/store/userInfo'
 
@@ -45,7 +46,7 @@ export const getMenuOptions = (): MenuOption[] => {
             key: 'degree',
         },
         {
-            label: 'Data',
+            label: i18n.global.t('statistic'),
             icon: renderIcon(DocumentOutline),
             key: 'report-big',
             children: [
@@ -76,6 +77,11 @@ export const getMenuOptions = (): MenuOption[] => {
                     label: renderRoute('/admin/employee-teaching', i18n.global.t('teaching_staff')),
                     icon: renderIcon(SchoolOutline),
                     key: 'employee-teaching',
+                },
+                {
+                    label: renderRoute('/admin/employee-lecture', i18n.global.t('lecture')),
+                    icon: renderIcon(BookOutline),
+                    key: 'employee-lecture',
                 },
                 {
                     label: renderRoute('/admin/employee-request', i18n.global.t('telegram_requests')),

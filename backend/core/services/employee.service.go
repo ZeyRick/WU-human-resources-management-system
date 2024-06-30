@@ -14,17 +14,29 @@ import (
 type EmployeeService struct {
 	repo       *repos.EmployeeRepo
 	courseRepo *repos.CourseRepo
+	degreeRepo *repos.DegreeRepo
 }
 
 func NewEmployeeService() *EmployeeService {
 	return &EmployeeService{
 		repo:       repos.NewEmployeeRepo(),
 		courseRepo: repos.NewCourseRepo(),
+		degreeRepo: repos.NewDegreeRepo(),
 	}
 }
 
 func (srv *EmployeeService) Edit(w http.ResponseWriter, r *http.Request, employeeId *int, payload *dtos.AddEmployee) {
-	_, err := srv.repo.UpdateById(&models.Employee{
+	courses, err := srv.courseRepo.FindByIds(payload.CourseId)
+	if err != nil {
+		helper.UnexpectedError(w, r, err)
+		return
+	}
+	degrees, err := srv.degreeRepo.FindByIds(payload.DegreeId)
+	if err != nil {
+		helper.UnexpectedError(w, r, err)
+		return
+	}
+	_, err = srv.repo.UpdateById(&models.Employee{
 		BaseModel:     models.BaseModel{ID: uint(*employeeId)},
 		Name:          payload.Name,
 		EmployeeType:  payload.EmployeeType,
@@ -32,6 +44,8 @@ func (srv *EmployeeService) Edit(w http.ResponseWriter, r *http.Request, employe
 		IdNumber:      payload.IdNumber,
 		IdFileName:    payload.IdFileName,
 		PhotoFileName: payload.PhotoFileName,
+		Degrees:       degrees,
+		Courses:       courses,
 	})
 	if err != nil {
 		if strings.Contains(err.Error(), "Duplicate entry") {
@@ -50,6 +64,11 @@ func (srv *EmployeeService) Add(w http.ResponseWriter, r *http.Request, payload 
 		helper.UnexpectedError(w, r, err)
 		return
 	}
+	degrees, err := srv.degreeRepo.FindByIds(payload.DegreeId)
+	if err != nil {
+		helper.UnexpectedError(w, r, err)
+		return
+	}
 	err = srv.repo.Create(&models.Employee{
 		Name:          payload.Name,
 		EmployeeType:  payload.EmployeeType,
@@ -58,6 +77,7 @@ func (srv *EmployeeService) Add(w http.ResponseWriter, r *http.Request, payload 
 		IdFileName:    payload.IdFileName,
 		PhotoFileName: payload.PhotoFileName,
 		Courses:       courses,
+		Degrees:       degrees,
 	})
 	if err != nil {
 		if strings.Contains(err.Error(), "Duplicate entry") {
