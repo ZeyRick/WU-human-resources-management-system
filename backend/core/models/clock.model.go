@@ -21,7 +21,7 @@ type Clock struct {
 	LateMinutes    *int            `json:"lateMinutes" gorm:"type:int;default 0"`
 	EditedBy       *uint           `json:"editedBy"`
 	Editor         *user.User      `json:"editor" gorm:"foreignKey:EditedBy;references:ID"`
-	Degree         string          `json:"degree"`
-	Course         string          `json:"course"`
+	Degree         int             `json:"degree"`
+	Course         int             `json:"course"`
 	ClockTime      time.Time       `json:"clockTime"`
 }

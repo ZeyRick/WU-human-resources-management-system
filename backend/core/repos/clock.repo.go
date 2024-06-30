@@ -22,6 +22,7 @@ func (repo *ClockRepo) Create(newClock *models.Clock) error {
 	}
 	return nil
 }
+
 func (repo *ClockRepo) LatestClockIn(employeeId *int) (*models.Clock, error) {
 	var data models.Clock
 	result := db.Database.Last(&data, "employee_id = ? AND clock_type = ?", *employeeId, types.ClockIn)
@@ -153,4 +154,12 @@ func (repo *ClockRepo) LatestManualClock(clock *dtos.ManualClock) (*models.Clock
 		return nil, result.Error
 	}
 	return &data, nil
+}
+
+func (repo *ClockRepo) CreateAndGetID(newClock *models.Clock) (uint, error) {
+	result := db.Database.Create(newClock)
+	if result.Error != nil {
+		return 0, result.Error
+	}
+	return newClock.ID, nil
 }

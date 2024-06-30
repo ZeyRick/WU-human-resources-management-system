@@ -112,7 +112,7 @@ func (ctr *ClockController) ManualClock(w http.ResponseWriter, r *http.Request) 
 }
 
 func (ctrl *ClockController) UpdateManual(w http.ResponseWriter, r *http.Request) {
-	payload, err := https.GetBody[dtos.UpdateClock](r)
+	payload, err := https.GetBody[dtos.UpdateManualClock](r)
 	if err != nil {
 		logger.Trace(err)
 		return

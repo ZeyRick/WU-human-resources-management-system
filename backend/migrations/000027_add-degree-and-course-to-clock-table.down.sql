@@ -9,3 +9,6 @@ ALTER TABLE
 
 ALTER TABLE
     clocks DROP COLUMN IF EXISTS degree;
+
+ALTER TABLE
+    clocks DROP COLUMN IF EXISTS clockTime;

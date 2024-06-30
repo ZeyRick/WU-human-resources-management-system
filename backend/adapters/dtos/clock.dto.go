@@ -2,7 +2,6 @@ package dtos
 
 import (
 	"backend/core/types"
-	"time"
 )
 
 type Clock struct {
@@ -36,9 +35,16 @@ type AttendenceFilter struct {
 }
 
 type ManualClock struct {
-	EmployeeId *int            `json:"employeeId,string" validate:"required"`
-	ClockType  types.ClockType `json:"clockType" validate:"required"`
-	Degree     string          `json:"degree,string" validate:"required"`
-	Course     string          `json:"course,string" validate:"required"`
-	ClockTime  time.Time       `json:"clockTime" validate:"required"`
+	EmployeeId   *int   `json:"employeeId,string" validate:"required"`
+	Degree       int    `json:"degree,string" validate:"required"`
+	Course       int    `json:"course,string" validate:"required"`
+	ClockInTime  string `json:"clockInTime" validate:"required"`
+	ClockOutTime string `json:"clockOutTime" validate:"required"`
+}
+
+type UpdateManualClock struct {
+	ClockInTime  string `json:"clockInTime" validate:"required"`
+	ClockOutTime string `json:"clockOutTime" validate:"required"`
+	Degree       int    `json:"degree,string" validate:"required"`
+	Course       int    `json:"course,string" validate:"required"`
 }
