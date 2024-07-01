@@ -1,5 +1,6 @@
 import moment from 'moment'
 import { DATE_TIME_FORMAT, TIME_FORMAT } from '~/constants/time'
+import type { CreateAttendance } from '~/types/attendance'
 import type { AttendenceFilter, ClockFilter, ClockParams, EditClock } from '~/types/clock'
 import { privateRequest } from '~/utils/request'
 
@@ -67,5 +68,27 @@ export const apiGetAttendence = async (pageOpt: Pagination, filter: AttendenceFi
             },
         },
         'apiGetAttendence',
+    )
+}
+
+export const apiManualClock = async (payload: CreateAttendance) => {
+    return privateRequest(
+        `/admin/clock/manualClock`,
+        {
+            method: 'post',
+            body: payload,
+        },
+        'apiManualClock',
+    )
+}
+
+export const apiEditManualClock = async (payload: CreateAttendance, id: number) => {
+    return privateRequest(
+        `/admin/clock/manualClock/${id}`,
+        {
+            method: 'patch',
+            body: payload,
+        },
+        'apiManualClock',
     )
 }

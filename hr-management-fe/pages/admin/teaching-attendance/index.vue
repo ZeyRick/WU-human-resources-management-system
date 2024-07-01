@@ -1,7 +1,7 @@
 <template>
     <n-layout style="flex-grow: 1; display: flex; flex-direction: column; padding: 20px">
         <div style="flex-direction: row; display: flex; align-items: center; justify-content: start; overflow: hidden">
-            <div style="font-size: 16px; display: flex; align-items: center">
+            <!-- <div style="font-size: 16px; display: flex; align-items: center">
                 Course:
                 <n-select
                     @update:value="onCourseChange"
@@ -12,9 +12,9 @@
                     :placeholder="i18n.global.t('course')"
                     :options="courseOptions"
                 />
-            </div>
+            </div> -->
             <div style="font-size: 16px; display: flex; align-items: center; margin-left: 10px">
-                Employee:
+                {{ i18n.global.t('staff') }}/{{ i18n.global.t('lecture') }}:
                 <n-select
                     style="margin-left: 10px"
                     :disable="loading"
@@ -42,15 +42,27 @@
             style="background-color: #409eff; margin-top: 20px"
             color="#5cb85c"
             text-color="#000000"
+            @click="() => (showCreateModal = true)"
+        >
+            {{ i18n.global.t('add') }}
+        </n-button>
+        <n-button
+            :disabled="attendenceData.length < 1"
+            :loading="loading"
+            size="large"
+            strong
+            style="background-color: #409eff; margin-top: 20px"
+            color="#5cb85c"
+            text-color="#000000"
             @click="onExportClick"
         >
-            Export
+            {{ i18n.global.t('export') }}
         </n-button>
         <n-data-table
             :loading="loading"
             size="large"
             style="margin-top: 20px"
-            :columns="attendenceColumns"
+            :columns="teachingAttendanceColumns"
             :data="attendenceData"
         />
         <n-card
@@ -69,27 +81,25 @@
                 :on-update:page="onPageChange"
             />
         </n-card>
+
+        <AddAttendanceModal :loading="loading" :show-modal="showCreateModal" :employee-options="employeeOptions" />
     </n-layout>
 </template>
 
 <script setup lang="ts">
-import { apiGetAttendence, apiExportAttendence } from '~/apis/clock'
+import { apiGetAttendence } from '~/apis/clock'
 import { apiAllEmployee } from '~/apis/employee'
-import { apiAllCourse } from '~/apis/course'
-import type { EmployeeWithSchedule } from '~/types/employee'
-import type { Course } from '~/types/course'
-import type { AttendenceFilter, Clock } from '~/types/clock'
-import type { ScheduleInfo } from '~/types/schedule'
-import moment from 'moment'
-import { attendenceColumns } from './table-columns'
-import { DATE_TIME_FORMAT } from '~/constants/time'
 
-const currentDate = ref<Date>(new Date())
+import type { AttendenceFilter, Clock } from '~/types/clock'
+import moment from 'moment'
+
+import { DATE_TIME_FORMAT } from '~/constants/time'
+import { EMPLOYEE_TYPE, type Employee } from '~/types/employee'
+import { teachingAttendanceColumns } from '~/constants/columns/teaching-attendance'
+
 const employeeOptions = ref<{ label: string; value: string }[]>([])
-const courseOptions = ref<{ label: string; value: string }[]>([])
 const loading = ref<boolean>(true)
-const scheduleDatas = ref<ScheduleInfo[]>([])
-const diableUpdate = ref<boolean>(true)
+const showCreateModal = ref<boolean>(false)
 const attendenceData = ref<Clock[]>([])
 const pageOption = ref<Pagination>({ page: 1, size: 10 })
 const totalPage = ref(0)
@@ -99,7 +109,7 @@ const filterForm = reactive<AttendenceFilter>({
     endDate: range.value[1].toString(),
     employeeName: '',
     employeeId: '',
-    courseId: '',
+    employeeType: [EMPLOYEE_TYPE.TEACHING_STAFF, EMPLOYEE_TYPE.LECTURE],
 })
 
 watch(range, () => {
@@ -107,37 +117,38 @@ watch(range, () => {
     filterForm.endDate = range.value[1].toString()
 })
 
-const getCourse = async () => {
-    try {
-        loading.value = true
-        const res: any = await apiAllCourse()
-        const courses = res as Course[]
-        courseOptions.value = [{ label: 'All', value: '' }]
-        filterForm.courseId = courses[0].id || ''
-        courses.map((e) => {
-            courseOptions.value.push({
-                label: `${e.id} - ${e.alias}`,
-                value: e.id,
-            })
-        })
-    } catch (error) {
-    } finally {
-        loading.value = false
-    }
-}
+// const getCourse = async () => {
+//     try {
+//         const res: any = await apiAllCourse()
+//         const courses = res as Course[]
+//         courseOptions.value = [{ label: 'All', value: '' }]
+//         filterForm.courseId = courses[0].id || ''
+//         courses.map((e) => {
+//             courseOptions.value.push({
+//                 label: `${e.id} - ${e.alias}`,
+//                 value: e.id,
+//             })
+//         })
+//     } catch (error) {
+//     } finally {
+//     }
+// }
 
 const onExportClick = () => {
     try {
         loading.value = true
         const config = useRuntimeConfig()
-        const params = {
-            ...filterForm,
+        const searchParams = new URLSearchParams({
+            employeeName: filterForm.employeeName,
+            employeeId: filterForm.employeeId,
             startDate: moment(parseInt(filterForm.startDate)).utc().format(DATE_TIME_FORMAT),
             endDate: moment(parseInt(filterForm.endDate)).utc().format(DATE_TIME_FORMAT),
+        })
+        for (let i = 0; i < filterForm.employeeType.length; i++) {
+            searchParams.append('employeeType', filterForm.employeeType[i])
         }
-        const exportUrl = `${String(config.public.apiURL)}/admin/clock/attendence/export?${new URLSearchParams(
-            params,
-        ).toString()}`
+
+        const exportUrl = `${String(config.public.apiURL)}/admin/clock/attendence/export?${searchParams.toString()}`
         window.open(exportUrl, '_self')
     } catch (error) {
         console.error(error)
@@ -148,9 +159,9 @@ const onExportClick = () => {
 
 const getEmployee = async () => {
     try {
-        loading.value = true
-        const res: any = await apiAllEmployee({ courseId: filterForm.courseId })
-        const employees = res as EmployeeWithSchedule[]
+        const employees: Employee[] = (await apiAllEmployee({
+            employeeType: [EMPLOYEE_TYPE.TEACHING_STAFF, EMPLOYEE_TYPE.LECTURE],
+        })) as Employee[]
         employeeOptions.value = [{ label: 'All', value: '' }]
         filterForm.employeeId = ''
         employees.map((e) => {
@@ -159,15 +170,11 @@ const getEmployee = async () => {
                 value: e.id,
             })
         })
-    } catch (error) {
-    } finally {
-        loading.value = false
-    }
+    } catch (error) {}
 }
 
 const fetchData = async () => {
     try {
-        loading.value = true
         const res: any = await apiGetAttendence(pageOption.value, filterForm)
         if (res) {
             totalPage.value = res.pageOpt.totalPage
@@ -179,15 +186,13 @@ const fetchData = async () => {
         }
     } catch (error) {
         console.error(error)
-    } finally {
-        loading.value = false
     }
 }
 
-const onCourseChange = (value: any) => {
-    filterForm.courseId = value
-    getEmployee()
-}
+// const onCourseChange = (value: any) => {
+//     filterForm.courseId = value
+//     getEmployee()
+// }
 
 const onPageChange = (page: number) => {
     pageOption.value.page = page
@@ -202,9 +207,15 @@ const onPageSizeChange = (pageSize: number) => {
 watch(filterForm, fetchData)
 
 onMounted(async () => {
-    await getCourse()
-    await getEmployee()
-    await fetchData()
+    // await getCourse()
+
+    try {
+        loading.value = true
+        await Promise.all([getEmployee(), fetchData()])
+    } catch (error) {
+    } finally {
+        loading.value = false
+    }
 }),
     definePageMeta({
         layout: 'main',

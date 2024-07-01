@@ -84,8 +84,8 @@ func (repo *EmployeeRepo) List(pageOpt *dtos.PageOpt, dto *dtos.EmployeeFilter) 
 	if dto.EmployeeName != "" {
 		query = query.Where(`name LIKE ?`, "%"+dto.EmployeeName+"%")
 	}
-	if dto.EmployeeType != "" {
-		query = query.Where(`employees.employee_type = ?`, dto.EmployeeType)
+	if len(dto.EmployeeType) > 0 {
+		query = query.Where(`employees.employee_type IN ?`, dto.EmployeeType)
 	}
 	if dto.StartSalary != 0 || dto.EndSalary != 0 {
 		if dto.StartSalary != 0 && dto.EndSalary != 0 {
@@ -104,8 +104,8 @@ func (repo *EmployeeRepo) All(dto *dtos.EmployeeFilter) (*[]models.Employee, err
 	query := db.Database.Model(&models.Employee{}).Preload("Schedules").
 		Joins("LEFT JOIN schedules ON schedules.employee_id = employees.id AND schedules.scope = ?", dto.Scope)
 
-	if dto.EmployeeType != "" {
-		query = query.Where("employees.employee_type = ?", dto.EmployeeType)
+	if len(dto.EmployeeType) > 0 {
+		query = query.Where("employees.employee_type IN ?", dto.EmployeeType)
 	}
 
 	if dto.EmployeeId != nil {

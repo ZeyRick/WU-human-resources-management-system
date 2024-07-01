@@ -20,7 +20,7 @@
                 "
             >
                 <div style="font-size: 16px; display: flex; align-items: center; margin-left: 10px">
-                    Employee:
+                    {{ i18n.global.t('staff') }}:
                     <n-select
                         style="margin-left: 10px"
                         :disable="loading"

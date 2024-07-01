@@ -283,8 +283,6 @@ const onShow = async () => {
         }
     } else {
         createFormData.value = defaultCreateData
-        console.log( createFormData.value )
-        console.log(22, defaultCreateData)
         files.idFile = []
         files.profileFile = [] 
     }

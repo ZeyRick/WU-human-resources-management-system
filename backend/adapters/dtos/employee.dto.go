@@ -18,7 +18,7 @@ type EmployeeFilter struct {
 	EmployeeName string             `json:"employeeName" validate:"omitempty"`
 	CourseId     *int               `json:"courseId" validate:"omitempty"`
 	EmployeeId   *int               `json:"employeeId" validate:"omitempty"`
-	EmployeeType types.EmployeeType `json:"employeeType" validate:"omitempty"`
+	EmployeeType []types.EmployeeType `json:"employeeType" validate:"omitempty"`
 	StartSalary  float64            `json:"startSalary" validate:"omitempty"`
 	EndSalary    float64            `json:"endSalary" validate:"omitempty"`
 	Scope        string             `json:"scope" validate:"omitempty"`

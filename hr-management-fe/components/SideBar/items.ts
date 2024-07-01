@@ -25,9 +25,14 @@ export const getMenuOptions = (): MenuOption[] => {
             key: 'home',
         },
         {
-            label: renderRoute('/admin/clock', i18n.global.t('clock_management')),
+            label: renderRoute('/admin/clock', i18n.global.t('staff_clock')),
             icon: renderIcon(TimerOutline),
             key: 'clock',
+        },
+        {
+            label: renderRoute('/admin/teaching-attendance', i18n.global.t('teaching_attendance')),
+            icon: renderIcon(TimerOutline),
+            key: 'teaching_attendance',
         },
 
         {
@@ -56,9 +61,9 @@ export const getMenuOptions = (): MenuOption[] => {
                     key: 'report',
                 },
                 {
-                    label: renderRoute('/admin/attendence', i18n.global.t('attendence')),
+                    label: renderRoute('/admin/attendance', i18n.global.t('staff_attendance')),
                     icon: renderIcon(TodayOutline),
-                    key: 'attendence',
+                    key: 'attendance',
                 },
             ],
         },

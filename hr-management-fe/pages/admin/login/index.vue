@@ -164,7 +164,6 @@ const handleClick = (e: MouseEvent) => {
                 loading.value = false
             }
         } else {
-            console.log(22)
             message.error('Please check login data')
         }
     })

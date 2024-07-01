@@ -54,5 +54,8 @@
     "lecture": "Lecture",
     "degree_alias": "Degree Alias",
     "degree": "Degree",
-    "statistic": "Statistic"
+    "statistic": "Statistic",
+    "staff_attendance": "Staff Attendance",
+    "teaching_attendance": "Teaching Attendance",
+    "staff_clock": "Staff Clock"
 }

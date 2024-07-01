@@ -1,4 +1,4 @@
-import type { Employee } from './employee'
+import type { Employee, EMPLOYEE_TYPE } from './employee'
 import type { Schedule } from './schedule'
 
 export type ClockParams = {
@@ -30,7 +30,7 @@ export type AttendenceFilter = {
     endDate: string
     employeeName: string
     employeeId: string
-    courseId: string
+    employeeType: EMPLOYEE_TYPE[]
 }
 
 export type EditClock = {

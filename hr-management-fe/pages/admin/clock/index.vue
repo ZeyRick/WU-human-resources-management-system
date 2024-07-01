@@ -20,7 +20,7 @@
                 "
             >
                 <div style="font-size: 16px; display: flex; align-items: center; margin-left: 10px">
-                    Employee:
+                    {{ i18n.global.t('staff') }}:
                     <div>
                         <n-select
                             :disable="loading"
@@ -133,7 +133,7 @@ import { apiAllEmployee } from '~/apis/employee'
 import { getNowLocal } from '~/utils/time'
 import { DATE_FORMAT } from '~/constants/time'
 import moment from 'moment'
-import type { Employee } from '~/types/employee'
+import { EMPLOYEE_TYPE, type Employee } from '~/types/employee'
 import type { Clock, ClockFilter, EditClock } from '~/types/clock'
 import type { Course } from '~/types/course'
 import { apiAllCourse } from '~/apis/course'
@@ -238,7 +238,7 @@ const getCourse = async () => {
 const getEmployee = async () => {
     try {
         loading.value = true
-        const res: any = await apiAllEmployee()
+        const res: any = await apiAllEmployee({employeeType: [EMPLOYEE_TYPE.STAFF, EMPLOYEE_TYPE.TEACHING_STAFF]})
         const employees = res as Employee[]
         employeeOptions.value = [{ label: 'All', value: '' }]
         filterForm.employeeId = ''
