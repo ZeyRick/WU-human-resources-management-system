@@ -1,6 +1,8 @@
 package dtos
 
-import "backend/core/types"
+import (
+	"backend/core/types"
+)
 
 type Clock struct {
 	EmployeeId *int            `json:"employeeId,string" validate:"required"`
@@ -17,7 +19,7 @@ type ClockFilter struct {
 	EndDate      string `json:"endDate,string,omitempty"`
 	EmployeeName string `json:"employeeName,string,omitempty"`
 	EmployeeId   int    `json:"employeeId,string,omitempty"`
-	CourseId int    `json:"courseId,string,omitempty"`
+	CourseId     int    `json:"courseId,string,omitempty"`
 }
 
 type UpdateClock struct {
@@ -29,5 +31,20 @@ type AttendenceFilter struct {
 	EndDate      string `json:"endDate,string,omitempty"`
 	EmployeeName string `json:"employeeName,string,omitempty"`
 	EmployeeId   int    `json:"employeeId,string,omitempty"`
-	CourseId int    `json:"courseId,string,omitempty"`
+	CourseId     int    `json:"courseId,string,omitempty"`
+}
+
+type ManualClock struct {
+	EmployeeId   *int   `json:"employeeId,string" validate:"required"`
+	Degree       int    `json:"degree,string" validate:"required"`
+	Course       int    `json:"course,string" validate:"required"`
+	ClockInTime  string `json:"clockInTime" validate:"required"`
+	ClockOutTime string `json:"clockOutTime" validate:"required"`
+}
+
+type UpdateManualClock struct {
+	ClockInTime  string `json:"clockInTime" validate:"required"`
+	ClockOutTime string `json:"clockOutTime" validate:"required"`
+	Degree       int    `json:"degree,string" validate:"required"`
+	Course       int    `json:"course,string" validate:"required"`
 }

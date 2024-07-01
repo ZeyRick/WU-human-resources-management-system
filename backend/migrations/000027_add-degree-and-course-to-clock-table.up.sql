@@ -1,0 +1,12 @@
+ALTER TABLE
+    clocks
+ADD
+    COLUMN course INT,
+ADD
+    COLUMN degree INT,
+ADD
+    COLUMN clockTime TIMESTAMP,
+ADD
+    FOREIGN KEY (course) REFERENCES courses(id) ON DELETE NO ACTION,
+ADD
+    FOREIGN KEY (degree) REFERENCES degrees(id) ON DELETE NO ACTION;

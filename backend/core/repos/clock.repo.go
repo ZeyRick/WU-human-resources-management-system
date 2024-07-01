@@ -5,8 +5,11 @@ import (
 	"backend/core/models"
 	"backend/core/types"
 	"backend/pkg/db"
+	"backend/pkg/variable"
 
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type ClockRepo struct{}
@@ -22,6 +25,7 @@ func (repo *ClockRepo) Create(newClock *models.Clock) error {
 	}
 	return nil
 }
+
 func (repo *ClockRepo) LatestClockIn(employeeId *int) (*models.Clock, error) {
 	var data models.Clock
 	result := db.Database.Last(&data, "employee_id = ? AND clock_type = ?", *employeeId, types.ClockIn)
@@ -144,4 +148,36 @@ func (repo *ClockRepo) GetClockOutByClockIn(clockInID uint) (models.Clock, error
 	var clock models.Clock
 	err := db.Database.Preload("Schedule").Where("clock_in_id =?", clockInID).First(&clock).Error
 	return clock, err
+}
+
+func (repo *ClockRepo) LatestManualClock(clock *dtos.ManualClock) (*models.Clock, error) {
+	var data models.Clock
+	result := db.Database.Last(&data, "employee_id = ? AND course = ? AND degree = ?", clock.EmployeeId, clock.Course, clock.Degree)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &data, nil
+}
+
+func (repo *ClockRepo) ManualClock(clockIn *models.Clock, clockOut *models.Clock) error {
+	return db.Database.Transaction(func(tx *gorm.DB) error {
+		err := tx.Create(clockIn).Error
+		if err != nil {
+			return err
+		}
+		clockOut.ClockInId = variable.Create(int(clockIn.ID))
+		err = tx.Create(clockOut).Error
+		return err
+	})
+}
+
+func (repo *ClockRepo) ManualUpdate(clockIn *models.Clock, clockOut *models.Clock) error {
+	return db.Database.Transaction(func(tx *gorm.DB) error {
+		err := tx.Model(&models.Clock{}).Where("id = ?", clockIn.ID).Updates(*clockIn).Error
+		if err != nil {
+			return err
+		}
+		err = tx.Model(&models.Clock{}).Where("id = ?", clockOut.ID).Updates(*clockOut).Error
+		return err
+	})
 }

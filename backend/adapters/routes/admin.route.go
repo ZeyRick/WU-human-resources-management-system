@@ -50,6 +50,8 @@ func initAdminRoutes(r chi.Router) {
 				r.Get("/clock", clock.List)
 				r.Get("/clock/attendence", clock.Attendence)
 				r.Patch("/clock/{id}", clock.Update)
+				r.Post("/manualClock", clock.ManualClock)
+				r.Patch("/clockManual/{id}", clock.UpdateManual)
 
 				// Clock Setting
 				r.Get("/clock-setting", clockSetting.Get)
