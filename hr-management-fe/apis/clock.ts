@@ -76,7 +76,15 @@ export const apiManualClock = async (payload: CreateAttendance) => {
         `/admin/clock/manualClock`,
         {
             method: 'post',
-            body: payload,
+            body: {
+                ...payload,
+                clockInTime: moment(`${payload.clockDate} ${payload.clockInTime}`, DATE_TIME_FORMAT)
+                    .utc()
+                    .format(DATE_TIME_FORMAT),
+                clockOutTime: moment(`${payload.clockDate} ${payload.clockOutTime}`, DATE_TIME_FORMAT)
+                    .utc()
+                    .format(DATE_TIME_FORMAT),
+            },
         },
         'apiManualClock',
     )

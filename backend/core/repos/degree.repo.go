@@ -22,6 +22,12 @@ func (repo *DegreeRepo) All() (*[]models.Degree, error) {
 	return &data, nil
 }
 
+func (repo *DegreeRepo) GetByEmployee(employeeId *uint) ([]models.Degree, error) {
+	var employee models.Employee
+	err := db.Database.Preload("Degrees").Where("id = ?", *employeeId).First(&employee).Error
+	return employee.Degrees, err
+}
+
 func (repo *DegreeRepo) List(pageOpt *dtos.PageOpt, dto *dtos.DegreeFilter) (*types.ListData[models.Degree], error) {
 	query := db.Database
 	if dto.Alias != "" {

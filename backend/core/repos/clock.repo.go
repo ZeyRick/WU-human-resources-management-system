@@ -65,6 +65,8 @@ func (repo *ClockRepo) List(pageOpt *dtos.PageOpt, dto *dtos.ClockFilter) (*type
 		query = query.Where(`employees.name LIKE ?`, "%"+dto.EmployeeName+"%")
 	}
 
+	query = query.Where("employees.employee_type != 'lecture'")
+
 	// datetime BETWEEN '2024-01-14 00:00:00' AND '2024-01-14 23:59:59'
 	return List[models.Clock](pageOpt, query, "clocks")
 }
@@ -72,8 +74,6 @@ func (repo *ClockRepo) List(pageOpt *dtos.PageOpt, dto *dtos.ClockFilter) (*type
 func (repo *ClockRepo) Attendence(pageOpt *dtos.PageOpt, dto *dtos.AttendenceFilter) (*types.ListData[models.Clock], error) {
 	query := db.Database.
 		Joins(`JOIN employees ON employees.id = clocks.employee_id`).
-		Joins(`JOIN clocks AS clock_in ON clocks.clock_in_id = clock_in.id`).
-		Joins(`JOIN schedules ON clocks.schedule_id = schedules.id`).
 		Where(`clocks.clock_type = 'out'`).
 		Preload("ClockIn").
 		Preload("Schedule").
@@ -81,6 +81,16 @@ func (repo *ClockRepo) Attendence(pageOpt *dtos.PageOpt, dto *dtos.AttendenceFil
 
 	if dto.EmployeeId != 0 {
 		query = query.Where("clocks.employee_id = ?", dto.EmployeeId)
+	}
+
+	if len(dto.EmployeeType) > 0 {
+		query = query.Where(`employees.employee_type IN ?`, dto.EmployeeType)
+	}
+
+	if dto.IsTeaching {
+		query = query.Where(`clocks.degree_id IS NOT NULL`)
+	} else {
+		query = query.Where(`clocks.degree_id IS NULL`)
 	}
 
 	if dto.EmployeeName != "" {
@@ -102,7 +112,7 @@ func (repo *ClockRepo) Attendence(pageOpt *dtos.PageOpt, dto *dtos.AttendenceFil
 	return List[models.Clock](pageOpt, query, "clocks")
 }
 
-func (repo *ClockRepo) SumReport(pageOpt *dtos.PageOpt, dto *dtos.ReportFilter) (*types.ListData[types.ClockReports], error) {
+func (repo *ClockRepo) SumReport(pageOpt *dtos.PageOpt, dto *dtos.ReportFilter) (*types.ListData[models.ClockReports], error) {
 	query := db.Database.Table("clocks").
 		Joins(`JOIN employees ON employees.id = clocks.employee_id`).Preload("Employee").
 		Order("clocks.employee_id DESC")
@@ -123,11 +133,24 @@ func (repo *ClockRepo) SumReport(pageOpt *dtos.PageOpt, dto *dtos.ReportFilter) 
 		query = query.Where(`employees.name LIKE ?`, "%"+dto.EmployeeName+"%")
 	}
 
-	query = query.Select(`clocks.employee_id, employees.*,
+	if len(dto.EmployeeType) > 0 {
+		query = query.Where(`employees.employee_type IN ?`, dto.EmployeeType)
+	}
+	selectStr := `clocks.employee_id, employees.*,
 	SUM(clocks.clock_out_minute) as total_work_minute, 
 	SUM(clocks.early_minutes) as total_early_minute, 
-	SUM(clocks.late_minutes) as total_late_minute`)
-	return CustomList[types.ClockReports](pageOpt, query)
+	SUM(clocks.late_minutes) as total_late_minute`
+	if dto.IsTeaching {
+		query = query.Joins(`JOIN degrees ON degrees.id = clocks.degree_id`).Preload("Degree")
+		query = query.Where(`clocks.degree_id IS NOT NULL`).Group("clocks.degree_id")
+		selectStr += `,degrees.alias as degree_alias`
+		
+	} else {
+		query = query.Where(`clocks.degree_id IS NULL`)
+	}
+
+	query = query.Select(selectStr)
+	return CustomList[models.ClockReports](pageOpt, query)
 }
 
 func (repo *ClockRepo) UpdateById(clock *models.Clock) (int64, error) {
@@ -148,15 +171,6 @@ func (repo *ClockRepo) GetClockOutByClockIn(clockInID uint) (models.Clock, error
 	var clock models.Clock
 	err := db.Database.Preload("Schedule").Where("clock_in_id =?", clockInID).First(&clock).Error
 	return clock, err
-}
-
-func (repo *ClockRepo) LatestManualClock(clock *dtos.ManualClock) (*models.Clock, error) {
-	var data models.Clock
-	result := db.Database.Last(&data, "employee_id = ? AND course = ? AND degree = ?", clock.EmployeeId, clock.Course, clock.Degree)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return &data, nil
 }
 
 func (repo *ClockRepo) ManualClock(clockIn *models.Clock, clockOut *models.Clock) error {

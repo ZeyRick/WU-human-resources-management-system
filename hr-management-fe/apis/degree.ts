@@ -11,6 +11,17 @@ export const apiAllDegree = async () => {
     )
 }
 
+export const apiDegreeEmployee = async (employeeId: number) => {
+    const config = useRuntimeConfig()
+    return privateRequest(
+        `/admin/degree/employee/${employeeId}`,
+        {
+            method: 'get',
+        },
+        'apiDegreeEmployee',
+    )
+}
+
 export const apiListDegree = async (pageOpt: Pagination, params?: DegreeFilterParams) => {
     return privateRequest(
         '/admin/degree',

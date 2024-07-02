@@ -2,7 +2,6 @@ package models
 
 import (
 	"backend/core/types"
-	"os/user"
 	"time"
 )
 
@@ -20,8 +19,19 @@ type Clock struct {
 	EarlyMinutes   *int            `json:"earlyMinutes" gorm:"type:int;default 0"`
 	LateMinutes    *int            `json:"lateMinutes" gorm:"type:int;default 0"`
 	EditedBy       *uint           `json:"editedBy"`
-	Editor         *user.User      `json:"editor" gorm:"foreignKey:EditedBy;references:ID"`
-	Degree         int             `json:"degree"`
-	Course         int             `json:"course"`
+	Editor         *User           `json:"editor" gorm:"foreignKey:EditedBy;references:ID"`
+	DegreeId       *int            `json:"degreeId" gorm:"type:int;not null"`
+	Degree         Degree          `json:"degree"`
+	CourseId       *int            `json:"courseId" gorm:"type:int;not null"`
+	Course         Course          `json:"course"`
 	ClockTime      time.Time       `json:"clockTime"`
+}
+
+type ClockReports struct {
+	TotalWorkMinute  *int   `json:"totalWorkMinute" gorm:"type:string;not null" `
+	TotalEarlyMinute *int   `json:"totalEarlyMinute" gorm:"type:string;not null"`
+	TotalLateMinute  *int   `json:"totalLateMinute" gorm:"type:string;not null"`
+	EmployeeId       *int   `json:"employeeId" gorm:"type:string;not null"`
+	Name             string `json:"employeeName" gorm:"type:string;not null"`
+	DegreeAlias      string `json:"degreeAlias" gorm:"type:string;not null"`
 }

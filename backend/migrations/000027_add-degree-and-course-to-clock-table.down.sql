@@ -11,4 +11,4 @@ ALTER TABLE
     clocks DROP COLUMN IF EXISTS degree;
 
 ALTER TABLE
-    clocks DROP COLUMN IF EXISTS clockTime;
+clocks DROP COLUMN IF EXISTS clock_time;

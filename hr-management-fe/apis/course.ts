@@ -10,6 +10,16 @@ export const apiAllCourse = async () => {
         'apiAllCourse',
     )
 }
+export const apiCourseEmployee = async (employeeId: number) => {
+    const config = useRuntimeConfig()
+    return privateRequest(
+        `/admin/course/employee/${employeeId}`,
+        {
+            method: 'get',
+        },
+        'apiCourseEmployee',
+    )
+}
 
 export const apiListCourse = async (pageOpt: Pagination, params?: CourseFilterParams) => {
     return privateRequest(

@@ -12,6 +12,7 @@ import {
     SchoolOutline,
     MenuSharp,
     BookOutline,
+    DocumentAttachOutline,
 } from '@vicons/ionicons5'
 import { useUserInfoStore } from '~/store/userInfo'
 
@@ -29,12 +30,6 @@ export const getMenuOptions = (): MenuOption[] => {
             icon: renderIcon(TimerOutline),
             key: 'clock',
         },
-        {
-            label: renderRoute('/admin/teaching-attendance', i18n.global.t('teaching_attendance')),
-            icon: renderIcon(TimerOutline),
-            key: 'teaching_attendance',
-        },
-
         {
             label: renderRoute('/admin/schedule', i18n.global.t('schedules')),
             icon: renderIcon(CalendarNumberOutline),
@@ -61,9 +56,19 @@ export const getMenuOptions = (): MenuOption[] => {
                     key: 'report',
                 },
                 {
+                    label: renderRoute('/admin/teaching-report', i18n.global.t('teaching_report')),
+                    icon: renderIcon(DocumentAttachOutline),
+                    key: 'teaching_report',
+                },
+                {
                     label: renderRoute('/admin/attendance', i18n.global.t('staff_attendance')),
                     icon: renderIcon(TodayOutline),
                     key: 'attendance',
+                },
+                {
+                    label: renderRoute('/admin/teaching-attendance', i18n.global.t('teaching_attendance')),
+                    icon: renderIcon(TimerOutline),
+                    key: 'teaching_attendance',
                 },
             ],
         },

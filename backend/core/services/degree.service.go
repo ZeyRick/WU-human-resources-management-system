@@ -25,6 +25,11 @@ func (srv *DegreeService) All() (*[]models.Degree, error) {
 	return srv.repo.All()
 }
 
+func (srv *DegreeService) GetByEmployee(employeeId uint) ([]models.Degree, error) {
+	return srv.repo.GetByEmployee(&employeeId)
+}
+
+
 func (srv *DegreeService) List(pageOpt *dtos.PageOpt, dto *dtos.DegreeFilter) (*types.ListData[models.Degree], error) {
 	return srv.repo.List(pageOpt, dto)
 }

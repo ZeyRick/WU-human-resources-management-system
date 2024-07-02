@@ -27,24 +27,27 @@ type UpdateClock struct {
 }
 
 type AttendenceFilter struct {
-	StartDate    string `json:"startDate,string,omitempty"`
-	EndDate      string `json:"endDate,string,omitempty"`
-	EmployeeName string `json:"employeeName,string,omitempty"`
-	EmployeeId   int    `json:"employeeId,string,omitempty"`
-	CourseId     int    `json:"courseId,string,omitempty"`
+	StartDate    string   `json:"startDate,string,omitempty"`
+	EndDate      string   `json:"endDate,string,omitempty"`
+	EmployeeName string   `json:"employeeName,string,omitempty"`
+	EmployeeId   int      `json:"employeeId,string,omitempty"`
+	EmployeeType []string `json:"employeeType,omitempty"`
+	IsTeaching   bool     `json:"isTeaching,omitempty"`
+	CourseId     int      `json:"courseId,string,omitempty"`
 }
 
 type ManualClock struct {
-	EmployeeId   *int   `json:"employeeId,string" validate:"required"`
-	Degree       int    `json:"degree,string" validate:"required"`
-	Course       int    `json:"course,string" validate:"required"`
+	EmployeeId   *int   `json:"employeeId" validate:"required"`
+	DegreeId     int    `json:"degreeId" validate:"required"`
+	CourseId     int    `json:"courseId" validate:"required"`
 	ClockInTime  string `json:"clockInTime" validate:"required"`
 	ClockOutTime string `json:"clockOutTime" validate:"required"`
+	TotalMinute  int    `json:"totalMinute" validate:"required"`
 }
 
 type UpdateManualClock struct {
 	ClockInTime  string `json:"clockInTime" validate:"required"`
 	ClockOutTime string `json:"clockOutTime" validate:"required"`
-	Degree       int    `json:"degree,string" validate:"required"`
-	Course       int    `json:"course,string" validate:"required"`
+	DegreeId     int    `json:"degreeId" validate:"required"`
+	CourseId     int    `json:"courseId" validate:"required"`
 }

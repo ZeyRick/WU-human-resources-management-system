@@ -3,13 +3,13 @@ import type { RowData } from 'naive-ui/es/data-table/src/interface'
 
 export const reportTableColumns: DataTableColumns<RowData> = [
     {
-        title: 'Employee ID',
+        title: 'Staff ID',
         key: 'employeeId',
         titleAlign: 'center',
         align: 'center',
     },
     {
-        title: 'Employee Name',
+        title: 'Staff Name',
         key: 'employeeName',
         titleAlign: 'center',
         align: 'center',
@@ -21,14 +21,8 @@ export const reportTableColumns: DataTableColumns<RowData> = [
         align: 'center',
     },
     {
-        title: 'Total Late Minutes',
-        key: 'totalLateMinute',
-        titleAlign: 'center',
-        align: 'center',
-    },
-    {
-        title: 'Total Early Minutes',
-        key: 'totalEarlyMinute',
+        title: 'Degree',
+        key: 'degreeAlias',
         titleAlign: 'center',
         align: 'center',
     },

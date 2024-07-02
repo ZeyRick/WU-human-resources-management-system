@@ -100,12 +100,12 @@ func (ctrl *ClockController) Update(w http.ResponseWriter, r *http.Request) {
 func (ctr *ClockController) ManualClock(w http.ResponseWriter, r *http.Request) {
 	clockDto, err := https.GetBody[dtos.ManualClock](r)
 	if err != nil {
-		logger.Trace(err)
+		helper.UnexpectedError(w, r, err)
 		return
 	}
 	err = ctr.clockService.ManualClock(w, r, clockDto)
 	if err != nil {
-		logger.Trace(err)
+		helper.UnexpectedError(w, r, err)
 		return
 	}
 	https.ResponseMsg(w, r, http.StatusCreated, "Clock Created")
@@ -114,7 +114,7 @@ func (ctr *ClockController) ManualClock(w http.ResponseWriter, r *http.Request) 
 func (ctrl *ClockController) UpdateManual(w http.ResponseWriter, r *http.Request) {
 	payload, err := https.GetBody[dtos.UpdateManualClock](r)
 	if err != nil {
-		logger.Trace(err)
+		helper.UnexpectedError(w, r, err)
 		return
 	}
 	clockId, err := https.GetParamsID(r, "id")

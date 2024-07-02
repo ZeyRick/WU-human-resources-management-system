@@ -5,4 +5,5 @@ export type CreateAttendance = {
     clockDate: string
     clockInTime: string
     clockOutTime: string
+    totalMinute: number
 }

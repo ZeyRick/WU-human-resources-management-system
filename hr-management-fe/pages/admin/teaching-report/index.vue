@@ -12,12 +12,12 @@
                 <div style="font-size: 16px; display: flex; align-items: center; white-space: nowrap">
                     Staff :
                     <n-select
-                            :disable="loading"
-                            v-model:value="filterForm.employeeId"
-                            filterable
-                            :placeholder="i18n.global.t('employee')"
-                            :options="employeeOptions"
-                        />
+                        :disable="loading"
+                        v-model:value="filterForm.employeeId"
+                        filterable
+                        :placeholder="i18n.global.t('employee')"
+                        :options="employeeOptions"
+                    />
                 </div>
             </div>
             <n-button
@@ -71,11 +71,14 @@ const loading = ref<boolean>(true)
 const pageOption = ref<Pagination>({ page: 1, size: 10 })
 const courseOptions = ref<{ label: string; value: string }[]>([])
 
-const employeeOptions = ref<{ label: string; value: string }[]>([])
 const reportDatas = ref<Report[]>([])
-    const getEmployee = async () => {
+
+const employeeOptions = ref<{ label: string; value: string }[]>([])
+const columns: DataTableColumns<RowData> = [...reportTableColumns]
+
+const getEmployee = async () => {
     try {
-        const res: any = await apiAllEmployee({employeeType: [EMPLOYEE_TYPE.STAFF, EMPLOYEE_TYPE.TEACHING_STAFF]})
+        const res: any = await apiAllEmployee({ employeeType: [EMPLOYEE_TYPE.LECTURE, EMPLOYEE_TYPE.TEACHING_STAFF] })
         const employees = res as Employee[]
         employeeOptions.value = [{ label: 'All', value: '' }]
         filterForm.employeeId = ''
@@ -90,12 +93,10 @@ const reportDatas = ref<Report[]>([])
     }
 }
 
-const columns: DataTableColumns<RowData> = [...reportTableColumns]
-
 const range = ref<number[]>([moment().startOf('days').valueOf(), moment().endOf('days').valueOf()])
 const filterForm = reactive<ReportFilter>({
     employeeId: '',
-    isTeaching: false,
+    isTeaching: true,
     startDate: range.value[0].toString(),
     endDate: range.value[1].toString(),
 })
@@ -111,7 +112,7 @@ const fetchReport = async () => {
         const res: any = await apiGetReport(pageOption.value, filterForm)
         if (res) {
             totalPage.value = res.pageOpt.totalPage
-            reportDatas.value = (res.data as Report[]) || []
+            reportDatas.value = (res.data as Report[]).filter((report) => report.totalWorkMinute > 0) || []
             pageOption.value = {
                 size: res.pageOpt.pageSize,
                 page: res.pageOpt.curPage,
@@ -137,12 +138,12 @@ const onExportClick = () => {
         loading.value = true
         const config = useRuntimeConfig()
         const params = new URLSearchParams({
+            employeeId: filterForm.employeeId,
             startDate: moment(parseInt(filterForm.startDate)).utc().format(DATE_TIME_FORMAT),
             endDate: moment(parseInt(filterForm.endDate)).utc().format(DATE_TIME_FORMAT),
         })
 
         params.append('isTeaching', String(filterForm.isTeaching))
-        params.append('employeeId', String(filterForm.employeeId))
 
         const exportUrl = `${String(config.public.apiURL)}/admin/clock/report/export?${params}`
         window.open(exportUrl, '_self')
@@ -160,7 +161,7 @@ onMounted(async () => {
     } catch (error) {
     } finally {
         loading.value = false
-    } 
+    }
 }),
     watch(filterForm, fetchReport)
 definePageMeta({

@@ -50,8 +50,8 @@ func initAdminRoutes(r chi.Router) {
 				r.Get("/clock", clock.List)
 				r.Get("/clock/attendence", clock.Attendence)
 				r.Patch("/clock/{id}", clock.Update)
-				r.Post("/manualClock", clock.ManualClock)
-				r.Patch("/clockManual/{id}", clock.UpdateManual)
+				r.Post("/clock/manualClock", clock.ManualClock)
+				r.Patch("/clock/clockManual/{id}", clock.UpdateManual)
 
 				// Clock Setting
 				r.Get("/clock-setting", clockSetting.Get)
@@ -82,12 +82,15 @@ func initAdminRoutes(r chi.Router) {
 				r.Get("/course", course.List)
 				r.Post("/course", course.Add)
 				r.Patch("/course/{courseId}", course.Edit)
+				r.Get("/course/employee/{employeeId}", course.GetByEmployee)
 
 				//degree
 				r.Get("/degree/all", degree.All)
 				r.Get("/degree", degree.List)
 				r.Post("/degree", degree.Add)
 				r.Patch("/degree/{degreeId}", degree.Edit)
+				r.Get("/degree/employee/{employeeId}", degree.GetByEmployee)
+
 			})
 		})
 

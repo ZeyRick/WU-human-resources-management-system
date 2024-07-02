@@ -23,16 +23,32 @@ func (ctrl *CourseController) All(w http.ResponseWriter, r *http.Request) {
 	dto, err := https.GetQuery[dtos.CourseFilter](r)
 	if err != nil {
 		logger.Trace(err)
-		helper.UnexpectedError(w, r,  err)
+		helper.UnexpectedError(w, r, err)
 		return
 	}
 	result, err := ctrl.service.All(&dto)
 	if err != nil {
 		logger.Trace(err)
-		helper.UnexpectedError(w, r,  err)
+		helper.UnexpectedError(w, r, err)
 		return
 	}
 	https.ResponseJSON(w, r, http.StatusOK, *result)
+}
+
+func (ctrl *CourseController) GetByEmployee(w http.ResponseWriter, r *http.Request) {
+	employeeId, err := https.GetParamsID(r, "employeeId")
+	if err != nil {
+		logger.Trace(err)
+		helper.UnexpectedError(w, r, err)
+		return
+	}
+	result, err := ctrl.service.GetByEmployee(uint(*employeeId))
+	if err != nil {
+		logger.Trace(err)
+		helper.UnexpectedError(w, r, err)
+		return
+	}
+	https.ResponseJSON(w, r, http.StatusOK, result)
 }
 
 func (ctrl *CourseController) Add(w http.ResponseWriter, r *http.Request) {

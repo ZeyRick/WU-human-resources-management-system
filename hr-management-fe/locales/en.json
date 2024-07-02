@@ -8,7 +8,8 @@
     "employee_list": "Employee List",
     "employee_full": "Full Time",
     "employee_part": "Part Time",
-    "employee_report": "Report",
+    "employee_report": "Staff Report",
+    "teaching_report": "Teaching Report",
     "employee": "Employee",
     "dashboard": "Dashboard",
     "sun": "Sunday",
@@ -57,5 +58,10 @@
     "statistic": "Statistic",
     "staff_attendance": "Staff Attendance",
     "teaching_attendance": "Teaching Attendance",
-    "staff_clock": "Staff Clock"
+    "staff_clock": "Staff Clock",
+    "date": "Date",
+    "start_time": "Start Time",
+    "end_time": "End Time",
+    "staff_name": "Staff Name",
+    "total_minute": "Total Teaching Minute"
 }

@@ -29,6 +29,23 @@ func (ctrl *DegreeController) All(w http.ResponseWriter, r *http.Request) {
 	https.ResponseJSON(w, r, http.StatusOK, *result)
 }
 
+func (ctrl *DegreeController) GetByEmployee(w http.ResponseWriter, r *http.Request) {
+	employeeId, err := https.GetParamsID(r, "employeeId")
+	if err != nil {
+		logger.Trace(err)
+		helper.UnexpectedError(w, r, err)
+		return
+	}
+	result, err := ctrl.service.GetByEmployee(uint(*employeeId))
+	if err != nil {
+		logger.Trace(err)
+		helper.UnexpectedError(w, r, err)
+		return
+	}
+	https.ResponseJSON(w, r, http.StatusOK, result)
+}
+
+
 func (ctrl *DegreeController) Add(w http.ResponseWriter, r *http.Request) {
 	dto, err := https.GetBody[dtos.AddDegree](r)
 	if err != nil {

@@ -25,6 +25,10 @@ func (srv *CourseService) All(dto *dtos.CourseFilter) (*[]models.Course, error) 
 	return srv.repo.All(dto)
 }
 
+func (srv *CourseService) GetByEmployee(employeeId uint) ([]models.Course, error) {
+	return srv.repo.GetByEmployee(&employeeId)
+}
+
 func (srv *CourseService) List(pageOpt *dtos.PageOpt, dto *dtos.CourseFilter) (*types.ListData[models.Course], error) {
 	return srv.repo.List(pageOpt, dto)
 }

@@ -5,6 +5,7 @@ export type Course = {
 
 export type CourseFilterParams = {
     alias: string
+    employeeId: number
 }
 
 export type CreateCourseParams = {

@@ -39,11 +39,16 @@
             :loading="loading"
             size="large"
             strong
-            style="background-color: #409eff; margin-top: 20px"
+            style="background-color: #409eff; margin-top: 20px; margin-right: 20px"
             color="#5cb85c"
             text-color="#000000"
             @click="() => (showCreateModal = true)"
         >
+            <template #icon>
+                <n-icon color="#000000">
+                    <AddCircleOutline />
+                </n-icon>
+            </template>
             {{ i18n.global.t('add') }}
         </n-button>
         <n-button
@@ -56,6 +61,11 @@
             text-color="#000000"
             @click="onExportClick"
         >
+            <template #icon>
+                <n-icon color="#000000">
+                    <DownloadOutline />
+                </n-icon>
+            </template>
             {{ i18n.global.t('export') }}
         </n-button>
         <n-data-table
@@ -82,7 +92,13 @@
             />
         </n-card>
 
-        <AddAttendanceModal :loading="loading" :show-modal="showCreateModal" :employee-options="employeeOptions" />
+        <AddAttendanceModal
+            :loading="loading"
+            :show-modal="showCreateModal"
+            :employee-options="employeeOptions.filter((opt) => opt.value !== '')"
+            @close-modal="() => (showCreateModal = false)"
+            @fetch-data="fetchData"
+        />
     </n-layout>
 </template>
 
@@ -96,6 +112,7 @@ import moment from 'moment'
 import { DATE_TIME_FORMAT } from '~/constants/time'
 import { EMPLOYEE_TYPE, type Employee } from '~/types/employee'
 import { teachingAttendanceColumns } from '~/constants/columns/teaching-attendance'
+import { AddCircleOutline, DownloadOutline } from '@vicons/ionicons5'
 
 const employeeOptions = ref<{ label: string; value: string }[]>([])
 const loading = ref<boolean>(true)
@@ -110,6 +127,7 @@ const filterForm = reactive<AttendenceFilter>({
     employeeName: '',
     employeeId: '',
     employeeType: [EMPLOYEE_TYPE.TEACHING_STAFF, EMPLOYEE_TYPE.LECTURE],
+    isTeaching: true,
 })
 
 watch(range, () => {

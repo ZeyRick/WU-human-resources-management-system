@@ -26,14 +26,14 @@ export const attendenceColumns: DataTableColumns<RowData> = [
         key: 'ClockInTime',
         titleAlign: 'center',
         align: 'center',
-        render: (data, index) => aslocalTime(data.clockIn.createdAt, TIME_FORMAT),
+        render: (data, index) => aslocalTime(data.clockIn.clockTime, TIME_FORMAT),
     },
     {
         title: i18n.global.t('clock_out_time'),
         key: 'ClockOutTime',
         titleAlign: 'center',
         align: 'center',
-        render: (data, index) => aslocalTime(data.createdAt, TIME_FORMAT),
+        render: (data, index) => aslocalTime(data.clockTime, TIME_FORMAT),
     },
     {
         title: i18n.global.t('total_work_minute'),
@@ -70,17 +70,17 @@ export const attendenceColumns: DataTableColumns<RowData> = [
                 return h('div', {
                     innerHTML: 'Late',
                     style: 'color: red',
-                }) 
+                })
             } else if (isEarly) {
                 return h('div', {
                     innerHTML: 'Early',
                     style: 'color: blue',
-                }) 
+                })
             } else {
                 return h('div', {
                     innerHTML: 'On Time',
                     style: 'color: green',
-                }) 
+                })
             }
         },
     },

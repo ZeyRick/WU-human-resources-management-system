@@ -7,7 +7,6 @@ import (
 	"backend/pkg/db"
 )
 
-
 type CourseRepo struct{}
 
 func NewCourseRepo() *CourseRepo {
@@ -52,4 +51,10 @@ func (repo *CourseRepo) FindByIds(ids []int) ([]models.Course, error) {
 	var result []models.Course
 	err := db.Database.Find(&result, ids).Error
 	return result, err
+}
+
+func (repo *CourseRepo) GetByEmployee(employeeId *uint) ([]models.Course, error) {
+	var employee models.Employee
+	err := db.Database.Preload("Courses").Where("id = ?", *employeeId).First(&employee).Error
+	return employee.Courses, err
 }

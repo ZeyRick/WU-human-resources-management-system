@@ -97,6 +97,7 @@ const filterForm = reactive<AttendenceFilter>({
     employeeName: '',
     employeeId: '',
     employeeType: [EMPLOYEE_TYPE.STAFF, EMPLOYEE_TYPE.TEACHING_STAFF],
+    isTeaching: false
 })
 
 watch(range, () => {

@@ -288,9 +288,7 @@ func (srv *ClockService) ClockIn(employeeId *int, longtitude float64, latitude f
 	}
 
 	err = srv.repo.Create(&models.Clock{
-		BaseModel: models.BaseModel{
-			CreatedAt: clockInTime,
-		},
+		ClockTime:   clockInTime,
 		LateMinutes: &differentMinutes,
 		EmployeeId:  employeeId,
 		ClockType:   types.ClockIn,
@@ -366,10 +364,10 @@ func (srv *ClockService) ClockOut(employeeId *int, longtitude float64, latitude 
 	minuteWork := int(math.Round(math.Abs(curTime.Sub(prevClock.CreatedAt).Minutes())))
 	err = srv.repo.Create(
 		&models.Clock{
+			ClockTime:      curTime,
 			EarlyMinutes:   &differentMinutes,
 			EmployeeId:     employeeId,
 			ClockType:      types.ClockOut,
-			BaseModel:      models.BaseModel{CreatedAt: curTime},
 			ClockOutMinute: &minuteWork,
 			ClockInId:      variable.Create[int](int(prevClock.ID)),
 			Status:         status,
@@ -530,37 +528,30 @@ func (srv *ClockService) getClockDistance(userLat, userLon, locationLat, locatio
 func (srv *ClockService) ManualClock(w http.ResponseWriter, r *http.Request, payload dtos.ManualClock) error {
 	clockInTime, err := times.ParseTime(payload.ClockInTime)
 	if err != nil {
-		logger.Trace(err)
-		https.ResponseError(w, r, http.StatusInternalServerError, "Somthing went wrong")
 		return err
 	}
 	clockIn := &models.Clock{
 		EmployeeId: payload.EmployeeId,
 		ClockType:  types.ClockIn,
-		Course:     payload.Course,
-		Degree:     payload.Degree,
+		CourseId:   &payload.CourseId,
+		DegreeId:   &payload.CourseId,
 		ClockTime:  *clockInTime}
 	clockOutTime, err := times.ParseTime(payload.ClockOutTime)
 	if err != nil {
-		logger.Trace(err)
-		https.ResponseError(w, r, http.StatusInternalServerError, "Somthing went wrong")
 		return err
 	}
-	minuteWork := int(math.Round(math.Abs(clockOutTime.Sub(*clockInTime).Minutes())))
+	// minuteWork := int(math.Round(math.Abs(clockOutTime.Sub(*clockInTime).Minutes())))
+	minuteWork := payload.TotalMinute
+
 	clockOut := &models.Clock{
 		EmployeeId:     payload.EmployeeId,
 		ClockType:      types.ClockOut,
 		ClockOutMinute: &minuteWork,
-		Course:         payload.Course,
-		Degree:         payload.Degree,
+		CourseId:       &payload.CourseId,
+		DegreeId:       &payload.DegreeId,
 		ClockTime:      *clockOutTime}
 	err = srv.repo.ManualClock(clockIn, clockOut)
-	if err != nil {
-		logger.Trace(err)
-		https.ResponseError(w, r, http.StatusInternalServerError, "Somthing went wrong")
-		return err
-	}
-	return nil
+	return err
 }
 
 func (srv *ClockService) ManualUpdate(w http.ResponseWriter, r *http.Request, clockId *int, payload *dtos.UpdateManualClock) {
@@ -583,8 +574,8 @@ func (srv *ClockService) ManualUpdate(w http.ResponseWriter, r *http.Request, cl
 	newClockInData := models.Clock{
 		BaseModel: models.BaseModel{ID: uint(*clockId)},
 		EditedBy:  &userId,
-		Course:    payload.Course,
-		Degree:    payload.Degree,
+		CourseId:  &payload.CourseId,
+		DegreeId:  &payload.DegreeId,
 		ClockTime: *clockInTime,
 	}
 	clockOut, err := srv.repo.GetClockOutByClockIn(uint(*clockId))
@@ -607,8 +598,8 @@ func (srv *ClockService) ManualUpdate(w http.ResponseWriter, r *http.Request, cl
 		BaseModel:      models.BaseModel{ID: uint(clockOut.ID)},
 		ClockOutMinute: &minuteWork,
 		EditedBy:       &userId,
-		Course:         payload.Course,
-		Degree:         payload.Degree,
+		CourseId:       &payload.CourseId,
+		DegreeId:       &payload.DegreeId,
 		ClockTime:      *clockOutTime,
 	}
 	err = srv.repo.ManualUpdate(&newClockInData, &newClockOutData)

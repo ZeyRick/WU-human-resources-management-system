@@ -9,7 +9,7 @@
             aria-modal="true"
         >
             <n-form ref="formRef" :rules="CommonFormRules" :model="createFormData">
-                <n-form-item label="Employee Type">
+                <n-form-item path="employeeId" label="Employee Type">
                     <n-select
                         :disable="loading"
                         v-model:value="createFormData.employeeId"
@@ -18,18 +18,18 @@
                         :options="employeeOptions"
                     />
                 </n-form-item>
-                <n-form-item path="courseIds" label="Course">
+                <n-form-item path="courseId" label="Course">
                     <n-select
-                        :disable="loading"
+                        :disabled="loading || !createFormData.employeeId"
                         v-model:value="createFormData.courseId"
                         filterable
                         :placeholder="i18n.global.t('course')"
                         :options="courseOptions"
                     />
                 </n-form-item>
-                <n-form-item path="degreeIds" label="Degree">
+                <n-form-item path="degreeId" label="Degree">
                     <n-select
-                        :disable="loading"
+                        :disabled="loading || !createFormData.employeeId"
                         v-model:value="createFormData.degreeId"
                         filterable
                         :placeholder="i18n.global.t('degree')"
@@ -58,6 +58,19 @@
                         value-format="HH:mm:ss"
                     />
                 </n-form-item>
+                <n-form-item path="totalMinute" label="End Time">
+                    <n-input-number
+                        style="width: 100%"
+                        v-model:value="createFormData.totalMinute"
+                        :loading="loading"
+                        :min="1"
+                        :precision="0"
+                        :input-props="{ 'auto-complete': 'off' }"
+                        @keydown.enter.prevent
+                    >
+                        <template #suffix> Minute </template>
+                    </n-input-number>
+                </n-form-item>
             </n-form>
             <div style="display: flex; gap: 10px; justify-content: flex-end">
                 <n-button :loading="loading" round @click="() => $emit('closeModal')"> Cancel </n-button>
@@ -72,9 +85,9 @@
 <script setup lang="ts">
 import { type FormInst, type FormValidationError, type UploadFileInfo } from 'naive-ui'
 import { CommonFormRules } from '~/constants/formRules'
-import { apiAllCourse } from '~/apis/course'
+import { apiAllCourse, apiCourseEmployee } from '~/apis/course'
 import type { Course } from '~/types/course'
-import { apiAllDegree } from '~/apis/degree'
+import { apiAllDegree, apiDegreeEmployee } from '~/apis/degree'
 import type { CreateAttendance } from '~/types/attendance'
 import moment from 'moment'
 import { apiEditManualClock, apiManualClock } from '~/apis/clock'
@@ -96,12 +109,12 @@ const defaultCreateData: CreateAttendance = {
     clockDate: curTime.format('YYYY-MM-DD'),
     clockInTime: curTime.format('HH:mm:ss'),
     clockOutTime: curTime.format('HH:mm:ss'),
+    totalMinute: 0,
 }
-const createFormData = ref<CreateAttendance>(defaultCreateData)
+const createFormData = ref<CreateAttendance>({...defaultCreateData})
 const courseOptions = ref<{ label: string; value: string }[]>([])
 const degreeOptions = ref<{ label: string; value: string }[]>([])
 const formRef = ref<FormInst>()
-const files = reactive<{ idFile: UploadFileInfo[]; profileFile: UploadFileInfo[] }>({ idFile: [], profileFile: [] })
 const onSubmit = () => {
     formRef.value?.validate(async (errors: Array<FormValidationError> | undefined) => {
         if (!errors) {
@@ -125,7 +138,8 @@ const onSubmit = () => {
 
 const getDegree = async () => {
     try {
-        const res: any = await apiAllDegree()
+        if (!createFormData.value.employeeId) return
+        const res: any = await apiDegreeEmployee(createFormData.value.employeeId)
         const degrees = res as Course[]
         degreeOptions.value = []
         degrees.map((e) => {
@@ -141,7 +155,8 @@ const getDegree = async () => {
 
 const getCourse = async () => {
     try {
-        const res: any = await apiAllCourse()
+        if (!createFormData.value.employeeId) return
+        const res: any = await apiCourseEmployee(createFormData.value.employeeId)
         const courses = res as Course[]
         courseOptions.value = []
         courses.map((e) => {
@@ -156,60 +171,22 @@ const getCourse = async () => {
 }
 
 watch(
-    () => propsData.showModal,
-    () => {
-        if (propsData.showModal) onShow()
+    () => createFormData.value.employeeId,
+    async () => {
+        try {
+            propsData.loading = true
+            await Promise.all([getCourse(), getDegree()])
+        } catch (error) {
+        } finally {
+            propsData.loading = false
+        }
     },
 )
 
-const onShow = async () => {
-    try {
-        propsData.loading = true
-        await Promise.all([getCourse(), getDegree()])
-    } catch (error) {
-    } finally {
-        propsData.loading = false
-    }
-    // if (propsData.isEdit) {
-    //     files.idFile = []
-    //     files.profileFile = []
-    //     const config = useRuntimeConfig()
-    //     createFormData.value = {
-    //         name: propsData.selectedEmployee?.name || '',
-    //         courseIds: propsData.selectedEmployee?.courses?.map((course) => course.id) || [],
-    //         degreeIds: propsData.selectedEmployee?.degrees?.map((degree) => degree.id) || [],
-    //         salary: propsData.selectedEmployee?.salary || 0,
-    //         employeeType: undefined,
-    //         idFileName: propsData.selectedEmployee?.idFileName || '',
-    //         photoFileName: propsData.selectedEmployee?.photoFileName || '',
-    //         idNumber: propsData.selectedEmployee?.idNumber,
-    //     }
-    //     if (propsData.selectedEmployee?.idFileName) {
-    //         files.idFile = [
-    //             {
-    //                 id: 'idFile',
-    //                 name: propsData.selectedEmployee?.idFileName,
-    //                 status: 'finished',
-    //                 url: `${config.public.apiURL}/public/images/employee/${propsData.selectedEmployee?.idFileName}`,
-    //             },
-    //         ]
-    //     }
-    //     if (propsData.selectedEmployee?.photoFileName) {
-    //         files.profileFile = [
-    //             {
-    //                 id: 'photoFile',
-    //                 name: propsData.selectedEmployee?.photoFileName,
-    //                 status: 'finished',
-    //                 url: `${config.public.apiURL}/public/images/employee/${propsData.selectedEmployee?.photoFileName}`,
-    //             },
-    //         ]
-    //     }
-    // } else {
-    //     createFormData.value = defaultCreateData
-    //     console.log(createFormData.value)
-    //     console.log(22, defaultCreateData)
-    //     files.idFile = []
-    //     files.profileFile = []
-    // }
-}
+watch(
+    () => propsData.showModal,
+    () => {
+        createFormData.value = {...defaultCreateData}
+    },
+)
 </script>

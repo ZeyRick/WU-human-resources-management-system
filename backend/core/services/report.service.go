@@ -2,6 +2,7 @@ package services
 
 import (
 	"backend/adapters/dtos"
+	"backend/core/models"
 	"backend/core/repos"
 	"backend/core/types"
 	"backend/pkg/excelhelper"
@@ -25,7 +26,7 @@ func NewReportService() *ReportService {
 	}
 }
 
-func (srv *ReportService) List(pageOpt *dtos.PageOpt, dto *dtos.ReportFilter) (*types.ListData[types.ClockReports], error) {
+func (srv *ReportService) List(pageOpt *dtos.PageOpt, dto *dtos.ReportFilter) (*types.ListData[models.ClockReports], error) {
 	return srv.clockRepo.SumReport(pageOpt, dto)
 }
 
@@ -62,7 +63,7 @@ func (srv *ReportService) Export(w http.ResponseWriter, r *http.Request, pageOpt
 		colIndex := 0
 		excelhelper.SetCell(f, sheetName, &colIndex, rowIndex, *row.EmployeeId)
 		excelhelper.SetCell(f, sheetName, &colIndex, rowIndex, row.Name)
-		excelhelper.SetCell(f, sheetName, &colIndex, rowIndex, row.Alias)
+		excelhelper.SetCell(f, sheetName, &colIndex, rowIndex, row.DegreeAlias)
 		excelhelper.SetCell(f, sheetName, &colIndex, rowIndex, *row.TotalWorkMinute)
 		excelhelper.SetCell(f, sheetName, &colIndex, rowIndex, *row.TotalLateMinute)
 		excelhelper.SetCell(f, sheetName, &colIndex, rowIndex, *row.TotalEarlyMinute)

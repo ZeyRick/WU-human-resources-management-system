@@ -31,6 +31,7 @@ export type AttendenceFilter = {
     employeeName: string
     employeeId: string
     employeeType: EMPLOYEE_TYPE[]
+    isTeaching: boolean
 }
 
 export type EditClock = {

@@ -1,3 +1,5 @@
+import type { EMPLOYEE_TYPE } from './employee'
+
 export type Report = {
     employeeId: number
     employeeName: string
@@ -7,8 +9,8 @@ export type Report = {
 }
 
 export type ReportFilter = {
-    courseId: string
-    employeeName: string
     startDate: string
     endDate: string
+    isTeaching: boolean
+    employeeId: string
 }

@@ -27,6 +27,12 @@ export const CommonFormRules: FormRules = {
         message: 'Course ID Must Input',
         trigger: 'blur',
     },
+    degreeId: {
+        type: 'number',
+        required: true,
+        message: 'Degree ID Must Input',
+        trigger: 'blur',
+    },
     employeeType: {
         type: 'string',
         required: true,
@@ -56,12 +62,28 @@ export const CommonFormRules: FormRules = {
         message: 'Must Input',
         trigger: 'blur',
     },
-    scope: {
+    clockDate: {
+        required: true,
+        message: 'Must Input',
+        trigger: 'blur',
+    },
+    clockInTime: {
         required: true,
         message: 'Must Input',
         trigger: 'blur',
     },
     clockOutTime: {
+        required: true,
+        message: 'Must Input',
+        trigger: 'blur',
+    },
+    totalMinute: {
+        type: 'number',
+        required: true,
+        message: 'Must Input',
+        trigger: 'blur',
+    },
+    scope: {
         required: true,
         message: 'Must Input',
         trigger: 'blur',
