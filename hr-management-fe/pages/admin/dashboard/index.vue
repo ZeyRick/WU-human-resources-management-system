@@ -15,9 +15,9 @@
             </div>
         </n-card>
         <n-card id="body" class="content" shadow="always">
-            <n-title style="font-size: 25px">Introduction</n-title>
+            <!-- <n-title style="font-size: 25px">Introduction</n-title> -->
             <div style="display: flex; justify-content: center; align-items: center; flex-direction:column; font-size: 20px; gap: 20px;">
-                <div>Project Name</div>
+                <!-- <div>Project Name</div>
                 <div style="color: aqua;">Human Resource Management System</div>
                 <div>Thesis Advisor</div>
                 <div style="color: aqua;">Professer Yeun Sophearith</div>
@@ -29,7 +29,7 @@
                 <div style="display: flex; justify-content: space-between; min-width: 300px; align-items: center;">
                     <div style="color: aqua;">Sam Chanbot</div>
                     <div style="color: aqua;">Chhour Seang</div>
-                </div>
+                </div> -->
             </div>
 
 
