@@ -271,7 +271,7 @@ const onShow = async () => {
                     id: 'idFile',
                     name: propsData.selectedEmployee?.idFileName,
                     status: 'finished',
-                    url: `${config.public.apiURL}/public/images/employee/${propsData.selectedEmployee?.idFileName}`,
+                    url: `${config.public.apiURL}/public/employee/${propsData.selectedEmployee?.idFileName}`,
                 },
             ]
         }
@@ -281,7 +281,7 @@ const onShow = async () => {
                     id: 'photoFile',
                     name: propsData.selectedEmployee?.photoFileName,
                     status: 'finished',
-                    url: `${config.public.apiURL}/public/images/employee/${propsData.selectedEmployee?.photoFileName}`,
+                    url: `${config.public.apiURL}/public/employee/${propsData.selectedEmployee?.photoFileName}`,
                 },
             ]
         }
