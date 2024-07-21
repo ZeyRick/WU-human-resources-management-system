@@ -12,6 +12,6 @@ RUN go build -o ./build
 
 EXPOSE 8080
 
-VOLUME /uploads
+RUN mkdir -p ./uploads
 
 CMD [ "./build" ]

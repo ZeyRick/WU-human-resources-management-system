@@ -27,7 +27,7 @@ prod-build:
 
 
 prod-up:
-	docker run -d -p 8080:8080 -v /var/www/uploads:/uploads wuhr
+	docker run -d -p 8080:8080 -v /var/www/uploads:/app/uploads wuhr
 
 
 SHELL = /bin/sh
