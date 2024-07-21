@@ -21,29 +21,24 @@ export const getMenuOptions = (): MenuOption[] => {
 
     return [
         {
-            label: renderRoute('/admin/dashboard', i18n.global.t('dashboard')),
+            ...renderRoute('/admin/dashboard', i18n.global.t('dashboard')),
             icon: renderIcon(MenuSharp),
-            key: 'home',
         },
         {
-            label: renderRoute('/admin/clock', i18n.global.t('staff_clock')),
+            ...renderRoute('/admin/clock', i18n.global.t('staff_clock')),
             icon: renderIcon(TimerOutline),
-            key: 'clock',
         },
         {
-            label: renderRoute('/admin/schedule', i18n.global.t('schedules')),
+            ...renderRoute('/admin/schedule', i18n.global.t('schedules')),
             icon: renderIcon(CalendarNumberOutline),
-            key: 'schedule',
         },
         {
-            label: renderRoute('/admin/course', i18n.global.t('courses')),
+            ...renderRoute('/admin/course', i18n.global.t('courses')),
             icon: renderIcon(GridOutline),
-            key: 'courses',
         },
         {
-            label: renderRoute('/admin/degree', i18n.global.t('degree')),
+            ...renderRoute('/admin/degree', i18n.global.t('degree')),
             icon: renderIcon(SchoolOutline),
-            key: 'degree',
         },
         {
             label: i18n.global.t('statistic'),
@@ -51,24 +46,20 @@ export const getMenuOptions = (): MenuOption[] => {
             key: 'report-big',
             children: [
                 {
-                    label: renderRoute('/admin/report', i18n.global.t('employee_report')),
+                    ...renderRoute('/admin/report', i18n.global.t('employee_report')),
                     icon: renderIcon(DocumentOutline),
-                    key: 'report',
                 },
                 {
-                    label: renderRoute('/admin/teaching-report', i18n.global.t('teaching_report')),
+                    ...renderRoute('/admin/teaching-report', i18n.global.t('teaching_report')),
                     icon: renderIcon(DocumentAttachOutline),
-                    key: 'teaching_report',
                 },
                 {
-                    label: renderRoute('/admin/attendance', i18n.global.t('staff_attendance')),
+                    ...renderRoute('/admin/attendance', i18n.global.t('staff_attendance')),
                     icon: renderIcon(TodayOutline),
-                    key: 'attendance',
                 },
                 {
-                    label: renderRoute('/admin/teaching-attendance', i18n.global.t('teaching_attendance')),
+                    ...renderRoute('/admin/teaching-attendance', i18n.global.t('teaching_attendance')),
                     icon: renderIcon(TimerOutline),
-                    key: 'teaching_attendance',
                 },
             ],
         },
@@ -79,24 +70,20 @@ export const getMenuOptions = (): MenuOption[] => {
             key: 'employee',
             children: [
                 {
-                    label: renderRoute('/admin/employee-staff', i18n.global.t('staff')),
+                    ...renderRoute('/admin/employee-staff', i18n.global.t('staff')),
                     icon: renderIcon(PeopleOutline),
-                    key: 'employee-staff',
                 },
                 {
-                    label: renderRoute('/admin/employee-teaching', i18n.global.t('teaching_staff')),
+                    ...renderRoute('/admin/employee-teaching', i18n.global.t('teaching_staff')),
                     icon: renderIcon(SchoolOutline),
-                    key: 'employee-teaching',
                 },
                 {
-                    label: renderRoute('/admin/employee-lecture', i18n.global.t('lecture')),
+                    ...renderRoute('/admin/employee-lecture', i18n.global.t('lecture')),
                     icon: renderIcon(BookOutline),
-                    key: 'employee-lecture',
                 },
                 {
-                    label: renderRoute('/admin/employee-request', i18n.global.t('telegram_requests')),
+                    ...renderRoute('/admin/employee-request', i18n.global.t('telegram_requests')),
                     icon: renderIcon(PersonAddOutline),
-                    key: 'telegram_request',
                 },
             ],
         },
@@ -106,15 +93,13 @@ export const getMenuOptions = (): MenuOption[] => {
             key: 'management',
             children: [
                 {
-                    label: renderRoute('/admin/clock-setting', i18n.global.t('clock_setting')),
+                    ...renderRoute('/admin/clock-setting', i18n.global.t('clock_setting')),
                     icon: renderIcon(SettingsOutline),
-                    key: 'clock_setting',
                     show: hasSuperAdminPermission(),
                 },
                 {
-                    label: renderRoute('/admin/user', i18n.global.t('users')),
+                    ...renderRoute('/admin/user', i18n.global.t('users')),
                     icon: renderIcon(ManOutline),
-                    key: 'user',
                     show: hasSuperAdminPermission(),
                 },
             ],

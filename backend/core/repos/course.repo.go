@@ -58,3 +58,9 @@ func (repo *CourseRepo) GetByEmployee(employeeId *uint) ([]models.Course, error)
 	err := db.Database.Preload("Courses").Where("id = ?", *employeeId).First(&employee).Error
 	return employee.Courses, err
 }
+
+func (repo *CourseRepo) Count() (int64, error) {
+	var result int64
+	err := db.Database.Table("courses").Count(&result).Error
+	return result, err
+}

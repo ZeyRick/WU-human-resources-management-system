@@ -1,10 +1,10 @@
 <template>
     <div class="dashboard">
-        <n-card id="header" style="min-height: 240px" shadow="always">
+        <n-card id="header" style="min-height: 240px; margin-bottom: 20px;" shadow="always">
             <n-space align="center">
                 <img style="width: 100px" src="~/assets/western_logo.png" alt="" />
                 <p style="font-size: 25px">
-                    Hello <span style="color: cyan">{{ userInfo.name }}</span
+                    Hello <span style="color: cyan">{{ userInfo?.name }}</span
                     >. Welcome To
                 </p>
             </n-space>
@@ -14,183 +14,93 @@
                 </p>
             </div>
         </n-card>
+        <n-space style="width: 100%; margin-bottom: 20px;" justify="start" item-style="flex-grow: 1; width: 200px">
+            <Card
+                v-for="employeeCount in data?.employeeCounts"
+                v-on:click="() => cardClick(employeeCount.employeeType)"
+                class="card"
+                :label="employeeCount.employeeType"
+                :value="employeeCount.totalCount"
+            >
+                <PeopleOutline v-if="employeeCount.employeeType === EMPLOYEE_TYPE.STAFF" />
+                <SchoolOutline v-else-if="employeeCount.employeeType === EMPLOYEE_TYPE.TEACHING_STAFF" />
+                <BookOutline v-else-if="employeeCount.employeeType === EMPLOYEE_TYPE.LECTURE" />
+            </Card>
+        </n-space>
+
+        <n-space style="width: 100%" justify="start" item-style="flex-grow: 1; width: 200px">
+            <Card
+                v-for="key in Object.keys(data || {}).filter((k) => k !== 'employeeCounts')"
+                v-on:click="() => cardClick(key)"
+                class="card"
+                :value="(data as any)[key] as number"
+                :label="key"
+            >
+                <SchoolOutline v-if="key === 'degreeCount'" />
+                <ManOutline v-else-if="key === 'userCount'" />
+                <GridOutline v-else-if="key === 'courseCount'" />
+            </Card>
+        </n-space>
         <n-card id="body" class="content" shadow="always">
-            <!-- <n-title style="font-size: 25px">Introduction</n-title> -->
-            <div style="display: flex; justify-content: center; align-items: center; flex-direction:column; font-size: 20px; gap: 20px;">
-                <!-- <div>Project Name</div>
-                <div style="color: aqua;">Human Resource Management System</div>
-                <div>Thesis Advisor</div>
-                <div style="color: aqua;">Professer Yeun Sophearith</div>
-                <div>Team Member</div>
-                <div style="display: flex; justify-content: space-between; min-width: 300px; align-items: center;">
-                    <div style="color: aqua;">Hea PengVeng</div>
-                    <div style="color: aqua;">San Rachy</div>
-                </div>
-                <div style="display: flex; justify-content: space-between; min-width: 300px; align-items: center;">
-                    <div style="color: aqua;">Sam Chanbot</div>
-                    <div style="color: aqua;">Chhour Seang</div>
-                </div> -->
-            </div>
-
-
-            <!-- <n-list class="data-section" item-border v-if="employeeCount !== undefined">
-                <n-list-item>
-                    <n-text>Total Employees:</n-text>
-                    <n-progress :percent="calculateProgress(employeeCount)" type="circle" color="#007BFF" size="100px">
-                    </n-progress>
-                </n-list-item>
-                <n-list-item>
-                    <n-text>Total Courses:</n-text>
-                    <n-text>{{ courseCount }}</n-text>
-                </n-list-item>
-            </n-list>
-            <div v-else>Loading...</div> -->
-            <!-- <ClientOnly>
-                <apexchart
-                    :key="series"
-                    height="100%"
-                    width="100%"
-                    :options="chartOptions"
-                    :series="series"
-                ></apexchart>
-            </ClientOnly> -->
+            <div
+                style="
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    flex-direction: column;
+                    font-size: 20px;
+                    gap: 20px;
+                "
+            ></div>
         </n-card>
     </div>
 </template>
 
-<script setup>
-import { defineProps } from 'vue'
+<script setup lang="ts">
+import { apiDashboard } from '~/apis/report'
 import { useUserInfoStore } from '~/store/userInfo'
+import type { DashboardSummary } from '~/types/report'
+import { EMPLOYEE_TYPE } from '~/types/employee'
+import { BookOutline, GridOutline, ManOutline, PeopleOutline, SchoolOutline } from '@vicons/ionicons5'
 
 const { userInfo } = useUserInfoStore()
+const loading = ref<boolean>(false)
+const data = ref<DashboardSummary>()
 
-// const chartOptions = {
-//     chart: {
-//         type: 'area',
-//         stacked: false,
-//         height: 350,
-//         zoom: {
-//             type: 'x',
-//             enabled: true,
-//             autoScaleYaxis: true,
-//         },
-//         toolbar: {
-//             autoSelected: 'zoom',
-//         },
-//     },
-//     dataLabels: {
-//         enabled: false,
-//     },
-//     markers: {
-//         size: 0,
-//     },
+const cardClick = (key: string) => {
+    switch (key) {
+        case EMPLOYEE_TYPE.LECTURE:
+            navigateTo('/admin/employee-lecture')
+            break
+        case EMPLOYEE_TYPE.STAFF:
+            navigateTo('/admin/employee-staff')
+            break
+        case EMPLOYEE_TYPE.TEACHING_STAFF:
+            navigateTo('/admin/employee-teaching')
+            break
+        case 'degreeCount':
+            navigateTo('/admin/degree')
+            break
+        case 'courseCount':
+            navigateTo('/admin/course')
+            break
+        case 'userCount':
+            navigateTo('/admin/user')
+            break
 
-//     fill: {
-//         type: 'gradient',
-//         gradient: {
-//             shadeIntensity: 1,
-//             inverseColors: false,
-//             opacityFrom: 0.5,
-//             opacityTo: 0,
-//             stops: [0, 90, 100],
-//         },
-//     },
-//     yaxis: {
-//         labels: {
-//             formatter: function (val) {
-//                 return (val / 1000000).toFixed(0)
-//             },
-//         },
-//         title: {
-//             text: 'Late',
-//         },
-//         // show: false
-//     },
-//     xaxis: {
-//         type: 'datetime',
-//     },
-//     tooltip: {
-//         shared: false,
-//         y: {
-//             formatter: function (val) {
-//                 return (val / 1000000).toFixed(0)
-//             },
-//         },
-//     },
-// }
-
-// const series = [
-//     {
-//         colors:['#FF0000', '#FF0000', '#FF0000'],
-//         name: 'XYZ MOTORS',
-//         data: [
-//             {
-//                 x: new Date(),
-//                 y: 20
-//             }
-//         ],
-//     },
-// ]
-// const series = [
-//     {
-//         name: 'TEAM 1',
-//         data: generateDayWiseTimeSeries(new Date('11 Feb 2017 GMT').getTime(), 20, {
-//             min: 10,
-//             max: 60,
-//         }),
-//     },
-//     {
-//         name: 'TEAM 2',
-//         data: generateDayWiseTimeSeries(new Date('11 Feb 2017 GMT').getTime(), 20, {
-//             min: 10,
-//             max: 60,
-//         }),
-//     },
-//     {
-//         name: 'TEAM 3',
-//         data: generateDayWiseTimeSeries(new Date('11 Feb 2017 GMT').getTime(), 30, {
-//             min: 10,
-//             max: 60,
-//         }),
-//     },
-//     {
-//         name: 'TEAM 4',
-//         data: generateDayWiseTimeSeries(new Date('11 Feb 2017 GMT').getTime(), 10, {
-//             min: 10,
-//             max: 60,
-//         }),
-//     },
-//     {
-//         name: 'TEAM 5',
-//         data: generateDayWiseTimeSeries(new Date('11 Feb 2017 GMT').getTime(), 30, {
-//             min: 10,
-//             max: 60,
-//         }),
-//     },
-// ]
-
-const props = defineProps({
-    schoolName: {
-        type: String,
-        default: 'Western University',
-    },
-    systemName: {
-        type: String,
-        default: 'Human Resource Management System',
-    },
-    employeeCount: {
-        type: Number,
-        default: 150,
-    },
-    courseCount: {
-        type: Number,
-        default: 10,
-    },
-})
-
-const calculateProgress = (value) => {
-    return (value / 300) * 100 // Assuming max value is 300 for demonstration
+        default:
+            break
+    }
 }
+
+const fetchData = async () => {
+    try {
+        loading.value = true
+        data.value = (await apiDashboard()) as DashboardSummary
+    } catch (error) {}
+}
+
+onMounted(fetchData)
 
 definePageMeta({
     layout: 'main',
@@ -256,5 +166,16 @@ definePageMeta({
     background-position: 50%;
     background-size: 100% 100%;
     background-blend-mode: overlay;
+}
+
+.card {
+    transition: all 0.3s ease;
+}
+.card:hover {
+    transform: scale(1.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    z-index: 99;
+    cursor: pointer;
+    opacity: 0.7;
 }
 </style>

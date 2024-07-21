@@ -123,3 +123,10 @@ func (repo *EmployeeRepo) FindTelegramId(telegramId *int64) (*models.Employee, e
 	result := db.Database.Where("telegram_id = ?", telegramId).Limit(1).Find(&data)
 	return &data, result.Error
 }
+
+func (repo *EmployeeRepo) CountByType() ([]types.EmployeeCountType, error) {
+	var data []types.EmployeeCountType
+	selectStr := `SELECT COUNT(*) as total_count, employees.employee_type from employees GROUP BY employee_type `
+	err := db.Database.Raw(selectStr).Scan(&data).Error
+	return data, err
+}

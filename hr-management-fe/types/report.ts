@@ -14,3 +14,15 @@ export type ReportFilter = {
     isTeaching: boolean
     employeeId: string
 }
+
+export type EmployeeCount = {
+    totalCount: number
+    employeeType: EMPLOYEE_TYPE
+}
+
+export type DashboardSummary = {
+    employeeCounts: EmployeeCount[]
+    degreeCount: number
+    courseCount: number
+    userCount: number
+}

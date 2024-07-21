@@ -75,3 +75,9 @@ func (repo *UserRepo) All(dto *dtos.ListUser) (*[]models.User, error) {
 	}
 	return &data, nil
 }
+
+func (repo *UserRepo) Count() (int64, error) {
+	var result int64
+	err := db.Database.Table("users").Count(&result).Error
+	return result, err
+}

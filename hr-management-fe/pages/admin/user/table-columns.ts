@@ -14,7 +14,15 @@ export const tableColumns: DataTableColumns<RowData> = [
         titleAlign: 'center',
         align: 'center',
     },
-
+    {
+        title: 'Type',
+        key: 'userLevel',
+        titleAlign: 'center',
+        align: 'center',
+        render: (data, index) => {
+            return i18n.global.t(data.userLevel) || '-'
+        },
+    },
     {
         title: 'Created At',
         key: 'createdAt',

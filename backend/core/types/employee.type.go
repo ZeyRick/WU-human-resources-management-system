@@ -47,3 +47,5 @@ const (
 	TeachingStaff EmployeeType = "teaching_staff"
 	Lecture       EmployeeType = "lecture"
 )
+
+var EmployeeTypes []EmployeeType = []EmployeeType{Staff, TeachingStaff, Lecture}

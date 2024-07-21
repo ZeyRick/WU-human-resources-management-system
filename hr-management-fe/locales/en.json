@@ -63,5 +63,10 @@
     "start_time": "Start Time",
     "end_time": "End Time",
     "staff_name": "Staff Name",
-    "total_minute": "Total Teaching Minute"
+    "total_minute": "Total Teaching Minute",
+    "admin": "User",
+    "super-admin": "Admin",
+    "degreeCount": "Degrees",
+    "courseCount": "Courses",
+    "userCount": "Users"
 }

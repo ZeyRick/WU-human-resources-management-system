@@ -9,13 +9,20 @@
         :on-update:collapsed="collapseUpdated"
     >
         <div v-if="isCollapsed" style="margin: 0px; padding: 10px">
-            <NImage style="width: 40px;" preview-disabled src="/img/logo-big.png" />
+            <NImage style="width: 40px" preview-disabled src="/img/logo-big.png" />
         </div>
-        <div v-else style="margin: 0px; padding-left: 20px; display: flex; align-items: center;">
-            <NImage style="width: 43px;" preview-disabled src="/img/logo-big.png" />
-            <p style="margin-left: 20px; font-size: 15px;">Western University</p>
+        <div v-else style="margin: 0px; padding-left: 20px; display: flex; align-items: center">
+            <NImage style="width: 43px" preview-disabled src="/img/logo-big.png" />
+            <p style="margin-left: 20px; font-size: 15px">Western University</p>
         </div>
-        <n-menu style="margin-top: 20px;" icon-size="30" :collapsed-width="64" :collapsed-icon-size="22" :options="menuOptions" />
+        <n-menu
+            v-model:value="activeKey"
+            style="margin-top: 20px"
+            icon-size="30"
+            :collapsed-width="64"
+            :collapsed-icon-size="22"
+            :options="menuOptions"
+        />
     </n-layout-sider>
 </template>
 
@@ -26,6 +33,13 @@ import { getMenuOptions } from './items'
 
 const isCollapsed = ref(false)
 const menuOptions = getMenuOptions()
+const route = useRoute()
+const activeKey = ref<string>(route.path)
+
+watch(
+    () => route.path,
+    () => (activeKey.value = route.path),
+)
 
 const collapseUpdated = (collalsed: boolean) => (isCollapsed.value = collalsed)
 </script>

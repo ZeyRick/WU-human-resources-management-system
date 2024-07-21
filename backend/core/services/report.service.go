@@ -17,12 +17,19 @@ import (
 )
 
 type ReportService struct {
-	clockRepo repos.ClockRepo
+	clockRepo    repos.ClockRepo
+	employeeRepo repos.EmployeeRepo
+	degreeRepo   repos.DegreeRepo
+	courseRepo   repos.CourseRepo
+	userRepo     repos.UserRepo
 }
 
 func NewReportService() *ReportService {
 	return &ReportService{
-		clockRepo: *repos.NewClockRepo(),
+		clockRepo:    *repos.NewClockRepo(),
+		employeeRepo: *repos.NewEmployeeRepo(),
+		degreeRepo:   *repos.NewDegreeRepo(),
+		courseRepo:   *repos.NewCourseRepo(),
 	}
 }
 
@@ -83,4 +90,43 @@ func (srv *ReportService) Export(w http.ResponseWriter, r *http.Request, pageOpt
 	w.Header().Set("Content-Transfer-Encoding", "binary")
 	w.Header().Set("Expires", "0")
 	f.Write(w)
+}
+
+func (srv *ReportService) Dashboard() (*types.DashboardSummary, error) {
+	employeeCounts, err := srv.employeeRepo.CountByType()
+	if err != nil {
+		return nil, err
+	}
+	for _, emType := range types.EmployeeTypes {
+		for _, emCount := range employeeCounts {
+			if emCount.EmployeeType == emType {
+				goto out
+			}
+		}
+		employeeCounts = append(employeeCounts, types.EmployeeCountType{TotalCount: 0, EmployeeType: emType})
+	out:
+	}
+
+	degreeCount, err := srv.degreeRepo.Count()
+	if err != nil {
+		return nil, err
+	}
+
+	courseCount, err := srv.courseRepo.Count()
+	if err != nil {
+		return nil, err
+	}
+
+	userCount, err := srv.userRepo.Count()
+	if err != nil {
+		return nil, err
+	}
+
+	result := types.DashboardSummary{
+		EmployeeCounts: employeeCounts,
+		DegreeCount:    degreeCount,
+		CourseCount:    courseCount,
+		UserCount:      userCount,
+	}
+	return &result, err
 }

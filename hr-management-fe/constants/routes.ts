@@ -1,13 +1,3 @@
-import { PersonOutline } from "@vicons/ionicons5";
+import { getMenuOptions } from '~/components/SideBar/items'
 
-export type Route = {
-    label: string
-    key: string
-}
-
-export const UserRoute: Route = {
-    label: 'clock_management',
-    key: 'admin-clock',
-}
-
-export const Routes: Route[] = [UserRoute];
+export const Routes = getMenuOptions()

@@ -59,6 +59,7 @@ func initAdminRoutes(r chi.Router) {
 
 				//report
 				r.Get("/report", report.List)
+				r.Get("/report/dashboard", report.Dashboard)
 
 				// Employe
 				r.Post("/employee", employee.Add)
@@ -90,7 +91,7 @@ func initAdminRoutes(r chi.Router) {
 				r.Post("/degree", degree.Add)
 				r.Patch("/degree/{degreeId}", degree.Edit)
 				r.Get("/degree/employee/{employeeId}", degree.GetByEmployee)
-
+				
 			})
 		})
 

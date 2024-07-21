@@ -57,3 +57,9 @@ func (repo *DegreeRepo) FindByIds(ids []int) ([]models.Degree, error) {
 	err := db.Database.Find(&result, ids).Error
 	return result, err
 }
+
+func (repo *DegreeRepo) Count() (int64, error) {
+	var result int64
+	err := db.Database.Table("degrees").Count(&result).Error
+	return result, err
+}

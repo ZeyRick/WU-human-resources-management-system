@@ -16,3 +16,13 @@ export const apiGetReport = async (pageOpt: Pagination, filter: ReportFilter) =>
         'apiGetReport',
     )
 }
+
+export const apiDashboard = async () => {
+    return privateRequest(
+        '/admin/report/dashboard',
+        {
+            method: 'get',
+        },
+        'apiDashboard',
+    )
+}

@@ -44,3 +44,13 @@ func (ctrl *ReportController) ExportList(w http.ResponseWriter, r *http.Request)
 	}
 	ctrl.service.Export(w, r, &pageOpt, &dto)
 }
+
+func (ctrl *ReportController) Dashboard(w http.ResponseWriter, r *http.Request) {
+	result, err := ctrl.service.Dashboard()
+	if err != nil {
+		logger.Trace(err)
+		helper.UnexpectedError(w, r, err)
+		return
+	}
+	https.ResponseJSON(w, r, http.StatusOK, result)
+}

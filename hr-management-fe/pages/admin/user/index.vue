@@ -168,8 +168,8 @@ const columns: DataTableColumns<RowData> = [
     },
 ]
 const userLevalOptions: { label: string; value: string }[] = [
-    { label: 'Admin', value: USER_LEVEL.ADMIN },
-    { label: 'Super Admin', value: USER_LEVEL.SUPER_ADMIN },
+    { label: 'User', value: USER_LEVEL.ADMIN },
+    { label: 'Admin', value: USER_LEVEL.SUPER_ADMIN },
 ]
 
 const handleDelete = async (userId: string) => {
@@ -207,6 +207,7 @@ const fetchData = async () => {
     try {
         loading.value = true
         const res: any = await apiGetUser()
+        console.log(res)
         userData.value = res
         loading.value = false
     } catch (error) {
