@@ -12,5 +12,6 @@ RUN go build -o ./build
 
 EXPOSE 8080
 
+VOLUME /uploads
 
 CMD [ "./build" ]

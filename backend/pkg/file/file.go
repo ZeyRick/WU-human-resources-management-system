@@ -43,7 +43,13 @@ func SaveFile(r *http.Request) (string, error) {
 		return "", errors.New("Bad file type can only upload file in PNG, JPG, JPEG")
 	}
 	fileName := fmt.Sprintf("%s.%s", time.Now().UTC().Format("20060102150405"), strings.ReplaceAll(fileType, "image/", ""))
-	fileDst := fmt.Sprintf("./public/images/employee/%s", fileName)
+	dirPath := "./uploads/employee"
+	err = os.MkdirAll(dirPath, 0755) // Create directory with appropriate permissions
+	if err != nil {
+		return "", err
+	}
+	fileDst := fmt.Sprintf("%s/%s", dirPath,fileName)
+	
 	dst, err := os.Create(fileDst)
 	if err != nil {
 		return fileName, err

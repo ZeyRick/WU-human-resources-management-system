@@ -22,6 +22,13 @@ echo-source:
 echo-database:
 	@echo "$(DATABASE_CONNECTION_STRING)"
 
+prod-build: 
+	docker build -t wuhr .
+
+
+prod-up:
+	docker run -p 8080:8080 -v /var/www/uploads:/uploads wuhr
+
 
 SHELL = /bin/sh
 RAND = $(shell echo $$RANDOM)
