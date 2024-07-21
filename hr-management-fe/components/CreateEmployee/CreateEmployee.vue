@@ -76,6 +76,7 @@
                             with-credentials
                             :file-list="files.idFile"
                             list-type="image-card"
+                             :on-update:file-list="(fileList: UploadFileInfo[]) => files.idFile = fileList"
                             :on-finish="(val: any) => onFinishUploadFile(val, 'idFileName')"
                             :on-error="onErrorUploadFile"
                             max="1"
@@ -90,6 +91,7 @@
                             with-credentials
                             :file-list="files.profileFile"
                             list-type="image-card"
+                             :on-update:file-list="(fileList: UploadFileInfo[]) => files.profileFile = fileList"
                             :on-finish="(val: any) => onFinishUploadFile(val, 'photoFileName')"
                             :on-error="onErrorUploadFile"
                             max="1"
