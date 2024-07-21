@@ -1,6 +1,6 @@
 <template>
     <div class="dashboard">
-        <n-card id="header" style="min-height: 240px; margin-bottom: 20px;" shadow="always">
+        <n-card id="header" style="min-height: 240px; margin-bottom: 20px" shadow="always">
             <n-space align="center">
                 <img style="width: 100px" src="~/assets/western_logo.png" alt="" />
                 <p style="font-size: 25px">
@@ -14,7 +14,7 @@
                 </p>
             </div>
         </n-card>
-        <n-space style="width: 100%; margin-bottom: 20px;" justify="start" item-style="flex-grow: 1; width: 200px">
+        <n-space style="width: 100%; margin-bottom: 20px" justify="start" item-style="flex-grow: 1; width: 200px">
             <Card
                 v-for="employeeCount in data?.employeeCounts"
                 v-on:click="() => cardClick(employeeCount.employeeType)"

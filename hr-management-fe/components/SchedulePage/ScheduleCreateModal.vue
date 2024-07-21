@@ -189,11 +189,11 @@ const selectedBreakTimeOption = ref<string>('minutes')
 const props = defineProps<{
     isUpdate: boolean
     employeeOptions: { label: string; value: string }[]
-    courseOptions: { label: string; value: string }[]
     filterForm: ScheduleFilterParams
     employees: Employee[]
     disable?: boolean
 }>()
+console.log(123, props.employeeOptions)
 const getMonthAndYear = (propsScope: string) => {
     const year: string = propsScope.split('-')[0]
     const month: string = propsScope.split('-')[1]
@@ -218,7 +218,6 @@ const getTimesPickerValue = (dateString: string): { hours: number; minutes: numb
 
 const emit = defineEmits<{
     (e: 'currentDateChange', newDate: Date): void
-    (e: 'onCourseChange', courseId: string): void
     (e: 'refreshData'): void
 }>()
 const createFormRef = ref<FormInst>()
@@ -282,7 +281,7 @@ const handleBreakTimeOptionsSelect = (key: string) => {
 const openCreateModal = async () => {
     createFormData.value.scope = moment().format('YYYY-MM')
     showCreateModal.value = true
-    // getEmployee()
+    getEmployee()
 
     if (props.isUpdate) {
         try {
@@ -355,27 +354,26 @@ const onSelectAllDates = () => {
     date.value = dateObjects
 }
 
-// const getEmployee = async () => {
-//     try {
-//         loading.value = true
-//         const employees: Employee[] = (await apiAllEmployee({
-//             scope: createFormData.value.scope,
-//             employeeType: EMPLOYEE_TYPE.STAFF,
-//         })) as Employee[]
-//         employeeOptions.value = []
-//         console.log(123, employees)
-//         employees.map((e) => {
-//             employeeOptions.value.push({
-//                 label: `${e.id} - ${e.name}`,
-//                 value: e.id,
-//                 disabled: e.schedules.length > 0,
-//             })
-//         })
-//     } catch (error) {
-//     } finally {
-//         loading.value = false
-//     }
-// }
+const getEmployee = async () => {
+    try {
+        loading.value = true
+        const employees: Employee[] = (await apiAllEmployee({
+            scope: createFormData.value.scope,
+            employeeType: EMPLOYEE_TYPE.STAFF,
+        })) as Employee[]
+        employeeOptions.value = []
+        employees.map((e) => {
+            employeeOptions.value.push({
+                label: `${e.id} - ${e.name}`,
+                value: e.id,
+                disabled: e.schedules.length > 0,
+            })
+        })
+    } catch (error) {
+    } finally {
+        loading.value = false
+    }
+}
 
 const dateFormat = (dates: Date[]): string => {
     let formatDates: string[] = []

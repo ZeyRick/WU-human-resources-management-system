@@ -12,7 +12,7 @@ export type CreateScheduleParams = {
 export type ScheduleFilterParams = {
     employeeId?: string
     scope: string
-    courseId: string
+    courseId?: string
     date?: string
 }
 

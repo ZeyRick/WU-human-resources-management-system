@@ -2,14 +2,14 @@
     <n-modal :show="showModal" :mask-closable="false" >
         <n-card
             style="width: 600px"
-            :title="isEdit ? 'Edit Employee' : 'Create New Employee'"
+            :title="isEdit ? `Edit ${i18n.global.t(employeeType)}` : `Create New ${i18n.global.t(employeeType)}`"
             :bordered="false"
             size="huge"
             role="dialog"
             aria-modal="true"
         >
             <n-form ref="formRef" :rules="CommonFormRules" :model="createFormData">
-                <n-form-item label="Employee Type">
+                <n-form-item v-show="false" label="Employee Type">
                     <n-select
                         disabled
                         :default-value="employeeType"
@@ -151,6 +151,7 @@ const onFinishUploadFile = (
     options: { file: UploadFileInfo; event?: any },
     fileKey: 'photoFileName' | 'idFileName',
 ) => {
+    console.log(22)
     // msg is file name
     const res: { code: number; msg: string } = JSON.parse(options.event?.target.response)
     switch (fileKey) {
@@ -188,6 +189,7 @@ const onSubmit = () => {
 }
 
 const onErrorUploadFile = (options: { file: UploadFileInfo; event?: any }) => {
+    console.log(123213)
     const { message } = createDiscreteApi(['message'], {
         configProviderProps: {
             theme: darkTheme,

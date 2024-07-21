@@ -35,11 +35,9 @@
                 <div style="margin-right: 10px">
                     <ScheduleCreateModal
                         :is-update="true"
-                        :courseOptions="courseOptions"
                         :filter-form="filterForm"
                         :employeeOptions="employeeOptions"
                         @currentDateChange="currentDateChange"
-                        @on-course-change="onCourseChange"
                         @refresh-data="fetchData"
                         :disable="employees?.some(e => e.id === filterForm.employeeId && e.schedules.length < 1)"
                         :employees="employees"
@@ -48,11 +46,9 @@
                 <div>
                     <ScheduleCreateModal
                         :is-update="false"
-                        :courseOptions="courseOptions"
                         :filter-form="filterForm"
                         :employeeOptions="employeeOptions"
                         @currentDateChange="currentDateChange"
-                        @on-course-change="onCourseChange"
                         @refresh-data="fetchData"
                          :employees="employees"
                     />
@@ -66,8 +62,6 @@
 <script setup lang="ts">
 import { apiGetSchedule } from '~/apis/schedule'
 import { apiAllEmployee } from '~/apis/employee'
-import { apiAllCourse } from '~/apis/course'
-import type { Course } from '~/types/course'
 import type { ScheduleFilterParams, ScheduleInfo } from '~/types/schedule'
 import ScheduleCreateModal from '~/components/SchedulePage/ScheduleCreateModal.vue'
 import moment from 'moment'
@@ -75,7 +69,6 @@ import { EMPLOYEE_TYPE, type Employee } from '~/types/employee'
 
 const currentDate = ref<Date>(new Date())
 const employeeOptions = ref<{ label: string; value: string }[]>([])
-const courseOptions = ref<{ label: string; value: string }[]>([])
 const loading = ref<boolean>(true)
 const scheduleDatas = ref<ScheduleInfo[]>([])
 const disableUpdate = ref<boolean>(true)
@@ -83,7 +76,6 @@ const employees = ref<Employee[]>([])
 
 const filterForm = reactive<ScheduleFilterParams>({
     scope: moment().format('YYYY-MM'),
-    courseId: '',
     employeeId: '',
 })
 
@@ -92,29 +84,11 @@ const currentDateChange = (newDate: Date) => {
     filterForm.scope = moment(currentDate.value).format('YYYY-MM')
 }
 
-const getCourse = async () => {
-    try {
-        loading.value = true
-        const res: any = await apiAllCourse()
-        const courses = res as Course[]
-        courseOptions.value = [{ label: 'All', value: '' }]
-        filterForm.courseId = courses[0].id || ''
-        courses.map((e) => {
-            courseOptions.value.push({
-                label: `${e.id} - ${e.alias}`,
-                value: e.id,
-            })
-        })
-    } catch (error) {
-    } finally {
-        loading.value = false
-    }
-}
+
 const getEmployee = async () => {
     try {
         loading.value = true
         employees.value = (await apiAllEmployee({
-            courseId: filterForm.courseId,
             employeeType: EMPLOYEE_TYPE.STAFF,
         })) as Employee[]
         employeeOptions.value = [{ label: 'All', value: '' }]
@@ -144,15 +118,9 @@ const fetchData = async () => {
     }
 }
 
-const onCourseChange = (value: any) => {
-    filterForm.courseId = value
-    getEmployee()
-}
-
 watch(filterForm, fetchData)
 
 onMounted(async () => {
-    await getCourse()
     await getEmployee()
     await fetchData()
 }),
