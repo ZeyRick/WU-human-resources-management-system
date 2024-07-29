@@ -101,6 +101,7 @@ func (srv *UserService) ResetPW(w http.ResponseWriter, r *http.Request, userId *
 	https.ResponseMsg(w, r, http.StatusOK, "Password reseted")
 }
 
+
 func (srv *UserService) GetUserData(params *dtos.ListUser) (*[]models.User, error) {
 	result, err := srv.usermodel.All(params)
 	return result, err
@@ -109,3 +110,9 @@ func (srv *UserService) GetUserData(params *dtos.ListUser) (*[]models.User, erro
 func (srv *UserService) FindById(userId *int) (*models.User, error) {
 	return srv.usermodel.FindById(userId)
 }
+
+
+func (srv *UserService) UpdateById(user *models.User) (int64, error) {
+	return srv.usermodel.UpdateById(user)
+}
+

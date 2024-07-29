@@ -1,11 +1,11 @@
 import StatusChip from '~/components/StatusChip/StatusChip.vue'
-import { type DataTableColumns } from 'naive-ui'
+import { NImage, type DataTableColumns } from 'naive-ui'
 import type { RowData } from 'naive-ui/es/data-table/src/interface'
 import { BIND_STATUS_ENUM, EMPLOYEE_TYPE } from '~/types/employee'
 import i18n from '~/utils/i18n'
 import StatusMark from '~/components/StatusMark/StatusMark.vue'
 
-export const employeeColumns = (employeeType: EMPLOYEE_TYPE): any => [
+export const employeeColumns = (employeeType: EMPLOYEE_TYPE, config: any): any => [
     {
         title: i18n.global.t('id'),
         key: 'ID',
@@ -87,4 +87,27 @@ export const employeeColumns = (employeeType: EMPLOYEE_TYPE): any => [
               },
           ]
         : []),
+    {
+        title: 'Files',
+        key: 'idFileImg',
+        titleAlign: 'center',
+        align: 'center',
+        width: 250,
+        render: (data: any, index: number) => {
+            return data?.idFileName || data?.photoFileName
+                ? h('div', { style: 'display: flex; gap: 10px;' }, [
+                      data?.idFileName &&
+                          h(NImage, {
+                              width: '125',
+                              src: `${config.public.apiURL}/public/employee/${data.idFileName}`,
+                          }),
+                      data?.photoFileName &&
+                          h(NImage, {
+                              width: '125',
+                              src: `${config.public.apiURL}/public/employee/${data.photoFileName}`,
+                          }),
+                  ])
+                : '-'
+        },
+    },
 ]

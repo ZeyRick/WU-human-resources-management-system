@@ -187,9 +187,10 @@ const showModal = ref<boolean>(false)
 const isEdit = ref<boolean>(false)
 
 const totalPage = ref(0)
+const config = useRuntimeConfig()
 const selectedEmployee = ref<Employee | undefined>()
 const columns: DataTableColumns<RowData> = [
-    ...employeeColumns(EMPLOYEE_TYPE.STAFF),
+    ...employeeColumns(EMPLOYEE_TYPE.STAFF, config),
     {
         title: 'Operate',
         key: 'operate',
@@ -265,6 +266,7 @@ const fetchData = async () => {
         const res: any = await apiListEmployee(pageOption.value, filterForm)
         totalPage.value = res.pageOpt.totalPage
         employeeData.value = res.data as Employee[]
+        console.log(employeeData.value)
         pageOption.value = {
             size: res.pageOpt.pageSize,
             page: res.pageOpt.curPage,

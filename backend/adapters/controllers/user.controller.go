@@ -3,10 +3,12 @@ package controllers
 import (
 	"backend/adapters/dtos"
 	"backend/core/services"
+	"backend/pkg/file"
 	"backend/pkg/helper"
 	"backend/pkg/https"
 	"backend/pkg/logger"
 	"backend/pkg/variable"
+	"fmt"
 	"net/http"
 )
 
@@ -121,4 +123,37 @@ func (ctrl *UserController) GetUserData(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	https.ResponseJSON(w, r, http.StatusOK, *result)
+}
+
+func (ctrl *UserController) UploadFiles(w http.ResponseWriter, r *http.Request) {
+	userId := r.Context().Value("userId").(uint)
+	if userId == 0 {
+		https.ResponseError(w, r, http.StatusUnauthorized, "Invalid user id")
+		return
+	}
+	user, err := ctrl.userservice.FindById(variable.Create[int](int(userId)))
+	if err != nil {
+		logger.Trace(err)
+		https.ResponseError(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+	if user == nil {
+		https.ResponseError(w, r, http.StatusUnauthorized, "Invalid user")
+		return
+	}
+	
+	path := "user"
+	fileName := fmt.Sprint(userId)
+	fileName, err = file.SaveFileWithName(r, path, fileName)
+	if err != nil {
+		helper.UnexpectedError(w,r,err)
+		return
+	}
+	user.ProfilePic = fileName
+	_, err = ctrl.userservice.UpdateById(user)
+	if err != nil {
+		helper.UnexpectedError(w,r,err)
+		return
+	}
+	https.ResponseMsg(w, r, http.StatusCreated, fileName)
 }

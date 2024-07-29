@@ -110,7 +110,7 @@ func (ctrl *EmployeeController) Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ctrl *EmployeeController) UploadFiles(w http.ResponseWriter, r *http.Request) {
-	fileName, err := file.SaveFile(r)
+	fileName, err := file.SaveFile(r, "employee")
 	if err != nil {
 		logger.Trace(err)
 		https.ResponseError(w, r, http.StatusBadRequest, err.Error())

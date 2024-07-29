@@ -182,11 +182,11 @@ const employeeData = ref<Employee[]>([])
 const showModal = ref<boolean>(false)
 const showDetailsModal = ref<boolean>(false)
 const isEdit = ref<boolean>(false)
-
+const config = useRuntimeConfig()
 const totalPage = ref(0)
 const selectedEmployee = ref<Employee | undefined>()
 const columns: DataTableColumns<RowData> = [
-    ...employeeColumns(EMPLOYEE_TYPE.TEACHING_STAFF),
+    ...employeeColumns(EMPLOYEE_TYPE.TEACHING_STAFF, config),
     {
         title: 'Operate',
         key: 'operate',

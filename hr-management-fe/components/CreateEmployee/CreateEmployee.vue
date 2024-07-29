@@ -153,7 +153,6 @@ const onFinishUploadFile = (
     options: { file: UploadFileInfo; event?: any },
     fileKey: 'photoFileName' | 'idFileName',
 ) => {
-    console.log(22)
     // msg is file name
     const res: { code: number; msg: string } = JSON.parse(options.event?.target.response)
     switch (fileKey) {
@@ -191,7 +190,6 @@ const onSubmit = () => {
 }
 
 const onErrorUploadFile = (options: { file: UploadFileInfo; event?: any }) => {
-    console.log(123213)
     const { message } = createDiscreteApi(['message'], {
         configProviderProps: {
             theme: darkTheme,

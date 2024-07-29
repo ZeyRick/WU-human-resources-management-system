@@ -22,7 +22,9 @@ func initAdminRoutes(r chi.Router) {
 	r.Route("/admin", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(middlewares.LoginMiddleware)
+			
 			r.Post("/employee/uploadFiles", employee.UploadFiles)
+			r.Post("/user/uploadFiles", user.UploadFiles)
 		})
 
 		r.Group(func(r chi.Router) {

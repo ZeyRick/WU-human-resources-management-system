@@ -66,32 +66,22 @@
 
 <script setup lang="ts">
 import { clockColumns } from './table-columns'
-import { apiDeleteEmployee, apiEditEmployee } from '~/apis/employee'
+import { apiDeleteEmployee } from '~/apis/employee'
 import { apiListEmployeeRequest, apiDenyEmployeeRequest, apiApproveEmployeeRequest } from '~/apis/employeeRequest'
-import type { Employee, EmployeeParams, CreateEmployeeType } from '~/types/employee'
+import type { Employee, EmployeeParams } from '~/types/employee'
 import type { Course } from '~/types/course'
 import { apiAllCourse } from '~/apis/course'
 import OperateButton from '~/components/OperateButton/OperateButton.vue'
 import type { RowData } from 'naive-ui/es/data-table/src/interface'
 import type { DataTableColumns, FormInst, FormValidationError } from 'naive-ui'
-import { CommonFormRules } from '~/constants/formRules'
-import { AddCircleOutline } from '@vicons/ionicons5'
 import NormalButton from '~/components/OperateButton/NormalButton.vue'
 
 const courseOptions = ref<{ label: string; value: string }[]>([])
 const pageOption = ref<Pagination>({ page: 1, size: 10 })
 const loading = ref<boolean>(true)
 const employeeData = ref<Employee[]>([])
-const defaultCreateData: CreateEmployeeType = {
-    name: '',
-    courseId: '',
-}
-const createFormData = ref<CreateEmployeeType>(defaultCreateData)
-const showModal = ref<boolean>(false)
-const isEdit = ref<boolean>(false)
-const createFormRef = ref<FormInst>()
+
 const totalPage = ref(0)
-const selectedEmployee = ref<Employee | null>(null)
 const columns: DataTableColumns<RowData> = [
     ...clockColumns,
     {
@@ -103,6 +93,7 @@ const columns: DataTableColumns<RowData> = [
             return [
                 h(OperateButton, {
                     text: 'Approve',
+                    type: 'primary',
                     loading: loading.value,
                     positiveClick: async () => {
                         await apiApproveEmployeeRequest(data.id)
@@ -110,6 +101,7 @@ const columns: DataTableColumns<RowData> = [
                     },
                 }),
                 h(NormalButton, {
+                    type: 'error',
                     text: 'Deny',
                     loading: loading.value,
                     style: 'margin-left: 10px;',
@@ -125,6 +117,9 @@ const columns: DataTableColumns<RowData> = [
 const filterForm = reactive<EmployeeParams>({
     employeeName: '',
     courseId: '',
+    employeeType: '',
+    endSalary: null,
+    startSalary: null
 })
 
 const handleDelete = async (employeeId: string) => {
@@ -167,39 +162,6 @@ const onDenyClick = async (requestId: string) => {
     } catch (error) {
         console.error(error)
     }
-}
-
-const onSubmitEdit = () => {
-    createFormRef.value?.validate(async (errors: Array<FormValidationError> | undefined) => {
-        if (!errors) {
-            try {
-                if (!selectedEmployee.value?.id) {
-                    return
-                }
-                loading.value = true
-                await apiEditEmployee(selectedEmployee.value?.id, createFormData.value)
-                createFormData.value = defaultCreateData
-                showModal.value = false
-                await fetchData()
-            } catch (error) {
-                console.error(error)
-            } finally {
-                loading.value = false
-            }
-        } else {
-            console.log(errors)
-        }
-    })
-}
-
-const showCreateModal = () => {
-    showModal.value = true
-    isEdit.value = false
-}
-
-const showEditModal = () => {
-    showModal.value = true
-    isEdit.value = true
 }
 
 const fetchData = async () => {

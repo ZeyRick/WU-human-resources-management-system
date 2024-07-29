@@ -8,7 +8,7 @@
          
     >
         <template #trigger>
-            <n-button  :style="style" type="error" quaternary :loading="loadingRef">{{ text }}</n-button>
+            <n-button  :style="style" :type="type ? type : 'error'" quaternary :loading="loadingRef">{{ text }}</n-button>
         </template>
         {{ description }}
     </n-popconfirm>
@@ -26,6 +26,7 @@ interface props {
     description?: string
     loading?: boolean
     style?: string
+    type?: string
 }
 
 const props = withDefaults(defineProps<props>(), {
